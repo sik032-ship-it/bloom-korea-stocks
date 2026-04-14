@@ -211,20 +211,12 @@ function FeedbackBanner({
       }`}
     >
       <div className="max-w-lg mx-auto flex items-start gap-3">
-        <div className="shrink-0 mt-1">
-          {correct ? (
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-              <span className="text-primary text-xl">✓</span>
-            </div>
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
-              <span className="text-destructive text-xl">✗</span>
-            </div>
-          )}
+        <div className="shrink-0">
+          <Mascot mood={correct ? "celebrate" : "wave"} size="sm" />
         </div>
         <div className="flex-1 min-w-0">
           <p className={`text-body font-bold ${correct ? "text-primary" : "text-destructive"}`}>
-            {correct ? "정말 잘했어요! 🎉" : "아쉬워요! 💪"}
+            {correct ? "정말 잘했어요! 🎉" : "아쉬워요! 다음엔 꼭! 💪"}
           </p>
           <p className="text-small text-foreground/80 mt-1">{explanation}</p>
         </div>

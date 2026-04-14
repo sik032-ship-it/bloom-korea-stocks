@@ -7,6 +7,8 @@ import { PpuriCard } from "@/components/PpuriCard";
 import { Mascot } from "@/components/Mascot";
 import { LevelBadge } from "@/components/LevelBadge";
 import { SpeechBubble } from "@/components/SpeechBubble";
+import { WeeklyCalendar } from "@/components/WeeklyCalendar";
+import { getProgressToNextLevel } from "@/utils/levelSystem";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -142,6 +144,37 @@ export default function HomePage() {
           <p className="text-xs text-muted-foreground">최장 기록</p>
         </PpuriCard>
       </div>
+
+      {/* XP Progress to Next Level */}
+      {(() => {
+        const progress = getProgressToNextLevel(profile?.total_sentences || 0);
+        return (
+          <PpuriCard>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-small font-semibold text-foreground">다음 레벨까지</p>
+              <span className="text-xs text-primary font-bold">{progress.current}/{progress.next}</span>
+            </div>
+            <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-700"
+                style={{ width: `${progress.percent}%` }}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Mascot level={userLevel} size="sm" />
+              <span className="text-xs text-muted-foreground">
+                {progress.percent >= 100 ? "최고 레벨 달성! 🏆" : `${Math.round(progress.percent)}% 달성`}
+              </span>
+            </div>
+          </PpuriCard>
+        );
+      })()}
+
+      {/* Weekly Activity Calendar */}
+      <PpuriCard>
+        <p className="text-small font-semibold text-foreground mb-3">📅 학습 캘린더</p>
+        {user && <WeeklyCalendar userId={user.id} />}
+      </PpuriCard>
 
       {/* Level Badge */}
       <PpuriCard>
