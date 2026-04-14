@@ -137,6 +137,20 @@ export default function SettingsPage() {
         </div>
       </PpuriCard>
 
+      {/* Premium */}
+      <PpuriCard hoverable onClick={() => navigate("/paywall")} className="border-2 border-primary">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">👑</span>
+            <div>
+              <p className="text-body font-medium text-foreground">프리미엄 업그레이드</p>
+              <p className="text-xs text-muted-foreground">무제한 문장 · 위기 모드 · 데이터 내보내기</p>
+            </div>
+          </div>
+          <span className="text-primary">→</span>
+        </div>
+      </PpuriCard>
+
       {/* Holdings link */}
       <PpuriCard hoverable onClick={() => navigate("/holdings")}>
         <div className="flex items-center justify-between">
