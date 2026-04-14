@@ -73,8 +73,7 @@ export default function CrisisModePage() {
         <select
           value={selectedHoldingId}
           onChange={(e) => setSelectedHoldingId(e.target.value)}
-          className="w-full h-11 px-3 rounded-md bg-card border border-border text-body text-foreground focus:outline-none focus:ring-2"
-          style={{ focusRingColor: "#0F766E" }}
+          className="w-full h-11 px-3 rounded-md bg-card border border-border text-body text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         >
           {holdings.map((h) => (
             <option key={h.id} value={h.id}>
