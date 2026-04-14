@@ -187,18 +187,24 @@ export default function HomePage() {
       </PpuriCard>
 
       {/* Quick Actions */}
-      <div className="flex gap-3">
+      <div className="grid grid-cols-3 gap-3">
+        <button
+          onClick={() => navigate("/practice")}
+          className="py-3 rounded-xl border-2 border-primary/30 bg-primary/5 text-foreground font-medium text-small hover:bg-primary/10 transition-colors"
+        >
+          📚 연습장
+        </button>
         <button
           onClick={() => navigate("/crisis")}
-          className="flex-1 py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-colors"
+          className="py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-colors"
         >
-          🛡️ 위기 모드
+          🛡️ 위기
         </button>
         <button
           onClick={() => navigate("/archive")}
-          className="flex-1 py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-colors"
+          className="py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-colors"
         >
-          📖 기록 보관소
+          📖 기록
         </button>
       </div>
 
