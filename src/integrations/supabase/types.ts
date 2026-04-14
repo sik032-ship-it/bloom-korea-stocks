@@ -88,6 +88,78 @@ export type Database = {
         }
         Relationships: []
       }
+      question_templates: {
+        Row: {
+          id: string
+          is_active: boolean
+          language: string
+          placeholder_text: string | null
+          template_text: string
+          type: Database["public"]["Enums"]["question_type"]
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean
+          language?: string
+          placeholder_text?: string | null
+          template_text: string
+          type: Database["public"]["Enums"]["question_type"]
+        }
+        Update: {
+          id?: string
+          is_active?: boolean
+          language?: string
+          placeholder_text?: string | null
+          template_text?: string
+          type?: Database["public"]["Enums"]["question_type"]
+        }
+        Relationships: []
+      }
+      sentences: {
+        Row: {
+          answer_text: string
+          created_at: string
+          holding_id: string
+          id: string
+          question_text: string
+          question_type: Database["public"]["Enums"]["question_type"]
+          user_id: string
+        }
+        Insert: {
+          answer_text: string
+          created_at?: string
+          holding_id: string
+          id?: string
+          question_text: string
+          question_type: Database["public"]["Enums"]["question_type"]
+          user_id: string
+        }
+        Update: {
+          answer_text?: string
+          created_at?: string
+          holding_id?: string
+          id?: string
+          question_text?: string
+          question_type?: Database["public"]["Enums"]["question_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sentences_holding_id_fkey"
+            columns: ["holding_id"]
+            isOneToOne: false
+            referencedRelation: "holdings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sentences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -96,7 +168,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      question_type: "daily" | "earnings" | "drop" | "surge" | "fomo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -223,6 +295,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      question_type: ["daily", "earnings", "drop", "surge", "fomo"],
+    },
   },
 } as const
