@@ -451,7 +451,8 @@ export default function DailyLessonPage() {
   // Completion screen
   if (completed) {
     const accuracy = QUIZ_COUNT > 0 ? Math.round((correctCount / QUIZ_COUNT) * 100) : 0;
-    const xpEarned = correctCount * 10 + (answer.length >= 10 ? 15 : 0);
+    const isRepeat = alreadyDone;
+    const xpEarned = isRepeat ? Math.round((correctCount * 10 + (answer.length >= 10 ? 15 : 0)) * 0.3) : correctCount * 10 + (answer.length >= 10 ? 15 : 0);
 
     return (
       <div className="min-h-screen bg-background flex flex-col items-center px-6 pt-8 pb-6">
