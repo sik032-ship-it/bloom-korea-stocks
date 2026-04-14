@@ -284,7 +284,7 @@ export default function DailyLessonPage() {
     const load = async () => {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("last_sentence_date, total_sentences, current_level")
+        .select("last_sentence_date, total_sentences, current_level, current_streak")
         .eq("id", user.id)
         .single();
 
