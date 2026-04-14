@@ -140,6 +140,16 @@ export default function HomePage() {
         </div>
       </PpuriCard>
 
+      {/* Quick Actions */}
+      <div className="flex gap-3">
+        <PpuriButton variant="secondary" fullWidth onClick={() => navigate("/crisis")}>
+          🛡️ 위기 모드
+        </PpuriButton>
+        <PpuriButton variant="secondary" fullWidth onClick={() => navigate("/archive")}>
+          📖 기록 보관소
+        </PpuriButton>
+      </div>
+
       {/* Sign Out */}
       <div className="text-center">
         <button
