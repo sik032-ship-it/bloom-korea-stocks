@@ -160,6 +160,44 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          id: string
+          is_active: boolean
+          plan_type: Database["public"]["Enums"]["plan_type"]
+          renewal_date: string | null
+          started_at: string
+          stripe_customer_id: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean
+          plan_type?: Database["public"]["Enums"]["plan_type"]
+          renewal_date?: string | null
+          started_at?: string
+          stripe_customer_id?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          is_active?: boolean
+          plan_type?: Database["public"]["Enums"]["plan_type"]
+          renewal_date?: string | null
+          started_at?: string
+          stripe_customer_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -168,6 +206,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      plan_type: "free" | "premium"
       question_type: "daily" | "earnings" | "drop" | "surge" | "fomo"
     }
     CompositeTypes: {
@@ -296,6 +335,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      plan_type: ["free", "premium"],
       question_type: ["daily", "earnings", "drop", "surge", "fomo"],
     },
   },
