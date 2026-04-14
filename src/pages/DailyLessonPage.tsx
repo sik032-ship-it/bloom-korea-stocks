@@ -280,7 +280,7 @@ export default function DailyLessonPage() {
     const load = async () => {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("last_sentence_date, total_sentences")
+        .select("last_sentence_date, total_sentences, current_level")
         .eq("id", user.id)
         .single();
 
@@ -291,8 +291,9 @@ export default function DailyLessonPage() {
         return;
       }
 
-      // Load quiz questions
-      setQuizQuestions(getDailyQuizSet(QUIZ_COUNT));
+      // Load quiz questions based on user level
+      const userLevel = profile?.current_level || 1;
+      setQuizQuestions(getDailyQuizSet(QUIZ_COUNT, userLevel));
 
       // Load holdings for sentence writing
       const { data: h } = await supabase

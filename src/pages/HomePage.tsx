@@ -82,6 +82,7 @@ export default function HomePage() {
 
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "투자자";
   const streak = profile?.current_streak || 0;
+  const userLevel = Math.min(6, Math.max(1, profile?.current_level || 1));
 
   return (
     <Layout
@@ -90,7 +91,7 @@ export default function HomePage() {
     >
       {/* Mascot Greeting */}
       <div className="flex items-start gap-3 pt-2">
-        <Mascot mood={todayDone ? "celebrate" : "wave"} size="lg" />
+        <Mascot level={userLevel} size="lg" showLevelTag />
         <div className="flex-1">
           <p className="text-small text-muted-foreground">{getGreeting()}</p>
           <p className="text-title text-foreground font-bold mb-1">{displayName}님</p>
@@ -145,7 +146,7 @@ export default function HomePage() {
       {/* Level Badge */}
       <PpuriCard>
         <div className="flex items-center gap-4">
-          <Mascot mood="default" size="md" />
+          <Mascot level={userLevel} size="md" />
           <div className="flex-1">
             <LevelBadge totalSentences={profile?.total_sentences || 0} />
           </div>
