@@ -7,6 +7,8 @@ import { PpuriCard } from "@/components/PpuriCard";
 import { Mascot } from "@/components/Mascot";
 import { LevelBadge } from "@/components/LevelBadge";
 import { SpeechBubble } from "@/components/SpeechBubble";
+import { WeeklyCalendar } from "@/components/WeeklyCalendar";
+import { getProgressToNextLevel } from "@/utils/levelSystem";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
