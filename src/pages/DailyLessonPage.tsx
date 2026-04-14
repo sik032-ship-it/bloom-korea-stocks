@@ -296,8 +296,10 @@ export default function DailyLessonPage() {
       }
 
       // Load quiz questions based on user level
-      const userLevel = profile?.current_level || 1;
-      setQuizQuestions(getDailyQuizSet(QUIZ_COUNT, userLevel));
+      const lvl = profile?.current_level || 1;
+      setUserLevel(lvl);
+      setCurrentStreak(profile?.current_streak || 0);
+      setQuizQuestions(getDailyQuizSet(QUIZ_COUNT, lvl));
 
       // Load holdings for sentence writing
       const { data: h } = await supabase
@@ -342,7 +344,14 @@ export default function DailyLessonPage() {
 
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
-      setQuizStreak(correct ? quizStreak + 1 : 0);
+      if (correct) {
+        setCorrectCount(prev => prev + 1);
+        const newStreak = quizStreak + 1;
+        setQuizStreak(newStreak);
+        setBestStreak(prev => Math.max(prev, newStreak));
+      } else {
+        setQuizStreak(0);
+      }
       setShowFeedback(true);
     },
     [quizQuestions, currentQuizIndex, quizStreak]
