@@ -82,6 +82,7 @@ export default function HomePage() {
 
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "투자자";
   const streak = profile?.current_streak || 0;
+  const userLevel = Math.min(6, Math.max(1, profile?.current_level || 1));
 
   return (
     <Layout
