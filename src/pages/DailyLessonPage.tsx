@@ -252,6 +252,8 @@ export default function DailyLessonPage() {
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [quizStreak, setQuizStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
   const [lastCorrect, setLastCorrect] = useState(false);
   const [lastExplanation, setLastExplanation] = useState("");
@@ -274,6 +276,8 @@ export default function DailyLessonPage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [alreadyDone, setAlreadyDone] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [userLevel, setUserLevel] = useState(1);
 
   useEffect(() => {
     if (!user) return;
