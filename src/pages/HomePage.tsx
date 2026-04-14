@@ -146,7 +146,7 @@ export default function HomePage() {
       {/* Level Badge */}
       <PpuriCard>
         <div className="flex items-center gap-4">
-          <Mascot mood="default" size="md" />
+          <Mascot level={userLevel} size="md" />
           <div className="flex-1">
             <LevelBadge totalSentences={profile?.total_sentences || 0} />
           </div>
