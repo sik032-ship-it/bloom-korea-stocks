@@ -4,40 +4,40 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import AuthPage from "./pages/AuthPage";
-import OnboardingPage from "./pages/OnboardingPage";
-import HomePage from "./pages/HomePage";
-import DailyLessonPage from "./pages/DailyLessonPage";
-import HoldingsPage from "./pages/HoldingsPage";
-import ArchivePage from "./pages/ArchivePage";
-import CrisisModePage from "./pages/CrisisModePage";
-import NotFound from "./pages/NotFound";
-import React from "react";
+import React, { Suspense, lazy } from "react";
+
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const DailyLessonPage = lazy(() => import("./pages/DailyLessonPage"));
+const HoldingsPage = lazy(() => import("./pages/HoldingsPage"));
+const ArchivePage = lazy(() => import("./pages/ArchivePage"));
+const CrisisModePage = lazy(() => import("./pages/CrisisModePage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const PaywallPage = lazy(() => import("./pages/PaywallPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
+      <span className="text-4xl animate-bounce-in">🌱</span>
+      <p className="text-small text-muted-foreground">로딩 중...</p>
+    </div>
+  );
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <span className="text-4xl animate-bounce-in">🌱</span>
-      </div>
-    );
-  }
+  if (loading) return <LoadingFallback />;
   if (!user) return <Navigate to="/auth" replace />;
   return <>{children}</>;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <span className="text-4xl animate-bounce-in">🌱</span>
-      </div>
-    );
-  }
+  if (loading) return <LoadingFallback />;
   if (user) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
@@ -49,16 +49,20 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
-            <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
-            <Route path="/lesson" element={<ProtectedRoute><DailyLessonPage /></ProtectedRoute>} />
-            <Route path="/holdings" element={<ProtectedRoute><HoldingsPage /></ProtectedRoute>} />
-            <Route path="/archive" element={<ProtectedRoute><ArchivePage /></ProtectedRoute>} />
-            <Route path="/crisis" element={<ProtectedRoute><CrisisModePage /></ProtectedRoute>} />
-            <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
+              <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+              <Route path="/lesson" element={<ProtectedRoute><DailyLessonPage /></ProtectedRoute>} />
+              <Route path="/holdings" element={<ProtectedRoute><HoldingsPage /></ProtectedRoute>} />
+              <Route path="/archive" element={<ProtectedRoute><ArchivePage /></ProtectedRoute>} />
+              <Route path="/crisis" element={<ProtectedRoute><CrisisModePage /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+              <Route path="/paywall" element={<ProtectedRoute><PaywallPage /></ProtectedRoute>} />
+              <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

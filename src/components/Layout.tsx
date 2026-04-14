@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { path: "/", emoji: "🏠", label: "홈" },
   { path: "/holdings", emoji: "📊", label: "종목" },
   { path: "/archive", emoji: "📖", label: "기록" },
-  { path: "/crisis", emoji: "🛡️", label: "위기" },
+  { path: "/settings", emoji: "⚙️", label: "설정" },
 ];
 
 export const Layout = ({ children, currentStreak = 0, longestStreak = 0 }: LayoutProps) => {
