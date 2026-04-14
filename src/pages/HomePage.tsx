@@ -4,18 +4,28 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/Layout";
 import { PpuriCard } from "@/components/PpuriCard";
-import { MascotAvatar } from "@/components/MascotAvatar";
+import { Mascot } from "@/components/Mascot";
 import { LevelBadge } from "@/components/LevelBadge";
-import { PpuriButton } from "@/components/PpuriButton";
+import { SpeechBubble } from "@/components/SpeechBubble";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 function getGreeting(): string {
   const h = new Date().getHours();
-  if (h >= 6 && h < 12) return "좋은 아침이에요! 🌱";
-  if (h >= 12 && h < 18) return "좋은 오후네요! 🌱";
-  return "좋은 저녁이에요! 🌱";
+  if (h >= 6 && h < 12) return "좋은 아침이에요! ☀️";
+  if (h >= 12 && h < 18) return "좋은 오후네요! 🌤️";
+  return "좋은 저녁이에요! 🌙";
+}
+
+function getMascotMessage(todayDone: boolean, streak: number): string {
+  if (todayDone) {
+    if (streak >= 7) return "대단해요! 일주일 넘게 연속이에요! 🔥";
+    if (streak >= 3) return "오늘도 완료! 연속 기록이 멋져요! ✨";
+    return "오늘 레슨 완료! 내일도 기대할게요 😊";
+  }
+  if (streak >= 3) return `${streak}일 연속 중이에요! 오늘도 이어가볼까요?`;
+  return "오늘의 도토리를 모으러 가볼까요? 🌰";
 }
 
 export default function HomePage() {
@@ -27,7 +37,6 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!user) return;
-
     const fetchProfile = async () => {
       const { data } = await supabase
         .from("profiles")
@@ -41,10 +50,8 @@ export default function HomePage() {
       }
       setLoading(false);
     };
-
     fetchProfile();
 
-    // Real-time subscription
     const channel = supabase
       .channel("profile-changes")
       .on(
@@ -66,7 +73,7 @@ export default function HomePage() {
       <Layout>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />
+            <div key={i} className="h-24 bg-muted rounded-xl animate-pulse" />
           ))}
         </div>
       </Layout>
@@ -74,80 +81,91 @@ export default function HomePage() {
   }
 
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "투자자";
-  const level = Math.min(6, Math.max(1, profile?.current_level || 1));
+  const streak = profile?.current_streak || 0;
 
   return (
     <Layout
-      currentStreak={profile?.current_streak || 0}
+      currentStreak={streak}
       longestStreak={profile?.longest_streak || 0}
     >
-      {/* Greeting */}
-      <div className="pt-2">
-        <p className="text-small text-muted-foreground">{getGreeting()}</p>
-        <p className="text-title text-foreground font-bold">{displayName}님</p>
+      {/* Mascot Greeting */}
+      <div className="flex items-start gap-3 pt-2">
+        <Mascot mood={todayDone ? "celebrate" : "wave"} size="lg" />
+        <div className="flex-1">
+          <p className="text-small text-muted-foreground">{getGreeting()}</p>
+          <p className="text-title text-foreground font-bold mb-1">{displayName}님</p>
+          <SpeechBubble>
+            <p className="text-small text-foreground">
+              {getMascotMessage(todayDone, streak)}
+            </p>
+          </SpeechBubble>
+        </div>
       </div>
 
-      {/* Sentence Counter */}
-      <PpuriCard>
-        <div className="text-center">
-          <p className="text-display text-primary font-bold">
-            총 {profile?.total_sentences || 0}문장
-          </p>
-          <p className="text-small text-muted-foreground mt-1">
-            모두 당신의 투자 이력이에요
-          </p>
-        </div>
+      {/* Today's Lesson CTA */}
+      <PpuriCard className={todayDone ? "border-primary/20 bg-primary/5" : ""}>
+        {todayDone ? (
+          <div className="text-center py-3">
+            <span className="text-4xl mb-2 block">✅</span>
+            <p className="text-title text-foreground font-semibold">오늘 완료!</p>
+            <p className="text-small text-muted-foreground">내일도 도토리를 모아봐요 🌰</p>
+          </div>
+        ) : (
+          <div className="text-center py-3">
+            <p className="text-body text-muted-foreground mb-3">오늘의 레슨이 기다리고 있어요</p>
+            <button
+              onClick={() => navigate("/lesson")}
+              className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+            >
+              🌰 오늘의 레슨 시작하기
+            </button>
+          </div>
+        )}
       </PpuriCard>
+
+      {/* Stats Row */}
+      <div className="grid grid-cols-3 gap-3">
+        <PpuriCard className="text-center !p-3">
+          <p className="text-2xl mb-1">📝</p>
+          <p className="text-title text-primary font-bold">{profile?.total_sentences || 0}</p>
+          <p className="text-xs text-muted-foreground">총 문장</p>
+        </PpuriCard>
+        <PpuriCard className="text-center !p-3">
+          <p className={`text-2xl mb-1 ${streak > 0 ? "animate-streak-pulse" : ""}`}>🔥</p>
+          <p className="text-title text-foreground font-bold">{streak}</p>
+          <p className="text-xs text-muted-foreground">연속일</p>
+        </PpuriCard>
+        <PpuriCard className="text-center !p-3">
+          <p className="text-2xl mb-1">🏆</p>
+          <p className="text-title text-foreground font-bold">{profile?.longest_streak || 0}</p>
+          <p className="text-xs text-muted-foreground">최장 기록</p>
+        </PpuriCard>
+      </div>
 
       {/* Level Badge */}
       <PpuriCard>
         <div className="flex items-center gap-4">
-          <MascotAvatar level={level} size="lg" />
+          <Mascot mood="default" size="md" />
           <div className="flex-1">
             <LevelBadge totalSentences={profile?.total_sentences || 0} />
           </div>
         </div>
       </PpuriCard>
 
-      {/* Today's Status */}
-      <PpuriCard>
-        {todayDone ? (
-          <div className="text-center py-2">
-            <p className="text-3xl mb-2">✅</p>
-            <p className="text-title text-foreground font-semibold">오늘 완료!</p>
-            <p className="text-small text-muted-foreground">내일도 기대할게요</p>
-          </div>
-        ) : (
-          <div className="text-center py-2">
-            <p className="text-body text-muted-foreground mb-3">오늘의 문장을 아직 안 썼어요</p>
-            <PpuriButton fullWidth onClick={() => navigate("/lesson")}>
-              ✍️ 오늘의 문장 쓰러 가기
-            </PpuriButton>
-          </div>
-        )}
-      </PpuriCard>
-
-      {/* Streak */}
-      <PpuriCard>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className={`text-2xl ${(profile?.current_streak || 0) > 0 ? "animate-streak-pulse" : ""}`}>🔥</span>
-            <div>
-              <p className="text-title text-foreground">{profile?.current_streak || 0}일 연속중</p>
-              <p className="text-xs text-muted-foreground">최장 {profile?.longest_streak || 0}일</p>
-            </div>
-          </div>
-        </div>
-      </PpuriCard>
-
       {/* Quick Actions */}
       <div className="flex gap-3">
-        <PpuriButton variant="secondary" fullWidth onClick={() => navigate("/crisis")}>
+        <button
+          onClick={() => navigate("/crisis")}
+          className="flex-1 py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-colors"
+        >
           🛡️ 위기 모드
-        </PpuriButton>
-        <PpuriButton variant="secondary" fullWidth onClick={() => navigate("/archive")}>
+        </button>
+        <button
+          onClick={() => navigate("/archive")}
+          className="flex-1 py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-colors"
+        >
           📖 기록 보관소
-        </PpuriButton>
+        </button>
       </div>
 
       {/* Sign Out */}

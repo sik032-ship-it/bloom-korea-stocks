@@ -1,38 +1,263 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { selectQuestion, selectNewQuestion } from "@/services/questionEngine";
-import { PpuriButton } from "@/components/PpuriButton";
-import { PpuriCard } from "@/components/PpuriCard";
+import { Mascot } from "@/components/Mascot";
+import { SpeechBubble } from "@/components/SpeechBubble";
 import { QuestionBadge } from "@/components/QuestionBadge";
 import { LevelUpModal } from "@/components/LevelUpModal";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
+import { getDailyQuizSet, type QuizQuestion } from "@/data/quizQuestions";
 import Confetti from "react-confetti";
 import type { Database } from "@/integrations/supabase/types";
 import type { QuestionType } from "@/styles/colors";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
-function ProgressDots({ current, total }: { current: number; total: number }) {
+// Total lesson steps: 3 quiz questions + 1 sentence writing = 4
+const QUIZ_COUNT = 3;
+const TOTAL_STEPS = QUIZ_COUNT + 1;
+
+function LessonProgressBar({ current, total, streak }: { current: number; total: number; streak: number }) {
+  const percent = (current / total) * 100;
   return (
-    <div className="flex items-center justify-center gap-2 py-4">
-      {Array.from({ length: total }).map((_, i) => (
+    <div className="flex items-center gap-3 px-4 py-3">
+      <button className="text-muted-foreground text-xl">✕</button>
+      <div className="flex-1 h-4 bg-muted rounded-full overflow-hidden relative">
         <div
-          key={i}
-          className={`w-2.5 h-2.5 rounded-full transition-colors ${
-            i < current ? "bg-primary" : "bg-muted"
-          }`}
+          className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${percent}%` }}
         />
-      ))}
+      </div>
+      {streak > 0 && (
+        <span className="text-xs font-bold text-primary">{streak}번 연속 정답</span>
+      )}
     </div>
   );
 }
 
+// ===== O/X Quiz Component =====
+function OXQuiz({
+  statement,
+  onAnswer,
+}: {
+  statement: string;
+  onAnswer: (correct: boolean) => void;
+}) {
+  const [selected, setSelected] = useState<boolean | null>(null);
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center animate-slide-up">
+      <h2 className="text-title font-bold text-foreground text-center mb-8 px-4">
+        다음 문장이 맞으면 O, 틀리면 X를 누르세요
+      </h2>
+
+      <div className="bg-card border-2 border-border rounded-2xl p-6 mb-10 mx-4 max-w-md">
+        <p className="text-body text-foreground text-center leading-relaxed">{statement}</p>
+      </div>
+
+      <div className="flex gap-6">
+        <button
+          onClick={() => { setSelected(true); onAnswer(true); }}
+          disabled={selected !== null}
+          className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all ${
+            selected === true
+              ? "border-primary bg-primary/10 text-primary scale-110"
+              : "border-border hover:border-primary/50 text-foreground hover:scale-105"
+          } disabled:cursor-default`}
+        >
+          ⭕
+        </button>
+        <button
+          onClick={() => { setSelected(false); onAnswer(false); }}
+          disabled={selected !== null}
+          className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all ${
+            selected === false
+              ? "border-destructive bg-destructive/10 text-destructive scale-110"
+              : "border-border hover:border-destructive/50 text-foreground hover:scale-105"
+          } disabled:cursor-default`}
+        >
+          ❌
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ===== Multiple Choice Component =====
+function MultipleChoice({
+  question,
+  options,
+  onAnswer,
+}: {
+  question: string;
+  options: string[];
+  onAnswer: (index: number) => void;
+}) {
+  const [selected, setSelected] = useState<number | null>(null);
+
+  return (
+    <div className="flex-1 flex flex-col animate-slide-up">
+      <h2 className="text-title font-bold text-foreground text-center mt-4 mb-8 px-2">
+        {question}
+      </h2>
+
+      <div className="space-y-3 px-2">
+        {options.map((opt, i) => (
+          <button
+            key={i}
+            onClick={() => { setSelected(i); onAnswer(i); }}
+            disabled={selected !== null}
+            className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${
+              selected === i
+                ? "border-primary bg-accent shadow-sm scale-[1.02]"
+                : "border-border hover:border-muted-foreground/30"
+            } disabled:cursor-default`}
+          >
+            <span className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-small font-bold text-muted-foreground shrink-0">
+              {i + 1}
+            </span>
+            <span className="text-body text-foreground">{opt}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ===== Fill in the Blank Component =====
+function FillBlank({
+  sentence,
+  hints,
+  onAnswer,
+}: {
+  sentence: string;
+  hints?: string[];
+  onAnswer: (value: string) => void;
+}) {
+  const [input, setInput] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const parts = sentence.split("___");
+
+  const handleSubmit = () => {
+    if (!input.trim()) return;
+    setSubmitted(true);
+    onAnswer(input.trim());
+  };
+
+  return (
+    <div className="flex-1 flex flex-col animate-slide-up">
+      <h2 className="text-title font-bold text-foreground text-center mt-4 mb-8">
+        빈칸에 들어갈 단어를 입력하세요
+      </h2>
+
+      <div className="bg-card border-2 border-border rounded-2xl p-6 mx-2 mb-6">
+        <p className="text-body text-foreground leading-loose text-center">
+          {parts[0]}
+          <span className="inline-block min-w-[80px] border-b-2 border-primary mx-1 text-center">
+            {submitted ? (
+              <span className="text-primary font-bold">{input}</span>
+            ) : (
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="bg-transparent text-center text-primary font-bold outline-none w-full"
+                placeholder="..."
+                autoFocus
+              />
+            )}
+          </span>
+          {parts[1]}
+        </p>
+      </div>
+
+      {hints && !submitted && (
+        <p className="text-xs text-muted-foreground text-center mb-4">
+          힌트: {hints.join(", ")}
+        </p>
+      )}
+
+      {!submitted && (
+        <div className="px-2 mt-auto pb-6">
+          <button
+            disabled={!input.trim()}
+            onClick={handleSubmit}
+            className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all disabled:opacity-40"
+          >
+            확인하기
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== Feedback Banner =====
+function FeedbackBanner({
+  correct,
+  explanation,
+  onContinue,
+}: {
+  correct: boolean;
+  explanation: string;
+  onContinue: () => void;
+}) {
+  return (
+    <div
+      className={`fixed bottom-0 left-0 right-0 z-50 p-5 animate-slide-up ${
+        correct ? "bg-primary/10 border-t-2 border-primary" : "bg-destructive/10 border-t-2 border-destructive"
+      }`}
+    >
+      <div className="max-w-lg mx-auto flex items-start gap-3">
+        <div className="shrink-0 mt-1">
+          {correct ? (
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <span className="text-primary text-xl">✓</span>
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
+              <span className="text-destructive text-xl">✗</span>
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className={`text-body font-bold ${correct ? "text-primary" : "text-destructive"}`}>
+            {correct ? "정말 잘했어요! 🎉" : "아쉬워요! 💪"}
+          </p>
+          <p className="text-small text-foreground/80 mt-1">{explanation}</p>
+        </div>
+        <button
+          onClick={onContinue}
+          className={`shrink-0 px-6 py-3 rounded-xl font-bold text-small ${
+            correct
+              ? "bg-primary text-primary-foreground"
+              : "bg-destructive text-destructive-foreground"
+          }`}
+        >
+          계속하기
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ===== Main Component =====
 export default function DailyLessonPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+
+  // Quiz state
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+  const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
+  const [quizStreak, setQuizStreak] = useState(0);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [lastCorrect, setLastCorrect] = useState(false);
+  const [lastExplanation, setLastExplanation] = useState("");
+
+  // Sentence writing state
+  const [inSentenceStep, setInSentenceStep] = useState(false);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [selectedHolding, setSelectedHolding] = useState<Holding | null>(null);
   const [questionType, setQuestionType] = useState<QuestionType>("daily");
@@ -40,6 +265,9 @@ export default function DailyLessonPage() {
   const [placeholderText, setPlaceholderText] = useState("");
   const [answer, setAnswer] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Completion state
+  const [completed, setCompleted] = useState(false);
   const [newTotal, setNewTotal] = useState(0);
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [oldTotal, setOldTotal] = useState(0);
@@ -63,6 +291,10 @@ export default function DailyLessonPage() {
         return;
       }
 
+      // Load quiz questions
+      setQuizQuestions(getDailyQuizSet(QUIZ_COUNT));
+
+      // Load holdings for sentence writing
       const { data: h } = await supabase
         .from("holdings")
         .select("*")
@@ -84,20 +316,60 @@ export default function DailyLessonPage() {
     load();
   }, [user]);
 
-  const pickDifferent = async () => {
-    const question = await selectNewQuestion(holdings, selectedHolding?.id);
-    if (question) {
-      setSelectedHolding(question.holding);
-      setQuestionType(question.type as QuestionType);
-      setQuestionText(question.questionText);
-      setPlaceholderText(question.placeholderText);
+  const currentStep = inSentenceStep ? QUIZ_COUNT + 1 : currentQuizIndex + 1;
+
+  const handleQuizAnswer = useCallback(
+    (userAnswer: boolean | number | string) => {
+      const q = quizQuestions[currentQuizIndex];
+      if (!q) return;
+
+      let correct = false;
+      if (q.format === "ox") {
+        correct = userAnswer === q.answer;
+      } else if (q.format === "multiple_choice") {
+        correct = userAnswer === q.correctIndex;
+      } else if (q.format === "fill_blank") {
+        const normalizedInput = String(userAnswer).trim().toLowerCase();
+        const normalizedAnswer = q.answer.toLowerCase();
+        const hints = q.hints?.map((h) => h.toLowerCase()) || [];
+        correct = normalizedInput === normalizedAnswer || hints.includes(normalizedInput);
+      }
+
+      setLastCorrect(correct);
+      setLastExplanation(q.explanation);
+      setQuizStreak(correct ? quizStreak + 1 : 0);
+      setShowFeedback(true);
+    },
+    [quizQuestions, currentQuizIndex, quizStreak]
+  );
+
+  const handleContinue = () => {
+    setShowFeedback(false);
+    if (currentQuizIndex + 1 < QUIZ_COUNT) {
+      setCurrentQuizIndex(currentQuizIndex + 1);
+    } else {
+      // Move to sentence writing
+      if (holdings.length > 0) {
+        setInSentenceStep(true);
+      } else {
+        // No holdings → complete
+        handleComplete();
+      }
     }
   };
 
-  const handleSubmit = async () => {
-    if (!user || !selectedHolding || answer.length < 10) return;
-    setSaving(true);
+  const handleComplete = async () => {
+    if (!user) return;
+    
+    // If no holdings, just go to completion
+    if (!selectedHolding) {
+      setCompleted(true);
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 8000);
+      return;
+    }
 
+    setSaving(true);
     await supabase.from("sentences").insert({
       user_id: user.id,
       holding_id: selectedHolding.id,
@@ -147,111 +419,170 @@ export default function DailyLessonPage() {
 
     setShowConfetti(true);
     setSaving(false);
-    setStep(3);
+    setCompleted(true);
     setTimeout(() => setShowConfetti(false), 8000);
   };
 
+  const pickDifferent = async () => {
+    const question = await selectNewQuestion(holdings, selectedHolding?.id);
+    if (question) {
+      setSelectedHolding(question.holding);
+      setQuestionType(question.type as QuestionType);
+      setQuestionText(question.questionText);
+      setPlaceholderText(question.placeholderText);
+    }
+  };
+
+  // Loading
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
-        <span className="text-4xl animate-bounce-in">🌱</span>
-        <p className="text-small text-muted-foreground">로딩 중...</p>
+        <Mascot mood="default" size="lg" className="animate-bounce" />
+        <p className="text-small text-muted-foreground">오늘의 레슨을 준비 중...</p>
       </div>
     );
   }
 
+  // Already done
   if (alreadyDone) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
-        <span className="text-5xl mb-4">✅</span>
-        <h1 className="text-display text-foreground mb-2">오늘은 이미 작성했어요</h1>
+        <Mascot mood="celebrate" size="xl" className="mb-4" />
+        <h1 className="text-display text-foreground mb-2">오늘은 이미 완료! 🎉</h1>
         <p className="text-body text-muted-foreground mb-6">내일 다시 만나요!</p>
-        <PpuriButton onClick={() => navigate("/")}>홈으로</PpuriButton>
+        <button
+          onClick={() => navigate("/")}
+          className="px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm"
+        >
+          홈으로
+        </button>
       </div>
     );
   }
 
-  if (holdings.length === 0) {
+  // Completion screen
+  if (completed) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
-        <span className="text-5xl mb-4">📊</span>
-        <h1 className="text-title text-foreground mb-2">종목을 먼저 추가하세요</h1>
-        <p className="text-body text-muted-foreground mb-6">보유 종목이 있어야 문장을 쓸 수 있어요</p>
-        <PpuriButton onClick={() => navigate("/holdings")}>종목 추가하기</PpuriButton>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center px-6">
+        {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
+        {showLevelUp && (
+          <LevelUpModal oldLevel={oldTotal} newLevel={newTotal} onClose={() => setShowLevelUp(false)} />
+        )}
+        <Mascot mood="celebrate" size="xl" className="mb-4" />
+        <h1 className="text-display text-foreground mb-2">멋져요! 🌟</h1>
+        <p className="text-body text-muted-foreground mb-2">오늘의 레슨을 모두 완료했어요!</p>
+        {newTotal > 0 && (
+          <p className="text-title text-primary font-bold mb-2">총 {newTotal}문장</p>
+        )}
+        <p className="text-small text-muted-foreground mb-8">
+          매일 쌓이는 지식이 투자 체질을 바꿔줘요 🌱
+        </p>
+        <button
+          onClick={() => navigate("/")}
+          className="w-full max-w-sm py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm"
+        >
+          홈으로
+        </button>
       </div>
     );
+  }
+
+  // No holdings
+  if (holdings.length === 0 && inSentenceStep) {
+    return handleComplete() as unknown as React.ReactElement;
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
-      {showLevelUp && (
-        <LevelUpModal
-          oldLevel={oldTotal}
-          newLevel={newTotal}
-          onClose={() => setShowLevelUp(false)}
-        />
-      )}
-      <ProgressDots current={step} total={3} />
+      <LessonProgressBar current={currentStep} total={TOTAL_STEPS} streak={quizStreak} />
 
-      <div className="flex-1 flex flex-col px-6 max-w-lg mx-auto w-full">
-        {step === 1 && selectedHolding && (
-          <div className="flex-1 flex flex-col items-center justify-center animate-slide-up">
-            <h1 className="text-display text-foreground mb-6">오늘의 한 문장</h1>
-            <PpuriCard className="w-full text-center mb-4">
-              <p className="text-3xl font-bold text-foreground mb-1">{selectedHolding.ticker}</p>
-              <p className="text-body text-muted-foreground">{selectedHolding.company_name_kr}</p>
-              <div className="mt-3">
-                <QuestionBadge type={questionType} />
-              </div>
-            </PpuriCard>
-            <div className="w-full flex gap-3">
-              <PpuriButton variant="ghost" onClick={pickDifferent}>다른 종목</PpuriButton>
-              <PpuriButton fullWidth onClick={() => setStep(2)}>이 문장 쓰기</PpuriButton>
-            </div>
-          </div>
+      <div className="flex-1 flex flex-col px-4 max-w-lg mx-auto w-full relative">
+        {/* Quiz Phase */}
+        {!inSentenceStep && quizQuestions[currentQuizIndex] && (
+          <>
+            {quizQuestions[currentQuizIndex].format === "ox" && (
+              <OXQuiz
+                key={currentQuizIndex}
+                statement={(quizQuestions[currentQuizIndex] as any).statement}
+                onAnswer={(val) => handleQuizAnswer(val)}
+              />
+            )}
+            {quizQuestions[currentQuizIndex].format === "multiple_choice" && (
+              <MultipleChoice
+                key={currentQuizIndex}
+                question={(quizQuestions[currentQuizIndex] as any).question}
+                options={(quizQuestions[currentQuizIndex] as any).options}
+                onAnswer={(val) => handleQuizAnswer(val)}
+              />
+            )}
+            {quizQuestions[currentQuizIndex].format === "fill_blank" && (
+              <FillBlank
+                key={currentQuizIndex}
+                sentence={(quizQuestions[currentQuizIndex] as any).sentence}
+                hints={(quizQuestions[currentQuizIndex] as any).hints}
+                onAnswer={(val) => handleQuizAnswer(val)}
+              />
+            )}
+          </>
         )}
 
-        {step === 2 && (
+        {/* Sentence Writing Phase */}
+        {inSentenceStep && selectedHolding && (
           <div className="flex-1 flex flex-col animate-slide-up">
-            <h1 className="text-title text-foreground mt-4 mb-2">당신의 생각을 나눠주세요</h1>
-            <PpuriCard className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <QuestionBadge type={questionType} />
-                <span className="text-small font-medium text-foreground">{selectedHolding?.ticker}</span>
-              </div>
-              <p className="text-body text-foreground">{questionText}</p>
-            </PpuriCard>
+            <div className="flex items-start gap-3 mt-4 mb-4">
+              <Mascot mood="thinking" size="md" />
+              <SpeechBubble className="mt-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <QuestionBadge type={questionType} />
+                  <span className="text-small font-semibold text-foreground">{selectedHolding.ticker}</span>
+                </div>
+                <p className="text-body text-foreground">{questionText}</p>
+              </SpeechBubble>
+            </div>
+
+            <button
+              onClick={pickDifferent}
+              className="text-xs text-primary font-medium mb-3 self-start hover:underline"
+            >
+              🔄 다른 질문 받기
+            </button>
+
             <textarea
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               placeholder={placeholderText}
               maxLength={500}
-              className="w-full h-32 bg-input border border-border rounded-md p-4 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+              className="w-full h-32 bg-card border-2 border-border rounded-xl p-4 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary resize-none"
             />
             <div className="flex justify-between mt-1 mb-4">
-              <p className={`text-xs ${answer.length < 10 ? "text-destructive" : "text-muted-foreground"}`}>최소 10자</p>
+              <p className={`text-xs ${answer.length < 10 ? "text-destructive" : "text-muted-foreground"}`}>
+                최소 10자
+              </p>
               <p className="text-xs text-muted-foreground">{answer.length}/500</p>
             </div>
-            <div className="mt-auto pb-6 flex gap-3">
-              <PpuriButton variant="ghost" onClick={() => setStep(1)}>이전</PpuriButton>
-              <PpuriButton fullWidth disabled={answer.length < 10 || saving} onClick={handleSubmit}>
-                {saving ? "저장 중..." : "완료"}
-              </PpuriButton>
-            </div>
-          </div>
-        )}
 
-        {step === 3 && (
-          <div className="flex-1 flex flex-col items-center justify-center text-center animate-bounce-in">
-            <span className="text-7xl mb-4">🌱</span>
-            <h1 className="text-display text-foreground mb-2">멋져요!</h1>
-            <p className="text-body text-muted-foreground mb-2">+1 문장이 뿌리에 쌓였어요</p>
-            <p className="text-title text-primary font-bold mb-8">총 {newTotal}문장</p>
-            <PpuriButton fullWidth onClick={() => navigate("/")}>홈으로</PpuriButton>
+            <div className="mt-auto pb-6">
+              <button
+                disabled={answer.length < 10 || saving}
+                onClick={handleComplete}
+                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all disabled:opacity-40"
+              >
+                {saving ? "저장 중..." : "✍️ 문장 심기"}
+              </button>
+            </div>
           </div>
         )}
       </div>
+
+      {/* Feedback Banner */}
+      {showFeedback && (
+        <FeedbackBanner
+          correct={lastCorrect}
+          explanation={lastExplanation}
+          onContinue={handleContinue}
+        />
+      )}
     </div>
   );
 }
