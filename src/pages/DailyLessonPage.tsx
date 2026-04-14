@@ -386,38 +386,41 @@ export default function DailyLessonPage() {
       .update({ sentence_count: selectedHolding.sentence_count + 1 })
       .eq("id", selectedHolding.id);
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    if (profile) {
-      const today = new Date().toISOString().split("T")[0];
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-      const wasYesterday = profile.last_sentence_date === yesterday;
-      const newStreak = wasYesterday ? profile.current_streak + 1 : 1;
-      const newLongest = Math.max(profile.longest_streak, newStreak);
-      const total = profile.total_sentences + 1;
-
-      setOldTotal(profile.total_sentences);
-      setNewTotal(total);
-
-      if (isLevelUp(profile.total_sentences, total)) {
-        setShowLevelUp(true);
-      }
-
-      const newLevel = getLevelForCount(total);
-      await supabase
+    // Only update streaks/XP on first completion of the day
+    if (!alreadyDone) {
+      const { data: profile } = await supabase
         .from("profiles")
-        .update({
-          total_sentences: total,
-          current_streak: newStreak,
-          longest_streak: newLongest,
-          last_sentence_date: today,
-          current_level: newLevel.level,
-        })
-        .eq("id", user.id);
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (profile) {
+        const today = new Date().toISOString().split("T")[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+        const wasYesterday = profile.last_sentence_date === yesterday;
+        const newStreak = wasYesterday ? profile.current_streak + 1 : 1;
+        const newLongest = Math.max(profile.longest_streak, newStreak);
+        const total = profile.total_sentences + 1;
+
+        setOldTotal(profile.total_sentences);
+        setNewTotal(total);
+
+        if (isLevelUp(profile.total_sentences, total)) {
+          setShowLevelUp(true);
+        }
+
+        const newLevel = getLevelForCount(total);
+        await supabase
+          .from("profiles")
+          .update({
+            total_sentences: total,
+            current_streak: newStreak,
+            longest_streak: newLongest,
+            last_sentence_date: today,
+            current_level: newLevel.level,
+          })
+          .eq("id", user.id);
+      }
     }
 
     setShowConfetti(true);
