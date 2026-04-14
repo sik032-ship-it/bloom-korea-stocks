@@ -91,7 +91,7 @@ export default function HomePage() {
     >
       {/* Mascot Greeting */}
       <div className="flex items-start gap-3 pt-2">
-        <Mascot mood={todayDone ? "celebrate" : "wave"} size="lg" />
+        <Mascot level={userLevel} size="lg" showLevelTag />
         <div className="flex-1">
           <p className="text-small text-muted-foreground">{getGreeting()}</p>
           <p className="text-title text-foreground font-bold mb-1">{displayName}님</p>
