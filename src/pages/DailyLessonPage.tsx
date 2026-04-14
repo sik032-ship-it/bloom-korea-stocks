@@ -476,26 +476,76 @@ export default function DailyLessonPage() {
 
   // Completion screen
   if (completed) {
+    const accuracy = QUIZ_COUNT > 0 ? Math.round((correctCount / QUIZ_COUNT) * 100) : 0;
+    const xpEarned = correctCount * 10 + (answer.length >= 10 ? 15 : 0);
+
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center px-6">
-        {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
+      <div className="min-h-screen bg-background flex flex-col items-center px-6 pt-8 pb-6">
+        {showConfetti && <Confetti recycle={false} numberOfPieces={400} />}
         {showLevelUp && (
           <LevelUpModal oldLevel={oldTotal} newLevel={newTotal} onClose={() => setShowLevelUp(false)} />
         )}
-        <Mascot mood="celebrate" size="xl" className="mb-4" />
-        <h1 className="text-display text-foreground mb-2">멋져요! 🌟</h1>
-        <p className="text-body text-muted-foreground mb-2">오늘의 레슨을 모두 완료했어요!</p>
+
+        {/* Header */}
+        <Mascot mood="celebrate" size="xl" className="mb-3" />
+        <h1 className="text-display text-foreground mb-1">레슨 완료! 🌟</h1>
+        <p className="text-small text-muted-foreground mb-6">오늘도 한 걸음 성장했어요</p>
+
+        {/* XP Card */}
+        <div className="w-full max-w-sm bg-primary/10 border border-primary/20 rounded-2xl p-5 mb-4 text-center">
+          <p className="text-small text-primary font-medium mb-1">획득 XP</p>
+          <p className="text-4xl font-black text-primary">+{xpEarned}</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="w-full max-w-sm grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-card border border-border rounded-xl p-3 text-center">
+            <p className="text-2xl font-bold text-foreground">{accuracy}%</p>
+            <p className="text-xs text-muted-foreground mt-1">정답률</p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-3 text-center">
+            <p className="text-2xl font-bold text-foreground">{bestStreak}</p>
+            <p className="text-xs text-muted-foreground mt-1">최고 연속</p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-3 text-center">
+            <p className="text-2xl font-bold text-foreground">{currentStreak > 0 ? currentStreak : 1}</p>
+            <p className="text-xs text-muted-foreground mt-1">🔥 연속일</p>
+          </div>
+        </div>
+
+        {/* Quiz breakdown */}
+        <div className="w-full max-w-sm bg-card border border-border rounded-xl p-4 mb-6">
+          <p className="text-small font-semibold text-foreground mb-3">퀴즈 결과</p>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-1000"
+                style={{ width: `${accuracy}%` }}
+              />
+            </div>
+            <span className="text-xs font-bold text-foreground">{correctCount}/{QUIZ_COUNT}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {accuracy === 100
+              ? "완벽해요! 투자 지식이 탄탄하네요 💪"
+              : accuracy >= 67
+              ? "잘했어요! 조금만 더 공부하면 완벽해요 📚"
+              : "괜찮아요! 틀린 문제가 오히려 더 기억에 남아요 🌱"}
+          </p>
+        </div>
+
+        {/* Total sentences */}
         {newTotal > 0 && (
-          <p className="text-title text-primary font-bold mb-2">총 {newTotal}문장</p>
+          <p className="text-small text-muted-foreground mb-6">
+            총 <span className="font-bold text-primary">{newTotal}</span>문장 — 매일 쌓이는 복리 지식 🌱
+          </p>
         )}
-        <p className="text-small text-muted-foreground mb-8">
-          매일 쌓이는 지식이 투자 체질을 바꿔줘요 🌱
-        </p>
+
         <button
           onClick={() => navigate("/")}
-          className="w-full max-w-sm py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm"
+          className="w-full max-w-sm py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all"
         >
-          홈으로
+          홈으로 돌아가기
         </button>
       </div>
     );
