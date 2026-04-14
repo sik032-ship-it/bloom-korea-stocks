@@ -145,6 +145,37 @@ export default function HomePage() {
         </PpuriCard>
       </div>
 
+      {/* XP Progress to Next Level */}
+      {(() => {
+        const progress = getProgressToNextLevel(profile?.total_sentences || 0);
+        return (
+          <PpuriCard>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-small font-semibold text-foreground">다음 레벨까지</p>
+              <span className="text-xs text-primary font-bold">{progress.current}/{progress.next}</span>
+            </div>
+            <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-700"
+                style={{ width: `${progress.percent}%` }}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Mascot level={userLevel} size="sm" />
+              <span className="text-xs text-muted-foreground">
+                {progress.percent >= 100 ? "최고 레벨 달성! 🏆" : `${Math.round(progress.percent)}% 달성`}
+              </span>
+            </div>
+          </PpuriCard>
+        );
+      })()}
+
+      {/* Weekly Activity Calendar */}
+      <PpuriCard>
+        <p className="text-small font-semibold text-foreground mb-3">📅 학습 캘린더</p>
+        {user && <WeeklyCalendar userId={user.id} />}
+      </PpuriCard>
+
       {/* Level Badge */}
       <PpuriCard>
         <div className="flex items-center gap-4">
