@@ -14,7 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      holdings: {
+        Row: {
+          added_at: string
+          company_name_kr: string
+          id: string
+          is_active: boolean
+          sentence_count: number
+          ticker: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          company_name_kr: string
+          id?: string
+          is_active?: boolean
+          sentence_count?: number
+          ticker: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          company_name_kr?: string
+          id?: string
+          is_active?: boolean
+          sentence_count?: number
+          ticker?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holdings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          current_level: number
+          current_streak: number
+          display_name: string | null
+          id: string
+          last_sentence_date: string | null
+          longest_streak: number
+          total_sentences: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_level?: number
+          current_streak?: number
+          display_name?: string | null
+          id: string
+          last_sentence_date?: string | null
+          longest_streak?: number
+          total_sentences?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_level?: number
+          current_streak?: number
+          display_name?: string | null
+          id?: string
+          last_sentence_date?: string | null
+          longest_streak?: number
+          total_sentences?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
