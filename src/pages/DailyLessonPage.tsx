@@ -466,8 +466,10 @@ export default function DailyLessonPage() {
 
         {/* Header */}
         <Mascot mood="celebrate" size="xl" className="mb-3" />
-        <h1 className="text-display text-foreground mb-1">레슨 완료! 🌟</h1>
-        <p className="text-small text-muted-foreground mb-6">오늘도 한 걸음 성장했어요</p>
+        <h1 className="text-display text-foreground mb-1">{isRepeat ? "복습 완료! 📚" : "레슨 완료! 🌟"}</h1>
+        <p className="text-small text-muted-foreground mb-6">
+          {isRepeat ? "복습은 실력을 단단하게 해줘요" : "오늘도 한 걸음 성장했어요"}
+        </p>
 
         {/* XP Card */}
         <div className="w-full max-w-sm bg-primary/10 border border-primary/20 rounded-2xl p-5 mb-4 text-center">
