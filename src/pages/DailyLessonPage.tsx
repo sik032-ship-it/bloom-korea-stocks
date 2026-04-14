@@ -281,11 +281,8 @@ export default function DailyLessonPage() {
         .single();
 
       const today = new Date().toISOString().split("T")[0];
-      if (profile?.last_sentence_date === today) {
-        setAlreadyDone(true);
-        setLoading(false);
-        return;
-      }
+      const isDoneToday = profile?.last_sentence_date === today;
+      setAlreadyDone(isDoneToday);
 
       // Load quiz questions based on user level
       const lvl = profile?.current_level || 1;
@@ -389,38 +386,41 @@ export default function DailyLessonPage() {
       .update({ sentence_count: selectedHolding.sentence_count + 1 })
       .eq("id", selectedHolding.id);
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    if (profile) {
-      const today = new Date().toISOString().split("T")[0];
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-      const wasYesterday = profile.last_sentence_date === yesterday;
-      const newStreak = wasYesterday ? profile.current_streak + 1 : 1;
-      const newLongest = Math.max(profile.longest_streak, newStreak);
-      const total = profile.total_sentences + 1;
-
-      setOldTotal(profile.total_sentences);
-      setNewTotal(total);
-
-      if (isLevelUp(profile.total_sentences, total)) {
-        setShowLevelUp(true);
-      }
-
-      const newLevel = getLevelForCount(total);
-      await supabase
+    // Only update streaks/XP on first completion of the day
+    if (!alreadyDone) {
+      const { data: profile } = await supabase
         .from("profiles")
-        .update({
-          total_sentences: total,
-          current_streak: newStreak,
-          longest_streak: newLongest,
-          last_sentence_date: today,
-          current_level: newLevel.level,
-        })
-        .eq("id", user.id);
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (profile) {
+        const today = new Date().toISOString().split("T")[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+        const wasYesterday = profile.last_sentence_date === yesterday;
+        const newStreak = wasYesterday ? profile.current_streak + 1 : 1;
+        const newLongest = Math.max(profile.longest_streak, newStreak);
+        const total = profile.total_sentences + 1;
+
+        setOldTotal(profile.total_sentences);
+        setNewTotal(total);
+
+        if (isLevelUp(profile.total_sentences, total)) {
+          setShowLevelUp(true);
+        }
+
+        const newLevel = getLevelForCount(total);
+        await supabase
+          .from("profiles")
+          .update({
+            total_sentences: total,
+            current_streak: newStreak,
+            longest_streak: newLongest,
+            last_sentence_date: today,
+            current_level: newLevel.level,
+          })
+          .eq("id", user.id);
+      }
     }
 
     setShowConfetti(true);
@@ -449,27 +449,13 @@ export default function DailyLessonPage() {
     );
   }
 
-  // Already done
-  if (alreadyDone) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
-        <Mascot mood="celebrate" size="xl" className="mb-4" />
-        <h1 className="text-display text-foreground mb-2">오늘은 이미 완료! 🎉</h1>
-        <p className="text-body text-muted-foreground mb-6">내일 다시 만나요!</p>
-        <button
-          onClick={() => navigate("/")}
-          className="px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm"
-        >
-          홈으로
-        </button>
-      </div>
-    );
-  }
+  // Removed: alreadyDone blocking screen — users can always do lessons
 
   // Completion screen
   if (completed) {
     const accuracy = QUIZ_COUNT > 0 ? Math.round((correctCount / QUIZ_COUNT) * 100) : 0;
-    const xpEarned = correctCount * 10 + (answer.length >= 10 ? 15 : 0);
+    const isRepeat = alreadyDone;
+    const xpEarned = isRepeat ? Math.round((correctCount * 10 + (answer.length >= 10 ? 15 : 0)) * 0.3) : correctCount * 10 + (answer.length >= 10 ? 15 : 0);
 
     return (
       <div className="min-h-screen bg-background flex flex-col items-center px-6 pt-8 pb-6">
@@ -480,8 +466,10 @@ export default function DailyLessonPage() {
 
         {/* Header */}
         <Mascot mood="celebrate" size="xl" className="mb-3" />
-        <h1 className="text-display text-foreground mb-1">레슨 완료! 🌟</h1>
-        <p className="text-small text-muted-foreground mb-6">오늘도 한 걸음 성장했어요</p>
+        <h1 className="text-display text-foreground mb-1">{isRepeat ? "복습 완료! 📚" : "레슨 완료! 🌟"}</h1>
+        <p className="text-small text-muted-foreground mb-6">
+          {isRepeat ? "복습은 실력을 단단하게 해줘요" : "오늘도 한 걸음 성장했어요"}
+        </p>
 
         {/* XP Card */}
         <div className="w-full max-w-sm bg-primary/10 border border-primary/20 rounded-2xl p-5 mb-4 text-center">

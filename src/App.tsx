@@ -15,6 +15,7 @@ const ArchivePage = lazy(() => import("./pages/ArchivePage"));
 const CrisisModePage = lazy(() => import("./pages/CrisisModePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PaywallPage = lazy(() => import("./pages/PaywallPage"));
+const PracticePage = lazy(() => import("./pages/PracticePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/crisis" element={<ProtectedRoute><CrisisModePage /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               <Route path="/paywall" element={<ProtectedRoute><PaywallPage /></ProtectedRoute>} />
+              <Route path="/practice" element={<ProtectedRoute><PracticePage /></ProtectedRoute>} />
               <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
