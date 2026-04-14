@@ -281,11 +281,8 @@ export default function DailyLessonPage() {
         .single();
 
       const today = new Date().toISOString().split("T")[0];
-      if (profile?.last_sentence_date === today) {
-        setAlreadyDone(true);
-        setLoading(false);
-        return;
-      }
+      const isDoneToday = profile?.last_sentence_date === today;
+      setAlreadyDone(isDoneToday);
 
       // Load quiz questions based on user level
       const lvl = profile?.current_level || 1;
@@ -449,22 +446,7 @@ export default function DailyLessonPage() {
     );
   }
 
-  // Already done
-  if (alreadyDone) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
-        <Mascot mood="celebrate" size="xl" className="mb-4" />
-        <h1 className="text-display text-foreground mb-2">오늘은 이미 완료! 🎉</h1>
-        <p className="text-body text-muted-foreground mb-6">내일 다시 만나요!</p>
-        <button
-          onClick={() => navigate("/")}
-          className="px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm"
-        >
-          홈으로
-        </button>
-      </div>
-    );
-  }
+  // Removed: alreadyDone blocking screen — users can always do lessons
 
   // Completion screen
   if (completed) {
