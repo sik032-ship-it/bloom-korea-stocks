@@ -11,8 +11,6 @@ import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import type { Database } from "@/integrations/supabase/types";
-import { getProgressToNextLevel } from "@/utils/levelSystem";
-import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
