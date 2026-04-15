@@ -217,6 +217,13 @@ export default function DailyLessonPage() {
     load();
   }, [user]);
 
+  // Auto-complete when no holdings and sentence step reached
+  useEffect(() => {
+    if (holdings.length === 0 && inSentenceStep && !completed) {
+      handleComplete();
+    }
+  }, [inSentenceStep, holdings.length, completed]);
+
   const currentStep = inSentenceStep ? QUIZ_COUNT + 1 : currentQuizIndex + 1;
 
   const handleQuizAnswer = useCallback(
