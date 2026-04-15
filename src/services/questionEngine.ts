@@ -39,7 +39,10 @@ function replaceTemplateVars(template: string, holding: Holding): string {
 export async function selectQuestion(holdings: Holding[]): Promise<SelectedQuestion | null> {
   if (holdings.length === 0) return null;
 
-  const holding = holdings[Math.floor(Math.random() * holdings.length)];
+  // Prioritize neglected holdings (least sentences first) to build balanced perspective
+  const sorted = [...holdings].sort((a, b) => a.sentence_count - b.sentence_count);
+  const leastPracticed = sorted.filter(h => h.sentence_count === sorted[0].sentence_count);
+  const holding = leastPracticed[Math.floor(Math.random() * leastPracticed.length)];
   const type = pickQuestionType();
 
   const { data: templates } = await supabase

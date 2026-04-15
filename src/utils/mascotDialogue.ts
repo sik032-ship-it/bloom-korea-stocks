@@ -120,36 +120,52 @@ export function getWrongMessage(): string {
 }
 
 export function getLessonMotivation(totalSentences: number, streak: number): string {
+  // 7가지 핵심 원칙을 자연스럽게 녹인 동기부여 메시지
+  const principles = [
+    "FOMO를 느끼지 않는 것도 능력이에요. 오늘도 '나만의 기준'으로 생각해봐요 🛡️",
+    "과거 하락은 기회로 보이지만, 지금의 하락은 위험으로 느껴지죠? 이 차이를 아는 것이 힘이에요 💡",
+    "돈의 진짜 가치는 시간을 통제할 수 있는 자유예요. 오늘의 공부가 그 자유를 만들어요 ⏰",
+    "기대가 수입보다 빨리 커지면 영원히 만족할 수 없어요. 오늘 '충분함'에 대해 생각해봐요 🌱",
+    "위험은 변하지 않아요. 변하는 건 위험을 얼마나 모르고 있었는지예요. 오늘 한 걸음 더 알아가봐요 🔍",
+    "자기도 모르게 감정에 휘둘리는 순간, 그걸 인식하는 것 자체가 투자 실력이에요 🧠",
+  ];
+  
   if (totalSentences === 0) return "오늘부터 '생각하는 투자자'가 되는 여정을 시작해요! 🌱";
-  if (streak >= 5) return `${streak}일 연속! 매일 사고력을 키우는 당신, 이미 상위 투자자예요 💪`;
-  if (totalSentences >= 50) return "50문장 넘긴 당신은 이미 감정이 아닌 원칙으로 투자하는 사람이에요 🏆";
+  if (streak >= 5) return `${streak}일 연속! ${principles[Math.floor(Math.random() * principles.length)]}`;
+  if (totalSentences >= 50) return principles[Math.floor(Math.random() * principles.length)];
   return "오늘의 질문은 당신의 투자 판단력을 한 단계 높여줄 거예요 🌰";
 }
 
-/** 레슨 완료 후 인사이트 — 사고방식 중심 + 실제 위기 사례 */
+/** 레슨 완료 후 인사이트 — 7가지 핵심 원칙 기반 */
 export function getCompletionInsight(accuracy: number, isRepeat: boolean): string {
   if (isRepeat) {
-    return "2008년 금융위기에서 살아남은 투자자들의 공통점은 '반복 학습'이었어요. 복습은 위기 때 흔들리지 않는 근육이에요 📚";
+    return "복습은 위기 때 '아는 것'과 '행동하는 것'의 간극을 줄여줘요. 아는 것을 행동으로 옮기는 것이 진짜 실력이에요 📚";
   }
+  
+  const deepInsights = [
+    // 경제적 불확실성
+    "경제적 불확실성은 거의 변하지 않아요. 달라지는 건 사람들이 위험을 얼마나 잊고 있었는지예요. 오늘의 공부가 '잊지 않는 힘'을 키워줘요 🔍",
+    // 부 쌓기
+    "진짜 부자는 많이 버는 사람이 아니라, 기대를 관리하는 사람이에요. 자존심을 수입 아래로 유지하는 게 첫걸음이에요 💰",
+    // FOMO
+    "FOMO가 없다는 건 '남의 수익에 흔들리지 않는다'는 뜻이에요. 이것만으로도 상위 10% 투자자예요 🛡️",
+    // 과거 vs 미래
+    "10년 후에 '왜 그때 안 샀을까'라고 할 오늘의 하락이 있을 수 있어요. 미래 하락을 기회로 볼 수 있는 눈을 키우세요 👁️",
+    // 시간 가치
+    "돈의 진짜 배당은 수익률이 아니라 시간의 자유예요. 아침에 '오늘 뭘 하고 싶은가'를 선택할 수 있는 삶, 그게 투자의 목표예요 ⏰",
+    // 무의식적 편향
+    "자기가 감정에 영향받지 않는다고 생각하는 순간이 가장 위험해요. 오늘 이걸 연습한 것 자체가 대단해요 🧠",
+    // 자기 통제
+    "위기에서 버티는 힘은 '지식'이 아니라 '습관'에서 나와요. 매일 한 문장이 그 습관을 만들어요 🌱",
+  ];
+  
   if (accuracy === 100) {
-    const insights = [
-      "완벽! 코로나 폭락(2020.3) 때 버핏은 항공주만 팔고 나머지는 유지했어요. 냉정한 판단력이 핵심이에요 🧠",
-      "만점! 2008년 리먼 사태에서 레이 달리오가 살아남은 이유는 '내가 틀릴 수 있다'는 겸손함이었어요 ⭐",
-    ];
-    return insights[Math.floor(Math.random() * insights.length)];
+    return `완벽! ${deepInsights[Math.floor(Math.random() * deepInsights.length)]}`;
   }
   if (accuracy >= 67) {
-    const insights = [
-      "좋은 점수! 닷컴 버블(2000) 때 피터 린치는 '아는 것에만 투자하라'고 했어요. 이해가 곧 방어예요 📈",
-      "잘했어요! 1987년 블랙먼데이에서도 시장은 2년 안에 회복했어요. 버티는 능력이 곧 수익이에요 💪",
-    ];
-    return insights[Math.floor(Math.random() * insights.length)];
+    return deepInsights[Math.floor(Math.random() * deepInsights.length)];
   }
-  const insights = [
-    "괜찮아요! 2008년 금융위기 때 패닉에 판 사람은 회복을 경험하지 못했어요. 배우는 것 자체가 준비예요 🌱",
-    "틀려도 OK! 다니엘 카너먼도 '자기 편향을 아는 것만으로도 절반은 이긴 것'이라 했어요 📖",
-  ];
-  return insights[Math.floor(Math.random() * insights.length)];
+  return `틀려도 괜찮아요. ${deepInsights[Math.floor(Math.random() * deepInsights.length)]}`;
 }
 
 export function getEmptyStateMessage(type: "holdings" | "sentences" | "archive"): { title: string; subtitle: string; emoji: string } {
