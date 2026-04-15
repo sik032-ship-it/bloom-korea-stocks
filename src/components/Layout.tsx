@@ -37,20 +37,23 @@ export const Layout = ({ children, currentStreak = 0, longestStreak = 0 }: Layou
 
       <nav className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-md border-t border-border z-10">
         <div className="max-w-lg mx-auto flex items-center justify-around py-2">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center gap-0.5 px-4 py-1 rounded-md transition-colors ${
-                location.pathname === item.path
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <span className="text-xl">{item.emoji}</span>
-              <span className="text-xs font-medium">{item.label}</span>
-            </button>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all duration-200 press-effect ${
+                  isActive
+                    ? "text-primary bg-primary/8 scale-105"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <span className={`text-xl transition-transform duration-200 ${isActive ? "scale-110" : ""}`}>{item.emoji}</span>
+                <span className={`text-xs font-medium transition-colors ${isActive ? "font-bold" : ""}`}>{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </nav>
     </div>
