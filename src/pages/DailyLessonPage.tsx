@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { selectQuestion, selectNewQuestion } from "@/services/questionEngine";
+import { HoldingsContext } from "@/components/HoldingsContext";
 import { Mascot } from "@/components/Mascot";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { QuestionBadge } from "@/components/QuestionBadge";
@@ -460,7 +461,11 @@ export default function DailyLessonPage() {
         {/* Sentence Writing Phase */}
         {inSentenceStep && selectedHolding && (
           <div className="flex-1 flex flex-col animate-slide-up">
-            <div className="flex items-start gap-3 mt-4 mb-4">
+            {/* Holdings Context - real-time personalization */}
+            {user && holdings.length > 0 && (
+              <HoldingsContext userId={user.id} holdings={holdings} currentHolding={selectedHolding} />
+            )}
+            <div className="flex items-start gap-3 mt-2 mb-4">
               <Mascot mood="thinking" size="md" />
               <SpeechBubble className="mt-1">
                 <div className="flex items-center gap-2 mb-1">
