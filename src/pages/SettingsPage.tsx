@@ -126,31 +126,6 @@ export default function SettingsPage() {
         </div>
       </PpuriCard>
 
-      {/* Stats */}
-      <PpuriCard>
-        <p className="text-small font-semibold text-foreground mb-3">📊 투자 통계</p>
-        <div className="grid grid-cols-2 gap-3">
-          <StatItem label="총 문장" value={`${profile?.total_sentences || 0}개`} />
-          <StatItem label="현재 레벨" value={level ? `${level.emoji} ${level.name}` : "🌱 씨앗"} />
-          <StatItem label="연속 일수" value={`🔥 ${profile?.current_streak || 0}일`} />
-          <StatItem label="최장 연속" value={`${profile?.longest_streak || 0}일`} />
-        </div>
-      </PpuriCard>
-
-      {/* Premium */}
-      <PpuriCard hoverable onClick={() => navigate("/paywall")} className="border-2 border-primary">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">👑</span>
-            <div>
-              <p className="text-body font-medium text-foreground">프리미엄 업그레이드</p>
-              <p className="text-xs text-muted-foreground">무제한 문장 · 위기 모드 · 데이터 내보내기</p>
-            </div>
-          </div>
-          <span className="text-primary">→</span>
-        </div>
-      </PpuriCard>
-
       {/* Holdings link */}
       <PpuriCard hoverable onClick={() => navigate("/holdings")}>
         <div className="flex items-center justify-between">

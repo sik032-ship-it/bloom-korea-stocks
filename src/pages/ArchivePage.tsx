@@ -139,55 +139,21 @@ export default function ArchivePage() {
         </PpuriCard>
       )}
 
-      {/* Filters */}
-      <div className="space-y-3">
-        {/* Holding filter */}
-        <select
-          value={holdingFilter}
-          onChange={(e) => setHoldingFilter(e.target.value)}
-          className="w-full h-11 px-3 rounded-md bg-input border border-border text-body text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        >
-          <option value="all">모든 종목</option>
-          {holdings.map((h) => (
-            <option key={h.id} value={h.id}>
-              {h.ticker} — {h.company_name_kr}
-            </option>
-          ))}
-        </select>
-
-        {/* Type filter tabs */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
-          {TYPE_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setTypeFilter(f.value)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                typeFilter === f.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-accent"
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Date filter */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
-          {DATE_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setDateFilter(f.value)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                dateFilter === f.value
-                  ? "bg-foreground text-background"
-                  : "bg-muted text-muted-foreground hover:bg-accent"
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+      {/* Date filter */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1">
+        {DATE_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setDateFilter(f.value)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+              dateFilter === f.value
+                ? "bg-foreground text-background"
+                : "bg-muted text-muted-foreground hover:bg-accent"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {/* Sentences */}
