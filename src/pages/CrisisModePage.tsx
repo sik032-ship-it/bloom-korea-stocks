@@ -1,8 +1,10 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { PpuriButton } from "@/components/PpuriButton";
-import { Shield, TrendingDown, Flame, Waves, Landmark, DollarSign, BarChart3, type LucideIcon } from "lucide-react";
+import { Shield, TrendingDown, Flame, Waves, Landmark, DollarSign, BarChart3, TrendingUp, Trophy, Zap, type LucideIcon } from "lucide-react";
 import type { MascotMood } from "@/components/Mascot";
 
 interface CrisisScenario {
@@ -21,6 +23,16 @@ interface CrisisStep {
   options: { text: string; score: number; feedback: string }[];
 }
 
+interface CrisisRecord {
+  id: string;
+  scenario_id: string;
+  scenario_title: string;
+  score: number;
+  max_score: number;
+  score_percentage: number;
+  completed_at: string;
+}
+
 const scenarios: CrisisScenario[] = [
   {
     id: "crash-30",
@@ -34,30 +46,30 @@ const scenarios: CrisisScenario[] = [
         situation: "포트폴리오가 -30%입니다. 뉴스에서는 '더 떨어질 수 있다'고 합니다. 가족과 친구들이 '다 팔아'라고 말합니다.",
         emotion: "공포, 불안, 압박감",
         options: [
-          { text: "미리 세운 투자 원칙을 다시 읽어본다", score: 3, feedback: "훌륭해요! 감정이 극에 달할 때 원칙으로 돌아가는 것이 프로 투자자의 습관이에요. 2020년 3월에 원칙을 지킨 사람은 5개월 만에 원금을 회복했어요." },
-          { text: "전부 매도하고 현금화한다", score: 0, feedback: "2020년 코로나 폭락 때 바닥에서 판 투자자는 이후 100% 상승을 놓쳤어요. 패닉 매도는 거의 항상 최악의 선택이에요." },
-          { text: "레버리지로 더 매수한다", score: 1, feedback: "용기는 좋지만, 바닥을 모르는 상황에서 레버리지는 매우 위험해요. 적립식 분할 매수가 더 현명해요." },
-          { text: "뉴스를 끄고 한 달간 확인하지 않는다", score: 2, feedback: "나쁘지 않아요! '아무것도 안 하는 것'이 패닉 매도보다 훨씬 나은 결과를 가져와요. 다만 포트폴리오 점검은 필요해요." },
+          { text: "미리 세운 투자 원칙을 다시 읽어본다", score: 3, feedback: "훌륭해요! 감정이 극에 달할 때 원칙으로 돌아가는 것이 프로 투자자의 습관이에요." },
+          { text: "전부 매도하고 현금화한다", score: 0, feedback: "2020년 코로나 폭락 때 바닥에서 판 투자자는 이후 100% 상승을 놓쳤어요." },
+          { text: "레버리지로 더 매수한다", score: 1, feedback: "용기는 좋지만, 바닥을 모르는 상황에서 레버리지는 매우 위험해요." },
+          { text: "뉴스를 끄고 한 달간 확인하지 않는다", score: 2, feedback: "'아무것도 안 하는 것'이 패닉 매도보다 훨씬 나은 결과를 가져와요." },
         ],
       },
       {
-        situation: "3주가 지났습니다. 시장은 10% 반등했지만, 전문가들은 '데드캣 바운스(일시적 반등)'라고 경고합니다.",
+        situation: "3주가 지났습니다. 시장은 10% 반등했지만, 전문가들은 '데드캣 바운스'라고 경고합니다.",
         emotion: "혼란, 불확실성",
         options: [
-          { text: "기업의 기본 가치가 변했는지 하나씩 분석한다", score: 3, feedback: "최고의 선택! 버핏은 2020년에 항공 산업의 구조적 변화를 인식하고 항공주만 팔았어요. 선택적 판단이 핵심이에요." },
-          { text: "이전에 팔았다면 지금이라도 다시 산다", score: 1, feedback: "타이밍을 맞추려는 시도는 위험해요. 처음부터 팔지 않는 것이 더 나은 전략이었어요." },
-          { text: "전문가 의견을 따라 추가 매도한다", score: 0, feedback: "전문가도 바닥을 맞추지 못해요. 2020년 3월에 '더 떨어진다'고 한 전문가들의 대부분이 틀렸어요." },
-          { text: "적립식으로 조금씩 추가 매수한다", score: 2, feedback: "좋은 접근이에요! DCA(달러 코스트 에버리징)는 바닥을 맞출 필요 없이 평균 매수 단가를 낮춰줘요." },
+          { text: "기업의 기본 가치가 변했는지 하나씩 분석한다", score: 3, feedback: "최고의 선택! 버핏은 항공 산업의 구조적 변화를 인식하고 항공주만 팔았어요." },
+          { text: "이전에 팔았다면 지금이라도 다시 산다", score: 1, feedback: "타이밍을 맞추려는 시도는 위험해요." },
+          { text: "전문가 의견을 따라 추가 매도한다", score: 0, feedback: "전문가도 바닥을 맞추지 못해요." },
+          { text: "적립식으로 조금씩 추가 매수한다", score: 2, feedback: "DCA는 바닥을 맞출 필요 없이 평균 매수 단가를 낮춰줘요." },
         ],
       },
       {
-        situation: "6개월 후, 시장이 완전히 회복했습니다. 당신의 포트폴리오는 원래대로 돌아왔어요.",
+        situation: "6개월 후, 시장이 완전히 회복했습니다.",
         emotion: "안도, 놀라움",
         options: [
-          { text: "이번 경험을 기록하고 위기 대응 매뉴얼을 만든다", score: 3, feedback: "완벽해요! 위기를 겪은 후 기록하는 투자자는 다음 위기에서 더 강해져요. 레이 달리오도 모든 실수를 기록했어요." },
-          { text: "다행이다, 빨리 잊어버리자", score: 0, feedback: "위기를 잊으면 같은 실수를 반복해요. 다음 위기는 반드시 올 거예요. 준비가 차이를 만들어요." },
-          { text: "다음엔 더 공격적으로 투자해야겠다", score: 1, feedback: "성공 경험이 과잉 확신으로 이어지면 위험해요. 겸손함을 유지하세요." },
-          { text: "위기 대비 현금 비중을 늘려둔다", score: 2, feedback: "좋은 생각이에요! 현금은 위기 때 '기회를 잡을 수 있는 무기'가 돼요. 적정 비중을 유지하세요." },
+          { text: "이번 경험을 기록하고 위기 대응 매뉴얼을 만든다", score: 3, feedback: "완벽해요! 위기를 겪은 후 기록하는 투자자는 다음 위기에서 더 강해져요." },
+          { text: "다행이다, 빨리 잊어버리자", score: 0, feedback: "위기를 잊으면 같은 실수를 반복해요." },
+          { text: "다음엔 더 공격적으로 투자해야겠다", score: 1, feedback: "성공 경험이 과잉 확신으로 이어지면 위험해요." },
+          { text: "위기 대비 현금 비중을 늘려둔다", score: 2, feedback: "현금은 위기 때 '기회를 잡을 수 있는 무기'가 돼요." },
         ],
       },
     ],
@@ -67,27 +79,27 @@ const scenarios: CrisisScenario[] = [
     title: "FOMO 버블 상황",
     icon: Flame,
     iconColor: "#F59E0B",
-    description: "특정 섹터(AI/밈주식)가 6개월 만에 300% 올랐습니다.\n모든 사람이 이 주식 이야기만 하고 있어요.",
+    description: "특정 섹터가 6개월 만에 300% 올랐습니다.\n모든 사람이 이 주식 이야기만 하고 있어요.",
     historicalContext: "2021년 밈주식(GME, AMC) 열풍과 유사해요. GameStop은 2주 만에 1,500% 올랐지만, 이후 90% 이상 하락했어요.",
     steps: [
       {
-        situation: "동료, 친구, SNS 모두 'OO 주식'으로 몇 배를 벌었다고 자랑합니다. 당신만 이 기회를 놓치고 있는 것 같아요.",
+        situation: "동료, 친구, SNS 모두 'OO 주식'으로 몇 배를 벌었다고 자랑합니다. 당신만 놓치고 있는 것 같아요.",
         emotion: "FOMO, 조급함, 소외감",
         options: [
-          { text: "내 투자 원칙에 맞는지 냉정하게 분석한다", score: 3, feedback: "훌륭해요! FOMO는 가장 비싼 감정이에요. 2021년 밈주식에 뛰어든 대부분의 개인 투자자는 결국 손실을 봤어요." },
-          { text: "소액이라도 빨리 산다", score: 1, feedback: "소액이라 괜찮다는 생각은 위험해요. 이것이 'Foot in the door' 효과 — 점점 더 많은 돈을 넣게 돼요." },
-          { text: "전 재산의 50%를 투자한다", score: 0, feedback: "극도로 위험해요! 2021년 GME에 전 재산을 넣은 투자자들 대부분이 90% 이상 손실을 봤어요." },
-          { text: "SNS와 뉴스를 끊고 내 포트폴리오에 집중한다", score: 2, feedback: "좋은 방법이에요! 워런 버핏: '소음을 줄이면 신호가 들려요.' 남의 수익은 당신의 투자와 무관해요." },
+          { text: "내 투자 원칙에 맞는지 냉정하게 분석한다", score: 3, feedback: "FOMO는 가장 비싼 감정이에요." },
+          { text: "소액이라도 빨리 산다", score: 1, feedback: "'Foot in the door' 효과 — 점점 더 많은 돈을 넣게 돼요." },
+          { text: "전 재산의 50%를 투자한다", score: 0, feedback: "극도로 위험해요!" },
+          { text: "SNS를 끊고 내 포트폴리오에 집중한다", score: 2, feedback: "남의 수익은 당신의 투자와 무관해요." },
         ],
       },
       {
-        situation: "결국 그 주식을 샀는데, 다음 주에 40% 폭락했습니다. SNS에서는 '기회'라고 하는 사람과 '끝났다'는 사람이 반반이에요.",
+        situation: "결국 그 주식을 샀는데, 다음 주에 40% 폭락했습니다.",
         emotion: "후회, 공포, 혼란",
         options: [
-          { text: "왜 이 주식을 샀는지 이유를 다시 점검한다", score: 3, feedback: "핵심 질문이에요! 이유가 FOMO였다면 매도가 맞고, 기업 가치를 분석하고 샀다면 유지할 수 있어요." },
-          { text: "물타기로 더 산다", score: 0, feedback: "FOMO로 산 주식에 물타기는 최악이에요. 잘못된 결정을 더 크게 만드는 것뿐이에요." },
-          { text: "손실을 인정하고 매도한다", score: 2, feedback: "FOMO로 샀다면 빨리 인정하고 나오는 것도 용기예요. 손실을 끌어안는 것보다 나을 수 있어요." },
-          { text: "포럼과 SNS에서 다른 사람 의견을 더 찾아본다", score: 1, feedback: "SNS 의견은 대부분 편향돼 있어요. 자신만의 분석 기준을 갖는 것이 중요해요." },
+          { text: "왜 이 주식을 샀는지 이유를 다시 점검한다", score: 3, feedback: "이유가 FOMO였다면 매도가 맞아요." },
+          { text: "물타기로 더 산다", score: 0, feedback: "FOMO로 산 주식에 물타기는 최악이에요." },
+          { text: "손실을 인정하고 매도한다", score: 2, feedback: "빨리 인정하고 나오는 것도 용기예요." },
+          { text: "SNS에서 다른 의견을 더 찾아본다", score: 1, feedback: "자신만의 분석 기준을 갖는 것이 중요해요." },
         ],
       },
     ],
@@ -101,44 +113,43 @@ const scenarios: CrisisScenario[] = [
     historicalContext: "2022년 연준 급격한 금리 인상기와 유사해요. 나스닥은 33% 하락했지만, 2023년에 44% 반등했어요.",
     steps: [
       {
-        situation: "금리가 계속 오르고, 기술주가 매일 떨어지고 있어요. '현금이 왕'이라는 말이 나오고 있습니다.",
+        situation: "금리가 계속 오르고, 기술주가 매일 떨어지고 있어요. '현금이 왕'이라는 말이 나옵니다.",
         emotion: "불안, 무력감",
         options: [
-          { text: "포트폴리오의 자산 배분을 점검하고 필요시 리밸런싱한다", score: 3, feedback: "최고의 대응이에요! 레이 달리오: '경제 환경이 바뀌면 자산 배분도 조정해야 한다.' 리밸런싱은 리스크 관리의 핵심이에요." },
-          { text: "모든 주식을 팔고 현금으로 전환한다", score: 0, feedback: "2022년에 전부 팔고 나간 투자자는 2023년 44% 반등을 놓쳤어요. 올인/올아웃은 거의 항상 실패해요." },
-          { text: "금리에 영향 적은 방어주로 전부 교체한다", score: 1, feedback: "일부 방어주 편입은 좋지만 '전부 교체'는 과잉 반응이에요. 환경은 또 바뀔 수 있어요." },
-          { text: "아무것도 바꾸지 않고 적립식 투자를 계속한다", score: 2, feedback: "좋은 접근이에요! 침체기에 적립식 투자를 계속하면 낮은 가격에 더 많은 주식을 살 수 있어요." },
+          { text: "자산 배분을 점검하고 필요시 리밸런싱한다", score: 3, feedback: "리밸런싱은 리스크 관리의 핵심이에요." },
+          { text: "모든 주식을 팔고 현금으로 전환한다", score: 0, feedback: "2023년 44% 반등을 놓치게 돼요." },
+          { text: "방어주로 전부 교체한다", score: 1, feedback: "'전부 교체'는 과잉 반응이에요." },
+          { text: "적립식 투자를 계속한다", score: 2, feedback: "침체기에 적립식은 낮은 가격에 더 많이 살 수 있어요." },
         ],
       },
     ],
   },
-  // ===== NEW SCENARIOS =====
   {
     id: "rate-hike",
     title: "금리 인상 충격",
     icon: Landmark,
     iconColor: "#6366F1",
     description: "연준이 예상보다 0.75% 추가 인상을 발표했습니다.\n성장주 중심 포트폴리오가 급락하고 있어요.",
-    historicalContext: "2022년 연준은 한 해 동안 4.25%를 인상했어요. 이는 40년 만에 가장 빠른 속도였고, 나스닥은 33% 하락했어요.",
+    historicalContext: "2022년 연준은 한 해 동안 4.25%를 인상했어요. 나스닥은 33% 하락했지만, 이후 크게 반등했어요.",
     steps: [
       {
-        situation: "당신의 포트폴리오는 성장주 위주입니다. 금리 인상 소식에 하루 만에 -8% 떨어졌어요. 채권 수익률이 5%까지 올라 '예금이 낫다'는 말이 나옵니다.",
+        situation: "포트폴리오가 하루 만에 -8%. '예금이 낫다'는 말이 나옵니다.",
         emotion: "당황, 불안, 의심",
         options: [
-          { text: "금리 환경에 따른 자산별 영향을 분석하고 비중을 조정한다", score: 3, feedback: "금리 상승기에는 밸류에이션이 높은 성장주가 가장 타격을 받아요. 환경에 맞는 조정은 합리적이에요." },
-          { text: "성장주를 모두 팔고 예금으로 옮긴다", score: 0, feedback: "금리 정점에서 성장주를 팔면 최악의 타이밍이에요. 2023년 금리 인상 멈춘 후 나스닥은 44% 반등했어요." },
-          { text: "금리 인하를 기다리며 현금만 보유한다", score: 1, feedback: "타이밍을 맞추기 어려워요. 금리 인하 시점을 정확히 예측한 전문가는 거의 없었어요." },
-          { text: "배당주와 가치주 일부를 편입해 균형을 맞춘다", score: 2, feedback: "좋은 접근이에요! 환경 변화에 포트폴리오를 '적응'시키는 것은 전부 바꾸는 것과 다릅니다." },
+          { text: "금리 환경에 따른 자산별 영향을 분석하고 비중 조정", score: 3, feedback: "환경에 맞는 조정은 합리적이에요." },
+          { text: "성장주를 모두 팔고 예금으로 옮긴다", score: 0, feedback: "금리 정점에서 팔면 최악의 타이밍이에요." },
+          { text: "금리 인하를 기다리며 현금만 보유", score: 1, feedback: "금리 인하 시점을 정확히 예측한 전문가는 거의 없었어요." },
+          { text: "배당주·가치주 일부 편입해 균형", score: 2, feedback: "포트폴리오를 '적응'시키는 건 전부 바꾸는 것과 달라요." },
         ],
       },
       {
-        situation: "6개월이 지났습니다. 금리가 정점에 도달한 것 같지만, 시장은 여전히 침체 우려로 횡보 중이에요. '경기 침체가 곧 온다'는 전망이 주류입니다.",
+        situation: "6개월 후, 금리가 정점에 도달한 것 같지만 시장은 횡보 중이에요.",
         emotion: "지루함, 피로, 회의감",
         options: [
-          { text: "장기 전망이 좋은 기업을 할인된 가격에 적립식으로 매수한다", score: 3, feedback: "금리 정점은 역사적으로 좋은 매수 시점이었어요. 2022년 말~2023년 초 매수한 투자자는 큰 수익을 얻었어요." },
-          { text: "침체가 확인될 때까지 완전히 관망한다", score: 1, feedback: "침체가 확인됐을 때는 이미 시장이 반등한 후인 경우가 많아요. 시장은 경제보다 6개월 먼저 움직여요." },
-          { text: "크립토나 대체 자산으로 방향을 전환한다", score: 0, feedback: "불확실한 시기에 더 변동성 높은 자산으로 옮기는 것은 위험을 키우는 것이에요." },
-          { text: "포트폴리오를 그대로 유지하고 정기 점검만 한다", score: 2, feedback: "큰 변화가 아니라면 유지하는 것도 좋은 전략이에요. 불필요한 매매는 비용만 늘려요." },
+          { text: "장기 전망이 좋은 기업을 할인 가격에 적립식 매수", score: 3, feedback: "금리 정점은 역사적으로 좋은 매수 시점이었어요." },
+          { text: "침체 확인될 때까지 완전 관망", score: 1, feedback: "시장은 경제보다 6개월 먼저 움직여요." },
+          { text: "크립토로 방향 전환", score: 0, feedback: "불확실할 때 더 변동성 높은 자산은 위험을 키워요." },
+          { text: "포트폴리오 그대로 유지, 정기 점검", score: 2, feedback: "불필요한 매매는 비용만 늘려요." },
         ],
       },
     ],
@@ -148,27 +159,27 @@ const scenarios: CrisisScenario[] = [
     title: "인플레이션 시대",
     icon: DollarSign,
     iconColor: "#F59E0B",
-    description: "소비자 물가가 전년 대비 9% 올랐습니다.\n생활비는 치솟고, 투자 수익률은 물가를 따라가지 못하고 있어요.",
-    historicalContext: "2022년 미국 CPI는 9.1%까지 올랐어요. 1970년대 대인플레이션 이후 최고치였고, 금, 에너지, 실물자산이 강세를 보였어요.",
+    description: "소비자 물가가 전년 대비 9% 올랐습니다.\n투자 수익률은 물가를 따라가지 못하고 있어요.",
+    historicalContext: "2022년 미국 CPI는 9.1%까지 올랐어요. 1970년대 이후 최고치였고, 금·에너지·실물자산이 강세를 보였어요.",
     steps: [
       {
-        situation: "현금의 실질 가치가 매달 줄어들고 있어요. 은행 이자(3%)는 인플레이션(9%)을 따라가지 못합니다. '현금은 쓰레기'라는 레이 달리오의 말이 떠오릅니다.",
+        situation: "현금의 실질 가치가 매달 줄어듭니다. 은행 이자 3%는 인플레 9%를 못 따라갑니다.",
         emotion: "초조, 강박",
         options: [
-          { text: "인플레이션 헷지 자산(원자재, TIPS, 가치주)을 포트폴리오에 추가한다", score: 3, feedback: "인플레이션 환경에서는 실물 가치가 있는 자산이 강해요. 분산 차원에서 일부 편입하는 것이 현명해요." },
-          { text: "모든 현금을 주식에 넣는다", score: 0, feedback: "인플레이션이 높으면 금리도 올라요. 금리 인상은 주식에도 타격이에요. 올인은 위험해요." },
-          { text: "부동산에 레버리지로 투자한다", score: 1, feedback: "인플레이션기 부동산은 좋은 자산이지만, 고금리 시기의 레버리지는 이자 부담이 커요." },
-          { text: "물가연동채권(TIPS)과 배당 성장주를 중심으로 리밸런싱한다", score: 2, feedback: "물가연동채권은 인플레이션에 직접 연동되는 안전한 선택이에요. 배당 성장주도 실질 가치를 보호해줘요." },
+          { text: "인플레이션 헷지 자산(원자재, TIPS, 가치주) 추가", score: 3, feedback: "실물 가치가 있는 자산이 인플레에 강해요." },
+          { text: "모든 현금을 주식에 넣는다", score: 0, feedback: "인플레이션이 높으면 금리도 올라 주식에도 타격이에요." },
+          { text: "부동산에 레버리지로 투자", score: 1, feedback: "고금리 시기 레버리지는 이자 부담이 커요." },
+          { text: "TIPS + 배당 성장주 중심으로 리밸런싱", score: 2, feedback: "물가연동채권은 인플레이션에 직접 연동되는 안전한 선택이에요." },
         ],
       },
       {
-        situation: "인플레이션이 서서히 낮아지기 시작합니다(9% → 6%). 하지만 시장은 여전히 불안하고, '디스인플레이션인가, 디플레이션으로 가는 건가' 논쟁이 뜨겁습니다.",
+        situation: "인플레이션이 서서히 낮아지기 시작합니다(9% → 6%).",
         emotion: "혼란, 기대, 경계",
         options: [
-          { text: "인플레이션 추이를 지켜보며 단계적으로 성장주 비중을 늘린다", score: 3, feedback: "인플레이션 하락 → 금리 인하 기대 → 성장주 회복의 흐름을 미리 준비하는 현명한 판단이에요." },
-          { text: "인플레이션이 완전히 잡힐 때까지 기다린다", score: 1, feedback: "완전히 잡히는 시점을 기다리면 이미 시장은 올라있어요. 점진적 대응이 더 나아요." },
-          { text: "금리 인하 기대에 올인 매수한다", score: 0, feedback: "기대만으로 올인하면 기대가 빗나갈 때 큰 손실을 봐요. 단계적 접근이 안전해요." },
-          { text: "현재 전략을 유지하면서 새로운 정보에 열린 태도를 갖는다", score: 2, feedback: "유연성을 유지하는 것은 좋은 태도예요. 확신보다 적응력이 중요한 시기예요." },
+          { text: "추이를 지켜보며 단계적으로 성장주 비중 증가", score: 3, feedback: "인플레 하락 → 금리 인하 기대 → 성장주 회복 흐름을 미리 준비하는 현명한 판단." },
+          { text: "완전히 잡힐 때까지 기다린다", score: 1, feedback: "완전히 잡히는 시점엔 이미 시장은 올라있어요." },
+          { text: "금리 인하 기대에 올인 매수", score: 0, feedback: "기대만으로 올인하면 기대가 빗나갈 때 큰 손실." },
+          { text: "현재 전략 유지, 새 정보에 열린 태도", score: 2, feedback: "확신보다 적응력이 중요한 시기예요." },
         ],
       },
     ],
@@ -179,45 +190,192 @@ const scenarios: CrisisScenario[] = [
     icon: BarChart3,
     iconColor: "#EF4444",
     description: "가장 많이 투자한 종목이 실적 발표 후\n하루 만에 -40% 폭락했습니다.",
-    historicalContext: "메타(구 페이스북)는 2022년 2월 실적 후 -26%, 10월에 또 -24% 떨어졌어요. 하지만 2023년에 194% 반등했어요. 반면 WeWork는 -99% 하락 후 파산했어요.",
+    historicalContext: "메타는 2022년 -70% 하락 후 2023년 194% 반등. WeWork는 -99% 하락 후 파산. 원인 분석이 핵심이에요.",
     steps: [
       {
-        situation: "포트폴리오의 30%를 차지하던 종목이 실적 미스로 하루 만에 -40% 급락했습니다. 애널리스트들이 목표가를 대폭 하향하고 있어요.",
+        situation: "포트폴리오 30%를 차지하던 종목이 실적 미스로 -40% 급락.",
         emotion: "충격, 공포, 배신감",
         options: [
-          { text: "실적 발표를 직접 읽고, 하락 원인이 일시적인지 구조적인지 분석한다", score: 3, feedback: "핵심이에요! 메타의 2022년 급락은 과도한 메타버스 투자(일시적)였고, WeWork의 급락은 비즈니스 모델 자체의 문제(구조적)였어요." },
-          { text: "즉시 전량 매도한다", score: 0, feedback: "메타를 -40%에서 판 투자자는 이후 194% 반등을 놓쳤어요. 감정적 매도는 최악의 타이밍이 될 수 있어요." },
-          { text: "물타기해서 평균 단가를 낮춘다", score: 1, feedback: "원인 분석 없이 물타기하면 '떨어지는 칼날'을 잡는 것과 같아요. 분석이 먼저예요." },
-          { text: "24시간 아무 결정도 내리지 않고 냉각 기간을 둔다", score: 2, feedback: "좋은 방법이에요! 극단적 감정 상태에서의 결정은 대부분 후회로 이어져요. 하루만 기다리세요." },
+          { text: "하락 원인이 일시적인지 구조적인지 분석한다", score: 3, feedback: "메타의 2022년은 과도한 투자(일시적), WeWork는 모델 자체의 문제(구조적)." },
+          { text: "즉시 전량 매도한다", score: 0, feedback: "메타를 -40%에서 팔면 194% 반등을 놓쳐요." },
+          { text: "물타기해서 평균 단가를 낮춘다", score: 1, feedback: "분석 없이 물타기는 '떨어지는 칼날'을 잡는 것." },
+          { text: "24시간 냉각 기간을 둔다", score: 2, feedback: "극단적 감정 상태에서의 결정은 대부분 후회로 이어져요." },
         ],
       },
       {
-        situation: "분석 결과, 기업의 핵심 비즈니스는 건전하지만 단기 비용이 증가한 것이 원인이었습니다. 2주 후 주가는 -40%에서 -25%로 일부 회복했어요.",
+        situation: "분석 결과, 핵심 비즈니스는 건전하나 단기 비용 증가가 원인. 2주 후 -25%로 일부 회복.",
         emotion: "희망, 불안, 갈등",
         options: [
-          { text: "투자 논거가 유효하므로 보유하되, 포트폴리오 비중을 적정 수준으로 조정한다", score: 3, feedback: "완벽한 판단이에요! 논거가 살아있으면 보유하되, 한 종목 과집중 리스크는 관리해야 해요." },
-          { text: "일부 회복했으니 전량 매도한다", score: 1, feedback: "본전 심리는 위험해요. 논거가 유효한데 '덜 잃었을 때 팔자'는 감정적 판단이에요." },
-          { text: "다시 크게 오를 것이니 오히려 더 산다", score: 1, feedback: "확신은 좋지만, 한 종목에 과도한 비중은 위험해요. 분석과 비중 관리를 동시에 하세요." },
-          { text: "다른 종목으로 갈아탄다", score: 0, feedback: "'풀은 항상 반대편이 더 푸르러 보인다'는 편향이에요. 갈아타기는 대부분 수익률을 낮춰요." },
+          { text: "논거 유효 → 보유하되 비중 조정", score: 3, feedback: "한 종목 과집중 리스크를 관리하면서 보유하는 것이 최선." },
+          { text: "일부 회복했으니 전량 매도", score: 1, feedback: "본전 심리는 감정적 판단이에요." },
+          { text: "다시 크게 오를 테니 더 산다", score: 1, feedback: "한 종목 과도한 비중은 위험해요." },
+          { text: "다른 종목으로 갈아탄다", score: 0, feedback: "갈아타기는 대부분 수익률을 낮춰요." },
         ],
       },
       {
-        situation: "1년 후, 해당 종목은 원래 가격을 넘어서 신고가를 기록했습니다. 당신이 내린 결정의 결과를 돌아볼 시간입니다.",
+        situation: "1년 후, 해당 종목은 신고가를 기록. 경험을 돌아볼 시간입니다.",
         emotion: "성찰, 교훈",
         options: [
-          { text: "투자 일지에 이번 경험의 감정, 판단, 결과를 모두 기록한다", score: 3, feedback: "경험을 기록하는 투자자는 같은 실수를 반복하지 않아요. 이것이 진짜 복리 — 경험의 복리예요." },
-          { text: "다음에는 급락 시 바로 더 사야겠다", score: 1, feedback: "이번에 됐다고 다음에도 되는 건 아니에요. 매번 원인 분석이 우선이에요. 과잉 일반화는 위험해요." },
-          { text: "운이 좋았을 뿐이야, 다음엔 이런 주식은 안 사야지", score: 0, feedback: "분석에 기반한 판단이었다면 운이 아니에요. 자신의 올바른 결정을 인정하는 것도 중요해요." },
-          { text: "이 경험을 바탕으로 개별 종목 비중 상한선을 정해둔다", score: 2, feedback: "시스템화하는 것은 훌륭해요! 감정이 아닌 규칙으로 투자하면 장기적으로 더 안정적이에요." },
+          { text: "투자 일지에 감정·판단·결과를 모두 기록", score: 3, feedback: "경험의 복리 — 기록하는 투자자만이 쌓을 수 있어요." },
+          { text: "다음엔 급락 시 바로 더 사야겠다", score: 1, feedback: "과잉 일반화는 위험해요. 매번 원인 분석이 먼저." },
+          { text: "운이 좋았을 뿐이야", score: 0, feedback: "분석 기반 판단이었다면 운이 아니에요." },
+          { text: "개별 종목 비중 상한선을 정해둔다", score: 2, feedback: "시스템화는 훌륭해요!" },
         ],
       },
     ],
   },
 ];
 
-type Phase = "intro" | "playing" | "result";
+// ===== Growth Chart Component =====
+function GrowthChart({ records }: { records: CrisisRecord[] }) {
+  const [animatedHeights, setAnimatedHeights] = useState<number[]>([]);
+  
+  const recent = records.slice(0, 10).reverse(); // oldest first, max 10
+  
+  useEffect(() => {
+    // Animate bars sequentially
+    setAnimatedHeights(new Array(recent.length).fill(0));
+    recent.forEach((_, i) => {
+      setTimeout(() => {
+        setAnimatedHeights(prev => {
+          const next = [...prev];
+          next[i] = recent[i].score_percentage;
+          return next;
+        });
+      }, 150 * (i + 1));
+    });
+  }, [records.length]);
+
+  if (recent.length === 0) return null;
+
+  const avg = Math.round(recent.reduce((s, r) => s + r.score_percentage, 0) / recent.length);
+  const best = Math.max(...recent.map(r => r.score_percentage));
+  const trend = recent.length >= 2 
+    ? recent[recent.length - 1].score_percentage - recent[0].score_percentage 
+    : 0;
+
+  return (
+    <div className="w-full">
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-2 mb-5">
+        <div className="bg-card border border-border rounded-xl p-3 text-center">
+          <div className="flex items-center justify-center gap-1 mb-1">
+            <Trophy size={12} className="text-primary" />
+          </div>
+          <p className="text-lg font-black text-foreground">{best}%</p>
+          <p className="text-[10px] text-muted-foreground">최고 점수</p>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-3 text-center">
+          <div className="flex items-center justify-center gap-1 mb-1">
+            <Zap size={12} className="text-primary" />
+          </div>
+          <p className="text-lg font-black text-foreground">{avg}%</p>
+          <p className="text-[10px] text-muted-foreground">평균 점수</p>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-3 text-center">
+          <div className="flex items-center justify-center gap-1 mb-1">
+            <TrendingUp size={12} className={trend >= 0 ? "text-primary" : "text-destructive"} />
+          </div>
+          <p className={`text-lg font-black ${trend >= 0 ? "text-primary" : "text-destructive"}`}>
+            {trend >= 0 ? "+" : ""}{trend}%
+          </p>
+          <p className="text-[10px] text-muted-foreground">성장 추세</p>
+        </div>
+      </div>
+
+      {/* Bar chart */}
+      <div className="bg-card border border-border rounded-2xl p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp size={14} className="text-primary" />
+          <p className="text-xs font-semibold text-foreground">위기 대응 성장 그래프</p>
+          <span className="text-[10px] text-muted-foreground ml-auto">{records.length}회 도전</span>
+        </div>
+        
+        <div className="flex items-end gap-1.5 h-32">
+          {recent.map((record, i) => {
+            const height = animatedHeights[i] || 0;
+            const color = height >= 80 ? "bg-primary" 
+              : height >= 60 ? "bg-ppuri-blue" 
+              : height >= 40 ? "bg-ppuri-amber" 
+              : "bg-ppuri-red";
+            
+            return (
+              <div key={record.id} className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-[9px] font-bold text-muted-foreground">
+                  {height > 0 ? `${record.score_percentage}` : ""}
+                </span>
+                <div className="w-full bg-muted rounded-t-md overflow-hidden" style={{ height: "100px" }}>
+                  <div 
+                    className={`w-full ${color} rounded-t-md transition-all duration-700 ease-out`}
+                    style={{ 
+                      height: `${height}%`,
+                      marginTop: `${100 - height}%`,
+                    }}
+                  />
+                </div>
+                <span className="text-[8px] text-muted-foreground truncate w-full text-center">
+                  {new Date(record.completed_at).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" })}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Survival level */}
+        {records.length >= 3 && (
+          <div className="mt-4 pt-3 border-t border-border">
+            <SurvivalLevel avg={avg} totalAttempts={records.length} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SurvivalLevel({ avg, totalAttempts }: { avg: number; totalAttempts: number }) {
+  const levels = [
+    { min: 0, label: "신입 투자자", icon: "🌱", color: "#9CA3AF", next: "감정을 인식하는 법을 배우고 있어요" },
+    { min: 30, label: "생존자 후보", icon: "🛡️", color: "#F59E0B", next: "감정 조절의 기초가 잡히고 있어요" },
+    { min: 50, label: "침착한 생존자", icon: "⚔️", color: "#3B82F6", next: "위기에서 흔들리지 않는 힘이 생기고 있어요" },
+    { min: 70, label: "위기 전문가", icon: "🏅", color: "#58CC02", next: "어떤 폭풍에서도 기회를 찾을 수 있어요" },
+    { min: 85, label: "불사조 투자자", icon: "🔥", color: "#EF4444", next: "위기가 오히려 당신을 강하게 만들어요" },
+  ];
+  
+  const level = [...levels].reverse().find(l => avg >= l.min) || levels[0];
+  const nextLevel = levels[levels.indexOf(level) + 1];
+  const progress = nextLevel 
+    ? Math.min(100, ((avg - level.min) / (nextLevel.min - level.min)) * 100)
+    : 100;
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-lg">{level.icon}</span>
+        <div>
+          <p className="text-xs font-bold text-foreground">{level.label}</p>
+          <p className="text-[10px] text-muted-foreground">{level.next}</p>
+        </div>
+        <span className="text-[10px] text-muted-foreground ml-auto">{totalAttempts}회 생존</span>
+      </div>
+      {nextLevel && (
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full rounded-full transition-all duration-1000 ease-out"
+              style={{ width: `${progress}%`, backgroundColor: level.color }}
+            />
+          </div>
+          <span className="text-[9px] text-muted-foreground">→ {nextLevel.label}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+type Phase = "intro" | "playing" | "result" | "growth";
 
 export default function CrisisModePage() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>("intro");
   const [selectedScenario, setSelectedScenario] = useState<CrisisScenario | null>(null);
@@ -226,6 +384,21 @@ export default function CrisisModePage() {
   const [totalScore, setTotalScore] = useState(0);
   const [maxScore, setMaxScore] = useState(0);
   const [stepScores, setStepScores] = useState<number[]>([]);
+  const [pastResults, setPastResults] = useState<CrisisRecord[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  // Load past results
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("crisis_results")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("completed_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setPastResults(data as CrisisRecord[]);
+      });
+  }, [user]);
 
   const startScenario = (scenario: CrisisScenario) => {
     setSelectedScenario(scenario);
@@ -245,12 +418,33 @@ export default function CrisisModePage() {
     setStepScores(prev => [...prev, score]);
   }, [selectedOption, selectedScenario, stepIndex]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!selectedScenario) return;
     if (stepIndex + 1 < selectedScenario.steps.length) {
       setStepIndex(stepIndex + 1);
       setSelectedOption(null);
     } else {
+      // Save result
+      const pct = Math.round(((totalScore + (selectedScenario.steps[stepIndex].options[selectedOption!]?.score || 0) - (stepScores[stepScores.length - 1] || 0) + (stepScores[stepScores.length - 1] || 0)) / maxScore) * 100);
+      
+      if (user) {
+        setSaving(true);
+        const finalPct = Math.round((totalScore / maxScore) * 100);
+        const { data } = await supabase.from("crisis_results").insert({
+          user_id: user.id,
+          scenario_id: selectedScenario.id,
+          scenario_title: selectedScenario.title,
+          score: totalScore,
+          max_score: maxScore,
+          score_percentage: finalPct,
+          step_scores: stepScores,
+        }).select().single();
+        
+        if (data) {
+          setPastResults(prev => [data as CrisisRecord, ...prev]);
+        }
+        setSaving(false);
+      }
       setPhase("result");
     }
   };
@@ -267,6 +461,69 @@ export default function CrisisModePage() {
     return "thinking";
   };
 
+  // ===== GROWTH VIEW =====
+  if (phase === "growth") {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-10 bg-background/90 backdrop-blur-md border-b border-border">
+          <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setPhase("intro")} className="text-xl text-muted-foreground">←</button>
+            <div className="flex items-center gap-2">
+              <TrendingUp size={18} className="text-primary" />
+              <h1 className="text-title font-bold text-foreground">나의 성장 기록</h1>
+            </div>
+          </div>
+        </header>
+        <main className="max-w-lg mx-auto px-4 py-6">
+          {pastResults.length === 0 ? (
+            <div className="text-center py-12 animate-fade-in">
+              <Mascot mood="thinking" size="lg" className="mx-auto mb-4" />
+              <p className="text-body font-semibold text-foreground mb-2">아직 기록이 없어요</p>
+              <p className="text-small text-muted-foreground mb-6">위기 시뮬레이션을 완료하면<br />성장 그래프가 여기 나타나요!</p>
+              <PpuriButton onClick={() => setPhase("intro")}>시뮬레이션 시작하기</PpuriButton>
+            </div>
+          ) : (
+            <div className="animate-fade-in">
+              <GrowthChart records={pastResults} />
+              
+              {/* Recent history */}
+              <div className="mt-5 bg-card border border-border rounded-2xl p-4">
+                <p className="text-xs font-semibold text-foreground mb-3">최근 도전 기록</p>
+                <div className="space-y-2.5">
+                  {pastResults.slice(0, 5).map((r) => {
+                    const scenario = scenarios.find(s => s.id === r.scenario_id);
+                    const Icon = scenario?.icon || Shield;
+                    return (
+                      <div key={r.id} className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: (scenario?.iconColor || "#6B7280") + "15" }}>
+                          <Icon size={14} color={scenario?.iconColor || "#6B7280"} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-foreground truncate">{r.scenario_title}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {new Date(r.completed_at).toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}
+                          </p>
+                        </div>
+                        <div className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                          r.score_percentage >= 80 ? "bg-primary/10 text-primary"
+                          : r.score_percentage >= 60 ? "bg-ppuri-blue/10 text-ppuri-blue"
+                          : r.score_percentage >= 40 ? "bg-ppuri-amber/10 text-ppuri-amber"
+                          : "bg-ppuri-red/10 text-ppuri-red"
+                        }`}>
+                          {r.score_percentage}점
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+    );
+  }
+
   // ===== INTRO =====
   if (phase === "intro") {
     return (
@@ -278,6 +535,15 @@ export default function CrisisModePage() {
               <Shield size={18} className="text-primary" />
               <h1 className="text-title font-bold text-foreground">위기 시뮬레이션</h1>
             </div>
+            {pastResults.length > 0 && (
+              <button 
+                onClick={() => setPhase("growth")}
+                className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
+              >
+                <TrendingUp size={13} />
+                성장 기록
+              </button>
+            )}
           </div>
         </header>
 
@@ -294,18 +560,27 @@ export default function CrisisModePage() {
           <div className="space-y-3">
             {scenarios.map((s, i) => {
               const Icon = s.icon;
+              const attempts = pastResults.filter(r => r.scenario_id === s.id).length;
+              const bestScore = pastResults.filter(r => r.scenario_id === s.id)
+                .reduce((best, r) => Math.max(best, r.score_percentage), 0);
+              
               return (
                 <button
                   key={s.id}
                   onClick={() => startScenario(s)}
                   className="w-full bg-card border-2 border-border rounded-2xl p-5 text-left hover:border-primary/50 transition-all press-effect animate-slide-up"
-                  style={{ animationDelay: `${i * 100}ms`, animationFillMode: "both" }}
+                  style={{ animationDelay: `${i * 80}ms`, animationFillMode: "both" }}
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: s.iconColor + "15" }}>
                       <Icon size={20} color={s.iconColor} />
                     </div>
-                    <h3 className="text-body font-bold text-foreground">{s.title}</h3>
+                    <div className="flex-1">
+                      <h3 className="text-body font-bold text-foreground">{s.title}</h3>
+                      {attempts > 0 && (
+                        <p className="text-[10px] text-muted-foreground">{attempts}회 도전 · 최고 {bestScore}점</p>
+                      )}
+                    </div>
                   </div>
                   <p className="text-small text-muted-foreground whitespace-pre-line pl-[52px]">{s.description}</p>
                 </button>
@@ -325,11 +600,24 @@ export default function CrisisModePage() {
       : pct >= 40 ? { label: "성장 중인 투자자", color: "#F59E0B", msg: "감정에 흔들린 순간이 있었지만, 배움이 있었어요!" }
       : { label: "감정적 투자자", color: "#EF4444", msg: "괜찮아요! 여기서 연습하는 것 자체가 대단한 거예요!" };
 
+    // Previous best for this scenario
+    const prevBest = pastResults
+      .filter(r => r.scenario_id === selectedScenario.id && r.id !== pastResults[0]?.id)
+      .reduce((best, r) => Math.max(best, r.score_percentage), 0);
+    const isNewBest = prevBest > 0 && pct > prevBest;
+
     return (
       <div className="min-h-screen bg-background flex flex-col items-center px-6 pt-8 pb-6 animate-fade-in">
         <Mascot mood={getMood()} size="xl" className="mb-3" />
         <h1 className="text-display text-foreground mb-1">{grade.label}</h1>
-        <p className="text-small text-muted-foreground mb-6 text-center">{grade.msg}</p>
+        <p className="text-small text-muted-foreground mb-4 text-center">{grade.msg}</p>
+
+        {isNewBest && (
+          <div className="bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5 mb-4 flex items-center gap-2 animate-slide-up">
+            <Trophy size={14} className="text-primary" />
+            <span className="text-xs font-bold text-primary">자기 최고 기록 갱신!</span>
+          </div>
+        )}
 
         <div className="w-full max-w-sm bg-primary/10 border border-primary/20 rounded-2xl p-5 mb-4 text-center">
           <p className="text-small text-primary font-medium mb-1">위기 대응 점수</p>
@@ -345,7 +633,7 @@ export default function CrisisModePage() {
               <div key={i} className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground w-16">상황 {i + 1}</span>
                 <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${(score / 3) * 100}%` }} />
+                  <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: `${(score / 3) * 100}%` }} />
                 </div>
                 <span className="text-xs font-bold text-foreground">{score}/3</span>
               </div>
@@ -354,7 +642,7 @@ export default function CrisisModePage() {
         </div>
 
         {/* Historical insight */}
-        <div className="w-full max-w-sm bg-accent/50 border border-border rounded-xl p-4 mb-6 flex items-start gap-3">
+        <div className="w-full max-w-sm bg-accent/50 border border-border rounded-xl p-4 mb-4 flex items-start gap-3">
           <Mascot mood="thinking" size="sm" />
           <div className="flex-1">
             <p className="text-xs font-semibold text-primary mb-1">역사적 교훈</p>
@@ -363,6 +651,12 @@ export default function CrisisModePage() {
         </div>
 
         <div className="w-full max-w-sm space-y-3">
+          {pastResults.length >= 2 && (
+            <PpuriButton fullWidth variant="secondary" onClick={() => setPhase("growth")}>
+              <TrendingUp size={16} className="mr-2" />
+              나의 성장 그래프 보기
+            </PpuriButton>
+          )}
           <PpuriButton fullWidth onClick={() => { setPhase("intro"); setSelectedScenario(null); }}>
             다른 시나리오 도전하기
           </PpuriButton>
@@ -462,8 +756,8 @@ export default function CrisisModePage() {
       {/* Continue button */}
       {selectedOption !== null && (
         <div className="px-4 pb-6 max-w-lg mx-auto w-full animate-slide-up">
-          <PpuriButton fullWidth onClick={handleNext}>
-            {stepIndex + 1 < selectedScenario.steps.length ? "다음 상황 →" : "결과 보기"}
+          <PpuriButton fullWidth onClick={handleNext} disabled={saving}>
+            {saving ? "저장 중..." : stepIndex + 1 < selectedScenario.steps.length ? "다음 상황 →" : "결과 보기"}
           </PpuriButton>
         </div>
       )}
