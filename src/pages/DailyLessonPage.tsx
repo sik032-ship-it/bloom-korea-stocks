@@ -116,7 +116,7 @@ function FillBlank({ sentence, hints, onAnswer }: { sentence: string; hints?: st
 }
 
 // ===== Feedback Banner with soul =====
-function FeedbackBanner({ correct, explanation, streakCount, onContinue }: { correct: boolean; explanation: string; streakCount: number; onContinue: () => void }) {
+function FeedbackBanner({ correct, explanation, streakCount, insight, onContinue }: { correct: boolean; explanation: string; streakCount: number; insight?: string | null; onContinue: () => void }) {
   const message = correct ? getCorrectMessage(streakCount) : getWrongMessage();
 
   return (
@@ -492,6 +492,7 @@ export default function DailyLessonPage() {
           correct={lastCorrect}
           explanation={lastExplanation}
           streakCount={quizStreak}
+          insight={currentInsight}
           onContinue={handleContinue}
         />
       )}
