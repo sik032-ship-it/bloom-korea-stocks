@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import React, { Suspense, lazy } from "react";
 
 const AuthPage = lazy(() => import("./pages/AuthPage"));
@@ -44,31 +45,33 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
-              <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
-              <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
-              <Route path="/lesson" element={<ProtectedRoute><DailyLessonPage /></ProtectedRoute>} />
-              <Route path="/holdings" element={<ProtectedRoute><HoldingsPage /></ProtectedRoute>} />
-              <Route path="/archive" element={<ProtectedRoute><ArchivePage /></ProtectedRoute>} />
-              <Route path="/crisis" element={<ProtectedRoute><CrisisModePage /></ProtectedRoute>} />
-              <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-              <Route path="/paywall" element={<ProtectedRoute><PaywallPage /></ProtectedRoute>} />
-              <Route path="/practice" element={<ProtectedRoute><PracticePage /></ProtectedRoute>} />
-              <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+                <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
+                <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+                <Route path="/lesson" element={<ProtectedRoute><DailyLessonPage /></ProtectedRoute>} />
+                <Route path="/holdings" element={<ProtectedRoute><HoldingsPage /></ProtectedRoute>} />
+                <Route path="/archive" element={<ProtectedRoute><ArchivePage /></ProtectedRoute>} />
+                <Route path="/crisis" element={<ProtectedRoute><CrisisModePage /></ProtectedRoute>} />
+                <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                <Route path="/paywall" element={<ProtectedRoute><PaywallPage /></ProtectedRoute>} />
+                <Route path="/practice" element={<ProtectedRoute><PracticePage /></ProtectedRoute>} />
+                <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
