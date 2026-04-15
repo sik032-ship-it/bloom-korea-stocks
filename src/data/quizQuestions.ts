@@ -205,3 +205,32 @@ export function getDailyQuizSet(count: number, userLevel: number = 1): QuizQuest
 export function getRandomQuiz(): QuizQuestion {
   return allQuestions[Math.floor(Math.random() * allQuestions.length)];
 }
+
+// Personalize quiz questions with user's holdings
+export function personalizeQuiz(question: QuizQuestion, holdingNames: string[]): QuizQuestion {
+  if (holdingNames.length === 0) return question;
+  const name = holdingNames[Math.floor(Math.random() * holdingNames.length)];
+  
+  const q = { ...question };
+  
+  // Replace generic stock references with user's holding
+  const replacements: [RegExp, string][] = [
+    [/특정 종목/g, name],
+    [/OO 주식/g, `${name} 주식`],
+    [/한 종목/g, name],
+    [/어떤 기업/g, name],
+  ];
+  
+  if (q.format === "ox") {
+    const ox = q as OXQuestion;
+    replacements.forEach(([regex, rep]) => { ox.statement = ox.statement.replace(regex, rep); });
+  } else if (q.format === "multiple_choice") {
+    const mc = q as MultipleChoiceQuestion;
+    replacements.forEach(([regex, rep]) => { mc.question = mc.question.replace(regex, rep); });
+  } else if (q.format === "fill_blank") {
+    const fb = q as FillBlankQuestion;
+    replacements.forEach(([regex, rep]) => { fb.sentence = fb.sentence.replace(regex, rep); });
+  }
+  
+  return q;
+}
