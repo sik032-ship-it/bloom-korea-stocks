@@ -7,21 +7,16 @@ import { PpuriCard } from "@/components/PpuriCard";
 import { Mascot } from "@/components/Mascot";
 import { LevelBadge } from "@/components/LevelBadge";
 import { SpeechBubble } from "@/components/SpeechBubble";
-import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
-import { SkillMastery } from "@/components/SkillMastery";
-import { TodayProgress } from "@/components/TodayProgress";
-import { CommunityStats } from "@/components/CommunityStats";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
-import type { QuizCategory } from "@/data/quizQuestions";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
 export default function HomePage() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -29,7 +24,6 @@ export default function HomePage() {
   const [todayDone, setTodayDone] = useState(false);
   const [showStreakBroken, setShowStreakBroken] = useState(false);
   const [previousStreak, setPreviousStreak] = useState(0);
-  const [categoryScores, setCategoryScores] = useState<Record<QuizCategory, number>>({ risk: 0, psychology: 0, crisis: 0, judgment: 0 });
 
   useEffect(() => {
     if (!user) return;
@@ -53,19 +47,6 @@ export default function HomePage() {
         }
       }
       if (holdingsData) setHoldings(holdingsData);
-      
-      // Estimate category scores from total sentences (each lesson = ~1 point per category)
-      const total = profileData?.total_sentences || 0;
-      const base = Math.floor(total / 4);
-      const remainder = total % 4;
-      const cats: QuizCategory[] = ["risk", "psychology", "crisis", "judgment"];
-      const scores: Record<QuizCategory, number> = { risk: base, psychology: base, crisis: base, judgment: base };
-      for (let i = 0; i < remainder; i++) scores[cats[i]] += 1;
-      // Add crisis simulation bonus
-      const { count: crisisCount } = await supabase.from("crisis_results").select("id", { count: "exact", head: true }).eq("user_id", user.id);
-      scores.crisis += (crisisCount || 0) * 2;
-      setCategoryScores(scores);
-      
       setLoading(false);
     };
     fetchData();
@@ -186,40 +167,14 @@ export default function HomePage() {
           <div className="flex items-center justify-between mt-3">
             <div className="flex items-center gap-4">
               <span className="text-xs text-muted-foreground">📝 <strong className="text-foreground">{profile?.total_sentences || 0}</strong> 문장</span>
-              <span className={`text-xs text-muted-foreground ${streak > 0 ? "" : ""}`}>🔥 <strong className="text-foreground">{streak}</strong> 연속</span>
+              <span className="text-xs text-muted-foreground">🔥 <strong className="text-foreground">{streak}</strong> 연속</span>
               <span className="text-xs text-muted-foreground">🏆 <strong className="text-foreground">{profile?.longest_streak || 0}</strong> 최장</span>
             </div>
           </div>
         </PpuriCard>
 
-        {/* Weekly Activity Calendar */}
-        <PpuriCard>
-          <p className="text-small font-semibold text-foreground mb-3">📅 학습 캘린더</p>
-          {user && <WeeklyCalendar userId={user.id} />}
-        </PpuriCard>
-
-        {/* Today's Progress + AI Insight */}
-        {user && (
-          <TodayProgress
-            userId={user.id}
-            totalSentences={profile?.total_sentences || 0}
-            currentStreak={streak}
-            todayDone={todayDone}
-          />
-        )}
-
-        {/* Skill Mastery */}
-        <SkillMastery categoryScores={categoryScores} totalLessons={profile?.total_sentences || 0} />
-
-        {/* Quick Actions — 2x2 grid */}
+        {/* Quick Actions — 2 buttons */}
         <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => navigate("/practice")}
-            className="py-4 rounded-xl border-2 border-primary/30 bg-primary/5 text-foreground font-medium text-small hover:bg-primary/10 transition-all press-effect hover:-translate-y-0.5 flex flex-col items-center gap-1"
-          >
-            <span className="text-lg">📚</span>
-            연습장
-          </button>
           <button
             onClick={() => navigate("/crisis")}
             className="py-4 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5 flex flex-col items-center gap-1"
@@ -234,17 +189,7 @@ export default function HomePage() {
             <span className="text-lg">📖</span>
             기록 보관소
           </button>
-          <button
-            onClick={() => navigate("/holdings")}
-            className="py-4 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5 flex flex-col items-center gap-1"
-          >
-            <span className="text-lg">📊</span>
-            보유 종목
-          </button>
         </div>
-
-        {/* Community Stats */}
-        <CommunityStats />
       </div>
     </Layout>
   );
