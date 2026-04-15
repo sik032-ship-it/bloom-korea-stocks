@@ -154,12 +154,41 @@ const judgmentQuestions: QuizQuestion[] = [
   { format: "ox", difficulty: "advanced", category: "judgment", statement: "복잡한 투자 전략일수록 더 높은 수익을 낸다", answer: false, explanation: "보글: '단순함이 복잡함을 이긴다.' 역사적으로 인덱스 펀드가 대부분의 헤지펀드를 이겼어요.", insight: "투자에서 복잡함은 대개 불필요한 비용과 위험을 추가할 뿐이에요." },
 ];
 
+// ===== 핵심 철학 문제 (7가지 원칙 기반) =====
+const philosophyQuestions: QuizQuestion[] = [
+  // 원칙1: 경제적 불확실성은 변하지 않음 - 사람들의 위험 인식이 변할 뿐
+  { format: "ox", difficulty: "intermediate", category: "risk", statement: "경제 위기가 반복되는 이유는 경제 구조가 근본적으로 바뀌기 때문이다", answer: false, explanation: "경제적 불확실성은 거의 변하지 않아요. 달라지는 건 사람들이 위험을 얼마나 모르고 있었는지예요.", insight: "위기의 원인은 경제가 아니라 '사람들의 기억력'이에요. 좋은 시절에 위험을 잊는 것이 문제." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "risk", question: "2008년, 2020년, 모든 위기의 공통 원인은?", options: ["사람들이 위험을 과소평가하고 있었다", "경제 시스템이 완전히 새로운 문제를 맞았다", "정부가 개입하지 않았다", "기술 발전이 너무 빨랐다"], correctIndex: 0, explanation: "위기 전에는 항상 '이번은 다르다'고 했어요. 변하는 건 경제가 아니라 사람들의 자만심이에요.", insight: "위험을 느끼지 못하는 순간이 가장 위험해요. 이 역설을 아는 것만으로도 반은 대비한 겁니다." },
+
+  // 원칙2: 부를 쌓는 법 = 자존심 < 수입 유지
+  { format: "ox", difficulty: "beginner", category: "psychology", statement: "수입이 많으면 자동으로 부자가 된다", answer: false, explanation: "부를 쌓는 핵심은 단순해요: 자존심을 수입 아래로 유지하는 것. 얼마를 버느냐가 아니라 얼마를 남기느냐가 중요해요.", insight: "연봉 1억이어도 1.2억을 쓰면 빈곤해요. 연봉 5천이어도 3천만 쓰면 부자가 돼요." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "judgment", question: "모건 하우절이 말한 '부의 가장 큰 적'은?", options: ["기대가 수입보다 빨리 커지는 것", "인플레이션", "높은 세금", "투자 실패"], correctIndex: 0, explanation: "돈이 많아져도 기대가 더 빨리 커지면 영원히 만족할 수 없어요. 부는 숫자가 아니라 만족감이에요.", insight: "행복한 투자자는 '더 벌려는 사람'이 아니라 '충분함을 아는 사람'이에요." },
+  { format: "fill_blank", difficulty: "beginner", category: "psychology", sentence: "부를 쌓는 가장 확실한 방법: 자존심을 ___ 아래로 유지하기", answer: "수입", hints: ["수입", "소득"], explanation: "부는 남에게 보여주는 것이 아니에요. 남에게 보여주려고 쓰는 돈이 부를 갈아먹어요.", insight: "진짜 부자는 '부자처럼 보이지 않는 사람'일 확률이 높아요." },
+
+  // 원칙3: FOMO가 없다는 것 = 중요한 투자 능력
+  { format: "ox", difficulty: "beginner", category: "psychology", statement: "FOMO(놓칠까봐 불안한 마음)를 느끼지 않는 것은 투자에서 중요한 능력이다", answer: true, explanation: "FOMO가 없다는 건 남의 수익에 흔들리지 않는다는 뜻이에요. 이것 자체가 매우 중요한 투자 능력이에요.", insight: "다른 사람이 돈을 번 건 당신이 돈을 잃은 게 아니에요. 이걸 체화하면 투자가 편해져요." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "psychology", question: "FOMO에 휘둘리지 않는 가장 좋은 방법은?", options: ["자신만의 투자 원칙과 기준을 미리 세우기", "SNS를 더 많이 보며 정보 수집하기", "남들보다 빨리 매수하기", "모든 상승 종목에 분산 투자하기"], correctIndex: 0, explanation: "원칙이 있으면 '남들이 뭘 하든' 자기 기준으로 판단할 수 있어요. FOMO는 원칙 없는 사람을 공격해요.", insight: "원칙이 없으면 감정이 원칙이 돼요. 감정은 가장 나쁜 투자 전략이에요." },
+
+  // 원칙4: 과거 하락 = 기회, 미래 하락 = 위험 (비대칭 심리)
+  { format: "ox", difficulty: "intermediate", category: "psychology", statement: "과거의 주가 하락을 보면 '기회였다'고 느끼면서, 미래의 하락을 '위험'으로 느끼는 것은 자연스러운 심리다", answer: true, explanation: "이것은 '후행 편향'이에요. 과거는 결과를 아니까 기회로 보이지만, 현재는 불확실하니까 위험으로 느껴요.", insight: "지금 느끼는 공포는 10년 후에 '왜 그때 안 샀을까'가 될 수 있어요. 이 비대칭을 인식하세요." },
+  { format: "multiple_choice", difficulty: "advanced", category: "judgment", question: "2020년 3월 코로나 폭락을 지금 보면 '기회'로 보이지만, 당시에는 공포였습니다. 이 차이를 만드는 것은?", options: ["결과를 알고 보는 것과 모르고 경험하는 것의 차이", "당시 시장이 실제로 더 위험했기 때문", "투자 경험이 부족했기 때문", "뉴스가 과장했기 때문"], correctIndex: 0, explanation: "미래 하락도 10년 후엔 '기회'로 보일 거예요. 이 관점의 전환이 장기 투자자의 핵심 역량이에요.", insight: "현재의 불확실함을 '미래의 기회'로 재해석할 수 있다면, 당신은 이미 대부분보다 앞서 있어요." },
+
+  // 원칙5: 돈의 본질적 가치 = 시간 통제권
+  { format: "ox", difficulty: "beginner", category: "judgment", statement: "돈의 진짜 가치는 더 큰 집이나 차를 사는 것이다", answer: false, explanation: "돈의 가장 큰 가치는 '시간을 통제할 수 있는 능력'이에요. 아침에 일어나 '오늘 내가 원하는 것을 하겠다'고 말할 수 있는 자유요.", insight: "더 많이 사는 것이 아니라, 더 자유롭게 사는 것이 돈의 진짜 목적이에요." },
+  { format: "fill_blank", difficulty: "intermediate", category: "judgment", sentence: "돈의 본질적 가치는 물건을 사는 것이 아니라 ___ 통제권이다", answer: "시간", hints: ["시간", "자유"], explanation: "모건 하우절: 돈이 주는 최고의 배당은 시간에 대한 자유예요.", insight: "투자의 목표를 '수익률'이 아닌 '자유'로 바꾸면 더 현명한 결정을 하게 돼요." },
+
+  // 원칙6: 자기도 모르게 놓치는 것들
+  { format: "multiple_choice", difficulty: "intermediate", category: "psychology", question: "투자자가 '자기도 모르게' 가장 많이 놓치는 것은?", options: ["자신의 감정이 결정에 미치는 영향", "좋은 매수 타이밍", "고수익 종목 정보", "세금 최적화 방법"], correctIndex: 0, explanation: "대부분의 투자 실수는 분석 부족이 아니라 감정 인식 부족에서 와요. 자기 감정을 모르면 자기를 통제할 수 없어요.", insight: "투자 일기를 쓰는 것이 바로 이 '무의식적 감정'을 의식하는 가장 좋은 방법이에요." },
+  { format: "ox", difficulty: "advanced", category: "psychology", statement: "투자 결정을 내릴 때 '나는 감정에 영향받지 않는다'고 생각하는 사람이 실제로 가장 많이 영향받는다", answer: true, explanation: "감정을 인식하지 못하는 것이 가장 위험해요. '나는 냉철하다'는 믿음이 편향을 더 강화시켜요.", insight: "자기 편향을 인정하는 것이 편향에서 벗어나는 첫걸음이에요." },
+];
+
 // Combine all questions
 export const allQuestions: QuizQuestion[] = [
   ...riskQuestions,
   ...psychologyQuestions,
   ...crisisQuestions,
   ...judgmentQuestions,
+  ...philosophyQuestions,
 ];
 
 // Map user level (1-6) to difficulty
