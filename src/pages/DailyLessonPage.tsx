@@ -15,7 +15,9 @@ import {
   getLessonMotivation,
   getCompletionInsight,
   getLoadingMessage,
+  getQuizWhyItMatters,
 } from "@/utils/mascotDialogue";
+import { categoryLabels } from "@/data/quizQuestions";
 import Confetti from "react-confetti";
 import type { Database } from "@/integrations/supabase/types";
 import type { QuestionType } from "@/styles/colors";
@@ -48,7 +50,7 @@ function OXQuiz({ statement, onAnswer }: { statement: string; onAnswer: (correct
   const [selected, setSelected] = useState<boolean | null>(null);
   return (
     <div className="flex-1 flex flex-col items-center justify-center animate-slide-up">
-      <h2 className="text-title font-bold text-foreground text-center mb-8 px-4">
+      <h2 className="text-title font-bold text-foreground text-center mb-6 px-4">
         다음 문장이 맞으면 O, 틀리면 X를 누르세요
       </h2>
       <div className="bg-card border-2 border-border rounded-2xl p-6 mb-10 mx-4 max-w-md">
@@ -127,6 +129,10 @@ function FeedbackBanner({ correct, explanation, streakCount, onContinue }: { cor
             {message}
           </p>
           <p className="text-small text-foreground/80 mt-1">{explanation}</p>
+          {/* Show insight if available */}
+          {(window as any).__currentQuizInsight && (
+            <p className="text-xs text-primary/80 mt-2 italic">💡 {(window as any).__currentQuizInsight}</p>
+          )}
         </div>
         <button
           onClick={onContinue}
@@ -225,6 +231,8 @@ export default function DailyLessonPage() {
       }
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
+      // Store insight for feedback banner
+      (window as any).__currentQuizInsight = (q as any).insight || null;
       if (correct) {
         setCorrectCount(prev => prev + 1);
         const ns = quizStreak + 1;
@@ -414,6 +422,19 @@ export default function DailyLessonPage() {
         {/* Quiz Phase */}
         {!inSentenceStep && quizQuestions[currentQuizIndex] && (
           <>
+            {/* Category badge */}
+            {!showFeedback && (() => {
+              const q = quizQuestions[currentQuizIndex];
+              const cat = categoryLabels[q.category];
+              return cat ? (
+                <div className="flex items-center justify-center gap-2 mb-2 animate-fade-in">
+                  <span className="text-sm">{cat.emoji}</span>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: cat.color + "15", color: cat.color }}>{cat.name}</span>
+                  <span className="text-[10px] text-muted-foreground">| {getQuizWhyItMatters(q.category)}</span>
+                </div>
+              ) : null;
+            })()}
+
             {quizQuestions[currentQuizIndex].format === "ox" && (
               <OXQuiz key={currentQuizIndex} statement={(quizQuestions[currentQuizIndex] as any).statement} onAnswer={(val) => handleQuizAnswer(val)} />
             )}

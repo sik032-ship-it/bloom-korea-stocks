@@ -1,6 +1,8 @@
-// Investment philosophy quiz questions with difficulty levels
+// 🧠 사고방식 훈련형 투자 퀴즈
+// 카테고리: risk (위험 이해), psychology (심리 조절), crisis (위기 대처), judgment (판단력)
 
 export type Difficulty = "beginner" | "intermediate" | "advanced";
+export type QuizCategory = "risk" | "psychology" | "crisis" | "judgment";
 
 export interface OXQuestion {
   format: "ox";
@@ -8,7 +10,8 @@ export interface OXQuestion {
   statement: string;
   answer: boolean;
   explanation: string;
-  category: "philosophy" | "basics" | "psychology" | "strategy";
+  category: QuizCategory;
+  insight?: string; // 왜 이 사고방식이 중요한지
 }
 
 export interface MultipleChoiceQuestion {
@@ -18,7 +21,8 @@ export interface MultipleChoiceQuestion {
   options: string[];
   correctIndex: number;
   explanation: string;
-  category: "philosophy" | "basics" | "psychology" | "strategy";
+  category: QuizCategory;
+  insight?: string;
 }
 
 export interface FillBlankQuestion {
@@ -28,108 +32,395 @@ export interface FillBlankQuestion {
   answer: string;
   hints?: string[];
   explanation: string;
-  category: "philosophy" | "basics" | "psychology" | "strategy";
+  category: QuizCategory;
+  insight?: string;
 }
 
 export type QuizQuestion = OXQuestion | MultipleChoiceQuestion | FillBlankQuestion;
 
-// ===== BEGINNER O/X =====
-const oxBeginner: OXQuestion[] = [
-  { format: "ox", difficulty: "beginner", statement: "주식은 도박과 같다", answer: false, explanation: "주식은 기업의 일부를 소유하는 것이에요. 도박과 달리 경제 성장과 함께 가치가 올라갈 수 있어요.", category: "basics" },
-  { format: "ox", difficulty: "beginner", statement: "S&P 500은 미국 대형 500개 기업을 모아놓은 지수다", answer: true, explanation: "맞아요! 미국 주식 시장을 대표하는 가장 유명한 지수예요.", category: "basics" },
-  { format: "ox", difficulty: "beginner", statement: "주가가 떨어지면 항상 손절매를 해야 한다", answer: false, explanation: "장기투자에서는 기업의 펀더멘털이 변하지 않았다면 하락은 오히려 추가 매수 기회가 될 수 있어요.", category: "philosophy" },
-  { format: "ox", difficulty: "beginner", statement: "복리의 효과는 투자 기간이 길수록 강력해진다", answer: true, explanation: "아인슈타인이 '세상에서 가장 강력한 힘'이라고 한 복리! 시간이 최고의 무기예요.", category: "philosophy" },
-  { format: "ox", difficulty: "beginner", statement: "ETF는 한 번에 여러 종목에 투자할 수 있는 상품이다", answer: true, explanation: "맞아요! ETF는 여러 주식을 묶어서 하나의 상품으로 만든 거예요. 분산 투자의 쉬운 방법!", category: "basics" },
-  { format: "ox", difficulty: "beginner", statement: "배당금은 주식을 팔아야만 받을 수 있다", answer: false, explanation: "배당금은 주식을 보유하고 있으면 자동으로 받을 수 있어요. 팔 필요가 없어요!", category: "basics" },
-  { format: "ox", difficulty: "beginner", statement: "미국 주식 시장은 한국 시간으로 밤에 열린다", answer: true, explanation: "맞아요! 뉴욕은 한국보다 약 13-14시간 느려서, 한국 밤 11시 30분에 열려요.", category: "basics" },
-  { format: "ox", difficulty: "beginner", statement: "주식 투자는 부자만 할 수 있다", answer: false, explanation: "소액으로도 시작할 수 있어요! 특히 미국 주식은 소수점 매매(fractional shares)가 가능해요.", category: "basics" },
+// 카테고리 한글명
+export const categoryLabels: Record<QuizCategory, { name: string; emoji: string; color: string }> = {
+  risk: { name: "위험 이해", emoji: "🎯", color: "#EF4444" },
+  psychology: { name: "심리 조절", emoji: "🧠", color: "#8B5CF6" },
+  crisis: { name: "위기 대처", emoji: "🛡️", color: "#F59E0B" },
+  judgment: { name: "판단력", emoji: "⚖️", color: "#3B82F6" },
+};
+
+// ===== 위험 이해 (Risk) =====
+const riskQuestions: QuizQuestion[] = [
+  // Beginner O/X
+  {
+    format: "ox", difficulty: "beginner", category: "risk",
+    statement: "투자에서 리스크가 없다는 말을 들으면 안심해도 된다",
+    answer: false,
+    explanation: "하워드 막스: '투자에서 가장 위험한 것은 리스크가 없다는 믿음이다.' 리스크가 보이지 않을 때가 가장 위험해요.",
+    insight: "리스크를 느끼지 못하는 순간이 가장 위험합니다. 이 감각을 키우는 것이 투자의 시작이에요.",
+  },
+  {
+    format: "ox", difficulty: "beginner", category: "risk",
+    statement: "분산 투자를 하면 모든 리스크가 사라진다",
+    answer: false,
+    explanation: "분산 투자는 개별 종목 리스크를 줄여주지만, 시장 전체 리스크(체계적 위험)는 제거할 수 없어요.",
+    insight: "리스크는 제거하는 것이 아니라 이해하고 관리하는 것입니다.",
+  },
+  {
+    format: "ox", difficulty: "beginner", category: "risk",
+    statement: "과거에 많이 오른 주식은 앞으로도 계속 오를 확률이 높다",
+    answer: false,
+    explanation: "과거 성과는 미래를 보장하지 않아요. 이것은 투자의 가장 기본적인 경고문이에요.",
+    insight: "과거 데이터에 의존하는 것은 '백미러를 보며 운전하는 것'과 같아요.",
+  },
+  // Intermediate O/X
+  {
+    format: "ox", difficulty: "intermediate", category: "risk",
+    statement: "변동성이 큰 주식은 항상 위험한 투자다",
+    answer: false,
+    explanation: "변동성과 리스크는 다릅니다. 변동성은 가격의 흔들림이고, 진짜 리스크는 영구적 자본 손실이에요.",
+    insight: "변동성을 두려워하면 기회를 놓치고, 리스크를 무시하면 자본을 잃어요. 둘을 구분하는 눈이 필요합니다.",
+  },
+  {
+    format: "ox", difficulty: "intermediate", category: "risk",
+    statement: "레버리지(빚투)를 사용하면 수익이 2배가 되니까 항상 유리하다",
+    answer: false,
+    explanation: "레버리지는 이익도 2배지만 손실도 2배예요. 시장이 50% 떨어지면 원금 전부를 잃을 수 있어요.",
+    insight: "살아남아야 이길 수 있어요. 레버리지는 생존 확률을 낮추는 가장 확실한 방법입니다.",
+  },
+  // Advanced O/X
+  {
+    format: "ox", difficulty: "advanced", category: "risk",
+    statement: "블랙 스완(극단적 사건)은 예측할 수 없기 때문에 대비할 필요가 없다",
+    answer: false,
+    explanation: "나심 탈레브: '예측할 수 없는 사건에 대비하는 것이 핵심이다.' 대비가 곧 생존입니다.",
+    insight: "좋은 투자자는 미래를 예측하지 않습니다. 어떤 미래가 와도 살아남을 수 있도록 준비합니다.",
+  },
+  // Multiple Choice
+  {
+    format: "multiple_choice", difficulty: "beginner", category: "risk",
+    question: "투자에서 '리스크'의 진짜 의미는?",
+    options: ["영구적으로 돈을 잃을 가능성", "주가가 오르내리는 것", "뉴스에 나쁜 소식이 나오는 것", "환율이 변하는 것"],
+    correctIndex: 0,
+    explanation: "변동성은 리스크가 아니에요. 진짜 리스크는 투자한 돈을 영구적으로 잃는 것입니다.",
+    insight: "이 구분을 아는 것만으로도 공포에 팔고 탐욕에 사는 실수를 크게 줄일 수 있어요.",
+  },
+  {
+    format: "multiple_choice", difficulty: "intermediate", category: "risk",
+    question: "당신이 투자한 주식이 30% 떨어졌습니다. 가장 먼저 해야 할 것은?",
+    options: [
+      "기업의 기본 가치가 변했는지 확인한다",
+      "즉시 손절한다",
+      "물타기로 더 산다",
+      "뉴스를 보고 따라한다",
+    ],
+    correctIndex: 0,
+    explanation: "가격이 떨어졌다는 사실보다 '왜' 떨어졌는지가 중요해요. 기업 가치가 변하지 않았다면 오히려 기회일 수 있어요.",
+    insight: "감정이 아닌 '이유'에 집중하는 습관이 위기에서 살아남는 핵심이에요.",
+  },
+  {
+    format: "multiple_choice", difficulty: "advanced", category: "risk",
+    question: "나심 탈레브의 '안티프래질' 개념에 가장 가까운 것은?",
+    options: [
+      "충격을 받을수록 더 강해지는 시스템",
+      "절대 깨지지 않는 방어",
+      "모든 리스크를 완전히 제거하는 것",
+      "변동성이 없는 안정적인 포트폴리오",
+    ],
+    correctIndex: 0,
+    explanation: "안티프래질은 단순히 튼튼한 게 아니라, 혼란과 충격에서 오히려 이익을 얻는 상태예요.",
+    insight: "위기를 피하려고만 하지 마세요. 위기에서 성장하는 구조를 만드는 것이 진짜 실력이에요.",
+  },
+  // Fill Blank
+  {
+    format: "fill_blank", difficulty: "beginner", category: "risk",
+    sentence: "투자의 첫 번째 규칙: '절대 ___을 잃지 마라'",
+    answer: "돈", hints: ["원금", "돈"],
+    explanation: "워런 버핏의 가장 유명한 규칙. 규칙 2: '규칙 1을 절대 잊지 마라.'",
+    insight: "수익을 추구하기 전에 원금을 지키는 것이 먼저입니다. 생존이 곧 승리예요.",
+  },
+  {
+    format: "fill_blank", difficulty: "intermediate", category: "risk",
+    sentence: "하워드 막스: '투자에서 가장 위험한 것은 ___가 없다는 믿음이다'",
+    answer: "리스크", hints: ["리스크", "위험"],
+    explanation: "모두가 안전하다고 느낄 때 자산 가격은 위험 수준까지 올라가 있어요.",
+    insight: "시장이 가장 안전해 보일 때 가장 조심해야 합니다. 이것이 역발상의 핵심이에요.",
+  },
 ];
 
-// ===== INTERMEDIATE O/X =====
-const oxIntermediate: OXQuestion[] = [
-  { format: "ox", difficulty: "intermediate", statement: "워런 버핏은 '남들이 두려워할 때 탐욕스러워라'고 말했다", answer: true, explanation: "맞아요! 시장의 공포가 극에 달할 때가 종종 좋은 매수 기회가 됩니다.", category: "philosophy" },
-  { format: "ox", difficulty: "intermediate", statement: "분산 투자는 리스크를 완전히 제거해 준다", answer: false, explanation: "분산 투자는 비체계적 위험을 줄여주지만, 시장 전체 위험(체계적 위험)은 제거할 수 없어요.", category: "basics" },
-  { format: "ox", difficulty: "intermediate", statement: "PER(주가수익비율)이 낮을수록 항상 좋은 투자다", answer: false, explanation: "낮은 PER이 반드시 저평가를 의미하지 않아요. 기업의 성장성, 업종 특성도 함께 봐야 해요.", category: "basics" },
-  { format: "ox", difficulty: "intermediate", statement: "매일 주가를 확인하는 것이 장기투자에 도움이 된다", answer: false, explanation: "잦은 확인은 오히려 불안과 충동적 매매를 유발해요. 분기별 체크가 더 건강합니다.", category: "psychology" },
-  { format: "ox", difficulty: "intermediate", statement: "달러 코스트 에버리징(적립식 투자)은 시장 타이밍 위험을 줄여준다", answer: true, explanation: "매월 일정액을 투자하면 평균 매수 단가를 낮추고 타이밍 리스크를 분산할 수 있어요.", category: "strategy" },
-  { format: "ox", difficulty: "intermediate", statement: "좋은 기업의 주식은 비쌀 때 사도 장기적으로 괜찮다", answer: true, explanation: "피터 린치: '좋은 기업은 시간이 해결해준다.' 물론 합리적 가격이면 더 좋겠죠!", category: "strategy" },
-  { format: "ox", difficulty: "intermediate", statement: "주식 투자에서 감정적 결정은 대부분 좋은 결과를 가져온다", answer: false, explanation: "감정적 매매는 높을 때 사고 낮을 때 파는 패턴을 만들어요. 원칙에 기반한 투자가 중요합니다.", category: "psychology" },
-  { format: "ox", difficulty: "intermediate", statement: "S&P 500 지수는 장기적으로 연평균 약 10%의 수익률을 기록해왔다", answer: true, explanation: "역사적으로 S&P 500은 배당 포함 연평균 약 10%의 수익률을 보여왔어요.", category: "basics" },
+// ===== 심리 조절 (Psychology) =====
+const psychologyQuestions: QuizQuestion[] = [
+  {
+    format: "ox", difficulty: "beginner", category: "psychology",
+    statement: "주식이 떨어질 때 불안한 마음은 비정상적인 반응이다",
+    answer: false,
+    explanation: "손실 회피 본능은 인간의 자연스러운 심리예요. 문제는 이 감정에 '반응'하는 것이에요.",
+    insight: "감정을 느끼는 것은 자연스러워요. 중요한 건 감정이 아니라, 감정에 대한 '행동'이에요.",
+  },
+  {
+    format: "ox", difficulty: "beginner", category: "psychology",
+    statement: "뉴스에서 '공포'라는 단어가 많이 나올 때는 주식을 무조건 팔아야 한다",
+    answer: false,
+    explanation: "워런 버핏: '남들이 두려워할 때 탐욕스러워라.' 미디어의 공포는 종종 좋은 매수 기회의 신호예요.",
+    insight: "미디어는 감정을 증폭시킵니다. 뉴스를 읽되, 뉴스에 휘둘리지 않는 능력이 필요해요.",
+  },
+  {
+    format: "ox", difficulty: "intermediate", category: "psychology",
+    statement: "매일 주가를 확인하는 것이 장기 투자에 도움이 된다",
+    answer: false,
+    explanation: "잦은 확인은 불안과 충동적 매매를 유발해요. 분기별 체크가 더 건강합니다.",
+    insight: "확인 빈도를 줄이면 감정적 결정도 줄어요. 좋은 투자는 '지루한' 투자예요.",
+  },
+  {
+    format: "ox", difficulty: "intermediate", category: "psychology",
+    statement: "손실이 난 주식을 팔기 싫은 것은 합리적인 판단이다",
+    answer: false,
+    explanation: "이것은 '처분 효과'라는 심리 편향이에요. 이익은 빨리 실현하고 손실은 오래 끌어안는 경향.",
+    insight: "팔기 싫은 감정과 팔면 안 되는 이유는 다릅니다. 감정과 분석을 구분하는 연습이 필요해요.",
+  },
+  {
+    format: "ox", difficulty: "advanced", category: "psychology",
+    statement: "자신의 투자 판단에 확신이 강할수록 좋은 투자자다",
+    answer: false,
+    explanation: "과잉 확신은 가장 위험한 편향 중 하나예요. 좋은 투자자는 항상 '내가 틀릴 수 있다'고 생각해요.",
+    insight: "확신이 아니라 겸손함이 생존의 열쇠입니다. '내가 모르는 것이 뭘까?'를 항상 물어보세요.",
+  },
+  // MC
+  {
+    format: "multiple_choice", difficulty: "beginner", category: "psychology",
+    question: "친구들이 모두 특정 주식을 사서 큰 수익을 냈다고 합니다. 당신의 반응은?",
+    options: [
+      "내 투자 원칙에 맞는지 먼저 분석한다",
+      "나도 빨리 따라 산다",
+      "이미 늦었으니 더 많이 산다",
+      "SNS에서 추천 종목을 더 찾아본다",
+    ],
+    correctIndex: 0,
+    explanation: "FOMO(놓칠까 봐 두려운 심리)는 가장 흔한 투자 실수의 원인이에요. 원칙이 감정을 이겨야 해요.",
+    insight: "남들이 돈을 벌었다는 소식은 '정보'가 아니라 '감정 자극'이에요. 구분할 줄 알아야 해요.",
+  },
+  {
+    format: "multiple_choice", difficulty: "intermediate", category: "psychology",
+    question: "'앵커링 효과'에 빠진 투자자의 행동은?",
+    options: [
+      "매수 가격에 집착해서 합리적 판단을 못한다",
+      "항상 최저가에 매수한다",
+      "뉴스에 영향받지 않는다",
+      "여러 종목에 골고루 투자한다",
+    ],
+    correctIndex: 0,
+    explanation: "내가 산 가격은 시장에게 아무 의미 없어요. 중요한 건 '지금 이 기업의 가치가 어떤가'예요.",
+    insight: "매수 가격을 잊으세요. 지금 이 가격에 다시 살 것인지를 물어보는 것이 올바른 질문이에요.",
+  },
+  {
+    format: "multiple_choice", difficulty: "advanced", category: "psychology",
+    question: "다니엘 카너먼에 따르면, 인간은 같은 크기의 이익보다 손실을 약 몇 배 더 크게 느끼나요?",
+    options: ["약 2~2.5배", "약 1.2배", "약 5배", "동일하게 느낀다"],
+    correctIndex: 0,
+    explanation: "10만원 벌 때의 기쁨보다 10만원 잃을 때의 고통이 2배 이상 커요. 이게 '손실 회피'의 핵심.",
+    insight: "이 비대칭을 이해하면 왜 대부분의 사람이 하락장에서 패닉 매도하는지 알 수 있어요.",
+  },
+  // Fill Blank
+  {
+    format: "fill_blank", difficulty: "beginner", category: "psychology",
+    sentence: "벤자민 그레이엄: '투자의 가장 큰 적은 시장이 아니라 자기 자신의 ___이다'",
+    answer: "감정", hints: ["마음", "감정"],
+    explanation: "공포와 탐욕을 다스리는 것이 투자의 핵심이에요.",
+    insight: "시장을 이기려 하지 마세요. 자신의 감정을 이기면 시장은 알아서 보상해줘요.",
+  },
+  {
+    format: "fill_blank", difficulty: "intermediate", category: "psychology",
+    sentence: "워런 버핏: '남들이 탐욕스러울 때 ___, 남들이 두려워할 때 탐욕스러워라'",
+    answer: "두려워하고", hints: ["두려워", "공포"],
+    explanation: "시장의 극단적 감정과 반대로 행동하라는 역발상 투자의 핵심!",
+    insight: "군중과 반대로 움직이는 것은 쉽지 않아요. 하지만 그래서 소수만 성공하는 거예요.",
+  },
 ];
 
-// ===== ADVANCED O/X =====
-const oxAdvanced: OXQuestion[] = [
-  { format: "ox", difficulty: "advanced", statement: "찰리 멍거는 '적게 알더라도 확실히 알아야 한다'고 말했다", answer: true, explanation: "능력의 원(Circle of Competence) — 자신이 잘 아는 영역에 집중하라는 뜻이에요.", category: "philosophy" },
-  { format: "ox", difficulty: "advanced", statement: "과거 수익률이 좋은 펀드는 미래에도 좋은 성과를 낼 확률이 높다", answer: false, explanation: "과거 성과가 미래를 보장하지 않아요. 투자의 가장 기본적인 경고문이죠!", category: "basics" },
-  { format: "ox", difficulty: "advanced", statement: "역사적으로 하락장에서 매도한 투자자가 반등 초기를 놓치면 장기 수익률이 크게 떨어진다", answer: true, explanation: "최고 상승일 10일을 놓치면 수익률이 절반 이하로 떨어져요. 시장에 머무는 것이 중요!", category: "strategy" },
-  { format: "ox", difficulty: "advanced", statement: "자사주 매입(buyback)은 주당 순이익(EPS)을 높이는 효과가 있다", answer: true, explanation: "발행 주식수가 줄어드니까 같은 순이익이라도 주당 이익은 올라가요.", category: "basics" },
-  { format: "ox", difficulty: "advanced", statement: "워런 버핏의 연평균 수익률은 약 50%이다", answer: false, explanation: "버핏의 연평균 수익률은 약 20%예요. 하지만 60년간 복리로 쌓이니 천문학적 수익이 된 거죠!", category: "philosophy" },
-  { format: "ox", difficulty: "advanced", statement: "경기 침체기에 필수소비재(Consumer Staples) 섹터는 상대적으로 방어적이다", answer: true, explanation: "사람들은 경기가 나빠도 치약, 식료품은 사야 하니까요. 대표적 방어주예요.", category: "strategy" },
-  { format: "ox", difficulty: "advanced", statement: "DCF(현금흐름할인법)에서 할인율이 높을수록 기업 가치가 높게 평가된다", answer: false, explanation: "할인율이 높으면 미래 현금흐름의 현재가치가 낮아져요. 즉 기업 가치가 낮게 평가됩니다.", category: "basics" },
-  { format: "ox", difficulty: "advanced", statement: "마이클 버리는 2008년 서브프라임 모기지 위기를 예측했다", answer: true, explanation: "영화 '빅쇼트'의 실제 주인공! CDO와 CDS를 통해 엄청난 수익을 거뒀어요.", category: "philosophy" },
+// ===== 위기 대처 (Crisis) =====
+const crisisQuestions: QuizQuestion[] = [
+  {
+    format: "ox", difficulty: "beginner", category: "crisis",
+    statement: "주식 시장은 역사상 모든 대폭락에서 결국 회복했다",
+    answer: true,
+    explanation: "대공황, 닷컴 버블, 2008 금융위기, 코로나... 시장은 항상 돌아왔어요. 문제는 '당신이 버틸 수 있는가'예요.",
+    insight: "시장은 회복합니다. 하지만 패닉에 팔고 나간 사람은 회복을 경험하지 못해요.",
+  },
+  {
+    format: "ox", difficulty: "beginner", category: "crisis",
+    statement: "폭락장에서 가장 좋은 전략은 뉴스를 끄고 아무것도 안 하는 것이다",
+    answer: true,
+    explanation: "대부분의 경우, 폭락장에서 '아무것도 안 하는 것'이 패닉 매도보다 훨씬 나은 결과를 가져와요.",
+    insight: "행동하지 않는 것도 전략입니다. 때로는 '아무것도 안 하는 용기'가 가장 어려워요.",
+  },
+  {
+    format: "ox", difficulty: "intermediate", category: "crisis",
+    statement: "2008년 금융위기 때 S&P 500에서 버틴 투자자는 3년 안에 원금을 회복했다",
+    answer: true,
+    explanation: "2009년 3월 바닥 이후 S&P 500은 약 2년 만에 위기 전 수준을 회복했어요.",
+    insight: "역사는 '버틴 사람이 이긴다'는 것을 반복적으로 증명하고 있어요.",
+  },
+  {
+    format: "ox", difficulty: "advanced", category: "crisis",
+    statement: "최고 상승일 10일을 놓치면 장기 수익률이 절반 이하로 떨어진다",
+    answer: true,
+    explanation: "최대 상승일은 대부분 최대 하락일 직후에 발생해요. 시장을 떠나면 반등도 놓쳐요.",
+    insight: "시장 타이밍을 맞추려는 시도가 가장 비싼 실수예요. 시장에 '머무는 것'이 핵심이에요.",
+  },
+  // MC
+  {
+    format: "multiple_choice", difficulty: "beginner", category: "crisis",
+    question: "시장이 하루 만에 10% 폭락했습니다. 당신의 선택은?",
+    options: [
+      "아무것도 하지 않고 원래 계획을 유지한다",
+      "전부 매도해서 현금화한다",
+      "레버리지로 더 산다",
+      "친구에게 물어보고 따라한다",
+    ],
+    correctIndex: 0,
+    explanation: "폭락 직후의 결정은 거의 항상 감정적이에요. 미리 세운 계획을 따르는 것이 최선입니다.",
+    insight: "위기는 '준비된 사람'과 '즉흥적인 사람'을 가려내요. 계획은 폭풍이 오기 전에 세우는 것.",
+  },
+  {
+    format: "multiple_choice", difficulty: "intermediate", category: "crisis",
+    question: "2020년 코로나 폭락 때 워런 버핏의 행동은?",
+    options: [
+      "항공주를 매도하고 현금을 비축했다",
+      "패닉에 모든 주식을 팔았다",
+      "레버리지로 대규모 매수했다",
+      "주식 시장에서 완전히 은퇴했다",
+    ],
+    correctIndex: 0,
+    explanation: "버핏은 산업 전망이 변한 항공주를 정리했지만, 다른 좋은 기업은 유지했어요. 선택적 판단이 핵심!",
+    insight: "위기에서도 냉정한 분석이 가능해야 해요. '전부 팔기'나 '전부 사기'는 감정적 반응이에요.",
+  },
+  {
+    format: "multiple_choice", difficulty: "advanced", category: "crisis",
+    question: "레이 달리오가 경제 위기에 대비하는 핵심 원칙은?",
+    options: [
+      "어떤 경제 환경에서도 작동하는 포트폴리오를 구성한다",
+      "위기 직전에 모든 주식을 매도한다",
+      "금에만 투자한다",
+      "현금을 100% 보유한다",
+    ],
+    correctIndex: 0,
+    explanation: "올웨더 포트폴리오: 인플레이션, 디플레이션, 성장, 침체 어떤 환경에서도 안정적으로 작동하도록 설계.",
+    insight: "미래를 예측하려 하지 말고, 어떤 미래가 와도 괜찮은 구조를 만드세요.",
+  },
+  // Fill Blank
+  {
+    format: "fill_blank", difficulty: "beginner", category: "crisis",
+    sentence: "주식 시장 격언: 'Time in the market beats timing ___'",
+    answer: "the market", hints: ["the market", "시장"],
+    explanation: "시장에 머무는 시간이 시장 타이밍을 맞추려는 시도보다 항상 이겨요.",
+    insight: "매일의 등락에 반응하지 마세요. 시간이 당신의 가장 큰 무기예요.",
+  },
+  {
+    format: "fill_blank", difficulty: "intermediate", category: "crisis",
+    sentence: "피터 린치: '폭락에 대비하느라 잃는 돈이 폭락 ___에서 잃는 돈보다 더 많다'",
+    answer: "자체", hints: ["자체", "그 자체"],
+    explanation: "폭락을 기다리며 투자하지 않는 것도 기회비용이에요.",
+    insight: "완벽한 타이밍을 기다리다가 시간을 낭비하지 마세요. 시장 참여가 가장 중요해요.",
+  },
 ];
 
-// ===== BEGINNER Multiple Choice =====
-const mcBeginner: MultipleChoiceQuestion[] = [
-  { format: "multiple_choice", difficulty: "beginner", question: "주식이란 무엇인가요?", options: ["기업의 소유권 일부", "은행에 맡기는 돈", "정부가 발행하는 채권", "부동산 투자 방법"], correctIndex: 0, explanation: "주식은 기업의 소유권 일부를 사는 것이에요. 주주가 되면 그 기업의 성장에 참여하는 거예요!", category: "basics" },
-  { format: "multiple_choice", difficulty: "beginner", question: "'장기 투자'는 보통 어느 정도 기간을 말하나요?", options: ["5년 이상", "1주일", "1개월", "3개월"], correctIndex: 0, explanation: "일반적으로 장기 투자는 5년 이상을 의미해요. 복리의 마법은 시간이 필요하거든요!", category: "basics" },
-  { format: "multiple_choice", difficulty: "beginner", question: "미국 주식 시장의 대표 지수가 아닌 것은?", options: ["코스피", "S&P 500", "나스닥", "다우존스"], correctIndex: 0, explanation: "코스피는 한국 주식 시장 지수예요. S&P 500, 나스닥, 다우존스가 미국 3대 지수!", category: "basics" },
-  { format: "multiple_choice", difficulty: "beginner", question: "투자할 때 가장 중요한 것은?", options: ["인내심과 원칙", "운 좋게 타이밍 맞추기", "유튜버 추천 따라하기", "매일 주가 확인하기"], correctIndex: 0, explanation: "성공적인 투자의 핵심은 자신만의 원칙을 세우고 인내심을 갖는 것이에요.", category: "philosophy" },
-  { format: "multiple_choice", difficulty: "beginner", question: "분산 투자란?", options: ["여러 종목에 나눠 투자하는 것", "한 종목에 몰빵하는 것", "매일 사고 파는 것", "빚을 내서 투자하는 것"], correctIndex: 0, explanation: "달걀을 한 바구니에 담지 마라! 여러 종목에 나누면 위험을 줄일 수 있어요.", category: "strategy" },
-];
-
-// ===== INTERMEDIATE Multiple Choice =====
-const mcIntermediate: MultipleChoiceQuestion[] = [
-  { format: "multiple_choice", difficulty: "intermediate", question: "워런 버핏의 투자 원칙 1번은?", options: ["절대 돈을 잃지 마라", "빠르게 매매하라", "레버리지를 활용하라", "유행을 따르라"], correctIndex: 0, explanation: "버핏의 원칙 1: 절대 돈을 잃지 마라. 원칙 2: 원칙 1을 절대 잊지 마라!", category: "philosophy" },
-  { format: "multiple_choice", difficulty: "intermediate", question: "'경제적 해자(Economic Moat)'란?", options: ["기업의 지속적 경쟁 우위", "주가의 저항선", "정부의 규제 장벽", "CEO의 경영 능력"], correctIndex: 0, explanation: "경제적 해자는 기업이 경쟁사로부터 이익을 보호할 수 있는 지속적인 경쟁 우위를 말해요.", category: "basics" },
-  { format: "multiple_choice", difficulty: "intermediate", question: "주식 시장이 폭락할 때 장기투자자가 해야 할 일은?", options: ["투자 원칙을 다시 점검한다", "모든 주식을 즉시 판다", "뉴스를 계속 확인한다", "레버리지로 공매도한다"], correctIndex: 0, explanation: "폭락 시에는 패닉 셀링을 피하고, 자신의 투자 원칙과 기업의 펀더멘털을 재점검하세요.", category: "strategy" },
-  { format: "multiple_choice", difficulty: "intermediate", question: "'FOMO'는 무슨 뜻인가요?", options: ["놓칠까 봐 두려운 심리", "빠르게 수익을 내는 전략", "외국인 매도 지표", "펀드 운용 수수료"], correctIndex: 0, explanation: "Fear Of Missing Out — 기회를 놓칠까 봐 서둘러 매수하는 심리예요. 조심!", category: "psychology" },
-  { format: "multiple_choice", difficulty: "intermediate", question: "피터 린치가 강조한 투자 원칙은?", options: ["자기가 아는 것에 투자하라", "남들을 따라 투자하라", "차트만 보고 투자하라", "항상 공매도도 함께하라"], correctIndex: 0, explanation: "린치는 '자기가 잘 아는 기업에 투자하라'고 강조했어요.", category: "philosophy" },
-  { format: "multiple_choice", difficulty: "intermediate", question: "투자에서 '72의 법칙'이란?", options: ["72를 수익률로 나누면 원금 2배 시간", "72개 종목에 분산하라", "72시간 내에 매매를 결정하라", "72% 이상 상승하면 매도하라"], correctIndex: 0, explanation: "연 수익률 10%라면 72÷10=7.2년에 원금이 2배!", category: "basics" },
-];
-
-// ===== ADVANCED Multiple Choice =====
-const mcAdvanced: MultipleChoiceQuestion[] = [
-  { format: "multiple_choice", difficulty: "advanced", question: "S&P 500에서 가장 큰 비중을 차지하는 섹터는? (2024 기준)", options: ["IT(정보기술)", "헬스케어", "금융", "에너지"], correctIndex: 0, explanation: "IT 섹터가 약 30% 이상의 비중을 차지하고 있어요.", category: "basics" },
-  { format: "multiple_choice", difficulty: "advanced", question: "주식 투자에서 '앵커링 효과'란?", options: ["처음 접한 가격에 집착하는 심리", "항구에서 주식을 사는 전략", "안전한 채권에 투자하는 방법", "자동 매매 시스템"], correctIndex: 0, explanation: "매수 가격에 집착해서 이성적 판단을 못하는 심리편향이에요.", category: "psychology" },
-  { format: "multiple_choice", difficulty: "advanced", question: "FCF(잉여현금흐름)가 중요한 이유는?", options: ["기업이 실제로 쓸 수 있는 현금을 보여줘서", "주가가 올라갈 것을 보장해서", "세금을 면제받을 수 있어서", "배당을 의무화하기 때문에"], correctIndex: 0, explanation: "FCF는 기업이 운영과 투자 후 남는 실제 현금이에요. 기업의 재무 건전성을 판단하는 핵심 지표!", category: "basics" },
-  { format: "multiple_choice", difficulty: "advanced", question: "하워드 막스가 말하는 '2차적 사고'란?", options: ["남들의 생각을 고려한 역발상 투자", "두 번 생각하고 매수하는 것", "2차 시장에서 거래하는 것", "두 번째로 좋은 종목을 사는 것"], correctIndex: 0, explanation: "'이 주식이 좋다'가 아니라 '남들은 어떻게 생각하고, 그것이 가격에 반영됐는가'를 생각하는 거예요.", category: "philosophy" },
-  { format: "multiple_choice", difficulty: "advanced", question: "주가 대비 잉여현금흐름(P/FCF) 비율이 낮으면?", options: ["상대적으로 저평가 가능성", "무조건 좋은 투자", "기업이 위험하다는 신호", "배당이 높다는 의미"], correctIndex: 0, explanation: "P/FCF가 낮으면 현금 창출 능력 대비 주가가 싸다는 뜻이에요. 하지만 다른 지표와 함께 봐야 해요.", category: "basics" },
-];
-
-// ===== BEGINNER Fill Blank =====
-const fbBeginner: FillBlankQuestion[] = [
-  { format: "fill_blank", difficulty: "beginner", sentence: "투자에서 가장 강력한 무기는 ___이다", answer: "시간", hints: ["기간", "시간"], explanation: "복리 효과는 시간이 지날수록 기하급수적으로 커져요. 인내심이 곧 수익!", category: "philosophy" },
-  { format: "fill_blank", difficulty: "beginner", sentence: "달걀을 한 ___에 담지 마라", answer: "바구니", hints: ["바구니", "그릇"], explanation: "분산 투자의 가장 유명한 격언이에요! 여러 종목에 나누어 투자하세요.", category: "strategy" },
-  { format: "fill_blank", difficulty: "beginner", sentence: "주식을 사면 그 기업의 ___가 되는 것이다", answer: "주주", hints: ["주주", "주인"], explanation: "주식을 산다는 건 기업의 일부를 소유하는 거예요. 기업의 성장에 함께 참여하는 것!", category: "basics" },
-  { format: "fill_blank", difficulty: "beginner", sentence: "미국 대형 500개 기업을 모아놓은 대표 지수는 S&P ___이다", answer: "500", hints: ["500"], explanation: "S&P 500은 미국 주식 시장을 대표하는 가장 유명한 지수예요!", category: "basics" },
-  { format: "fill_blank", difficulty: "beginner", sentence: "매달 같은 금액을 투자하는 전략을 ___식 투자라고 한다", answer: "적립", hints: ["적립", "정기"], explanation: "적립식 투자(DCA)는 시장 타이밍을 맞추지 않아도 되는 좋은 전략이에요!", category: "strategy" },
-];
-
-// ===== INTERMEDIATE Fill Blank =====
-const fbIntermediate: FillBlankQuestion[] = [
-  { format: "fill_blank", difficulty: "intermediate", sentence: "워런 버핏: '남들이 탐욕스러울 때 ___, 남들이 두려워할 때 탐욕스러워라'", answer: "두려워하고", hints: ["두려워", "공포"], explanation: "시장의 극단적 감정과 반대로 행동하라는 역발상 투자의 핵심!", category: "philosophy" },
-  { format: "fill_blank", difficulty: "intermediate", sentence: "찰리 멍거: '좋은 기업을 적정한 가격에 사는 것이 평범한 기업을 ___ 가격에 사는 것보다 낫다'", answer: "싼", hints: ["저렴한", "싼"], explanation: "가치투자의 핵심! 싸다고 좋은 게 아니라, 좋은 기업이 중요해요.", category: "philosophy" },
-  { format: "fill_blank", difficulty: "intermediate", sentence: "투자의 가장 큰 적은 시장이 아니라 자기 자신의 ___이다", answer: "감정", hints: ["마음", "감정"], explanation: "벤자민 그레이엄의 명언이에요. 공포와 탐욕을 다스리는 것이 투자의 핵심!", category: "psychology" },
-  { format: "fill_blank", difficulty: "intermediate", sentence: "72의 법칙: 72를 연간 수익률로 나누면 원금이 ___배가 되는 시간을 알 수 있다", answer: "2", hints: ["두", "2"], explanation: "연 수익률 8%라면 72÷8=9년이면 원금이 2배!", category: "basics" },
-  { format: "fill_blank", difficulty: "intermediate", sentence: "경제적 ___란 기업이 경쟁사로부터 이익을 보호하는 지속적인 경쟁 우위를 말한다", answer: "해자", hints: ["해자", "moat"], explanation: "버핏이 즐겨 사용하는 개념으로, 브랜드, 네트워크 효과, 특허 등이 해당돼요.", category: "basics" },
-  { format: "fill_blank", difficulty: "intermediate", sentence: "존 보글: '건초 더미에서 바늘을 찾지 말고, 건초 더미 ___를 사라'", answer: "전체", hints: ["전체", "전부"], explanation: "인덱스 펀드의 아버지 보글의 철학! 시장 전체를 사면 승자를 고를 필요가 없어요.", category: "philosophy" },
-];
-
-// ===== ADVANCED Fill Blank =====
-const fbAdvanced: FillBlankQuestion[] = [
-  { format: "fill_blank", difficulty: "advanced", sentence: "피터 린치: '주식 시장에서 돈을 잃는 것보다 ___ 준비하다가 잃는 돈이 더 많다'", answer: "조정에", hints: ["조정", "하락"], explanation: "폭락을 기다리며 투자하지 않는 것도 기회비용이에요.", category: "strategy" },
-  { format: "fill_blank", difficulty: "advanced", sentence: "하워드 막스: '투자에서 가장 위험한 여섯 글자는 ___가 없다는 것이다'", answer: "리스크", hints: ["리스크", "위험"], explanation: "리스크가 없다고 느낄 때가 가장 위험해요. 과도한 낙관은 버블의 신호!", category: "psychology" },
-  { format: "fill_blank", difficulty: "advanced", sentence: "벤저민 그레이엄은 단기적으로 시장은 투표 기계이지만, 장기적으로는 ___ 기계라고 했다", answer: "저울", hints: ["저울", "체중계"], explanation: "단기에는 인기투표(감정)에 의해 움직이지만, 장기에는 기업의 실제 가치를 반영해요.", category: "philosophy" },
-  { format: "fill_blank", difficulty: "advanced", sentence: "레이 달리오의 '올웨더 포트폴리오'는 모든 ___에 대응할 수 있도록 설계됐다", answer: "경제 환경", hints: ["경제", "시장"], explanation: "인플레이션, 디플레이션, 성장, 침체 — 어떤 경제 환경에서도 안정적인 포트폴리오!", category: "strategy" },
-  { format: "fill_blank", difficulty: "advanced", sentence: "ROIC(투하자본수익률)이 ___보다 높은 기업은 가치를 창출하고 있다", answer: "WACC", hints: ["가중평균자본비용", "WACC"], explanation: "ROIC > WACC이면 기업이 투자한 자본 대비 더 많은 수익을 내고 있다는 뜻이에요.", category: "basics" },
+// ===== 판단력 (Judgment) =====
+const judgmentQuestions: QuizQuestion[] = [
+  {
+    format: "ox", difficulty: "beginner", category: "judgment",
+    statement: "유명한 투자자가 추천한 주식은 무조건 사야 한다",
+    answer: false,
+    explanation: "어떤 전문가도 100% 맞지 않아요. 중요한 건 '왜'라는 이유를 스스로 이해하는 것이에요.",
+    insight: "남의 결론이 아니라, 자신만의 판단 근거를 갖는 것이 진짜 실력이에요.",
+  },
+  {
+    format: "ox", difficulty: "beginner", category: "judgment",
+    statement: "좋은 기업과 좋은 투자는 항상 같은 것이다",
+    answer: false,
+    explanation: "좋은 기업이라도 너무 비싼 가격에 사면 나쁜 투자가 될 수 있어요. 가격이 중요해요!",
+    insight: "기업의 질과 가격을 동시에 보는 것이 판단력이에요. 하나만 보면 반쪽짜리 판단이에요.",
+  },
+  {
+    format: "ox", difficulty: "intermediate", category: "judgment",
+    statement: "투자 결정은 빠르게 내릴수록 좋다",
+    answer: false,
+    explanation: "찰리 멍거: '큰 돈은 사는 것과 파는 것에서가 아니라, 기다리는 것에서 번다.'",
+    insight: "좋은 판단은 시간이 걸려요. 서두르는 것은 거의 항상 감정의 신호예요.",
+  },
+  {
+    format: "ox", difficulty: "advanced", category: "judgment",
+    statement: "하워드 막스의 '2차적 사고'는 남들의 생각까지 고려하는 역발상 사고다",
+    answer: true,
+    explanation: "'이 주식이 좋다'가 1차 사고, '남들은 어떻게 생각하고 그것이 가격에 반영됐는가'가 2차 사고예요.",
+    insight: "대부분의 사람은 1차적으로만 생각해요. 한 단계 더 생각하면 시장을 이길 수 있어요.",
+  },
+  // MC
+  {
+    format: "multiple_choice", difficulty: "beginner", category: "judgment",
+    question: "투자 결정을 내릴 때 가장 중요한 질문은?",
+    options: [
+      "'내가 틀릴 수 있는 이유는 무엇인가?'",
+      "'얼마나 벌 수 있는가?'",
+      "'다른 사람들은 뭘 사는가?'",
+      "'언제 가장 많이 오를까?'",
+    ],
+    correctIndex: 0,
+    explanation: "찰리 멍거: '항상 뒤집어서 생각하라(Invert, always invert).' 반대 상황을 먼저 생각하세요.",
+    insight: "수익 가능성보다 손실 가능성을 먼저 따지는 습관이 장기적으로 더 큰 수익을 가져다줘요.",
+  },
+  {
+    format: "multiple_choice", difficulty: "intermediate", category: "judgment",
+    question: "당신의 분석과 시장의 반응이 다를 때, 가장 현명한 태도는?",
+    options: [
+      "내 분석의 약점을 다시 점검한다",
+      "시장이 틀렸다고 확신한다",
+      "즉시 시장을 따라간다",
+      "투자를 포기한다",
+    ],
+    correctIndex: 0,
+    explanation: "시장이 틀릴 수도 있지만, 내가 틀릴 확률이 더 높아요. 겸손하게 재점검하는 것이 현명해요.",
+    insight: "좋은 투자자는 확신에 빠지지 않아요. 항상 '내가 놓친 것이 있을까?'를 물어봐요.",
+  },
+  {
+    format: "multiple_choice", difficulty: "advanced", category: "judgment",
+    question: "찰리 멍거가 강조한 '능력의 원(Circle of Competence)'이란?",
+    options: [
+      "자기가 잘 아는 영역에만 투자하라",
+      "가능한 많은 분야에 투자하라",
+      "전문가의 의견을 따르라",
+      "트렌드를 빠르게 좇으라",
+    ],
+    correctIndex: 0,
+    explanation: "'적게 알더라도 확실히 알아야 한다.' 자신의 능력 범위를 아는 것이 진짜 지혜예요.",
+    insight: "모르면서 아는 척하는 것이 가장 위험해요. '모른다'고 인정하는 것이 현명함의 시작이에요.",
+  },
+  // Fill Blank
+  {
+    format: "fill_blank", difficulty: "beginner", category: "judgment",
+    sentence: "찰리 멍거: '항상 뒤집어서 생각하라. ___, always ___.'",
+    answer: "Invert", hints: ["Invert", "뒤집어"],
+    explanation: "성공하려면 어떻게 해야 할까가 아니라, '어떻게 하면 실패할까'를 먼저 생각하세요.",
+    insight: "실패를 피하는 것이 성공을 추구하는 것보다 더 확실한 전략이에요.",
+  },
+  {
+    format: "fill_blank", difficulty: "intermediate", category: "judgment",
+    sentence: "피터 린치: '자기가 ___ 것에 투자하라'",
+    answer: "아는", hints: ["아는", "이해하는"],
+    explanation: "이해하지 못하는 기업에 투자하면 위기 때 확신을 가질 수 없어요.",
+    insight: "이해하는 기업에 투자하면 폭락 때도 흔들리지 않아요. 확신은 이해에서 나옵니다.",
+  },
+  {
+    format: "fill_blank", difficulty: "advanced", category: "judgment",
+    sentence: "벤저민 그레이엄: 단기적으로 시장은 투표 기계이지만, 장기적으로는 ___ 기계다",
+    answer: "저울", hints: ["저울", "체중계"],
+    explanation: "단기에는 인기(감정)에 의해 움직이지만, 장기에는 기업의 실제 가치를 반영해요.",
+    insight: "단기적 소음에 흔들리지 마세요. 장기적으로 가치는 반드시 인정받아요.",
+  },
 ];
 
 // Combine all questions
 export const allQuestions: QuizQuestion[] = [
-  ...oxBeginner, ...oxIntermediate, ...oxAdvanced,
-  ...mcBeginner, ...mcIntermediate, ...mcAdvanced,
-  ...fbBeginner, ...fbIntermediate, ...fbAdvanced,
+  ...riskQuestions,
+  ...psychologyQuestions,
+  ...crisisQuestions,
+  ...judgmentQuestions,
 ];
 
 // Map user level (1-6) to difficulty
@@ -139,30 +430,34 @@ function getDifficultyForLevel(level: number): Difficulty[] {
   return ["intermediate", "advanced"];
 }
 
-// Get quiz set based on user level
+// Get quiz set based on user level — ensures category diversity
 export function getDailyQuizSet(count: number, userLevel: number = 1): QuizQuestion[] {
   const difficulties = getDifficultyForLevel(userLevel);
-  const formats: Array<"ox" | "multiple_choice" | "fill_blank"> = [
-    "multiple_choice", "ox", "fill_blank",
-  ];
+  const categories: QuizCategory[] = ["risk", "psychology", "crisis", "judgment"];
 
   const result: QuizQuestion[] = [];
 
   for (let i = 0; i < count; i++) {
-    const format = formats[i % formats.length];
+    // Rotate through categories for diversity
+    const targetCategory = categories[i % categories.length];
     const pool = allQuestions.filter(
-      (q) => q.format === format && difficulties.includes(q.difficulty)
+      (q) => q.category === targetCategory && difficulties.includes(q.difficulty)
     );
 
-    // Avoid duplicates
     const unused = pool.filter(
-      (q) => !result.some((r) => JSON.stringify(r) === JSON.stringify(q))
+      (q) => !result.some((r) => r === q)
     );
 
     const pick = unused.length > 0 ? unused : pool;
     if (pick.length > 0) {
       result.push(pick[Math.floor(Math.random() * pick.length)]);
     }
+  }
+
+  // Shuffle
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
   }
 
   return result;
