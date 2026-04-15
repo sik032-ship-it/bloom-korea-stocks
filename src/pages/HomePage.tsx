@@ -9,9 +9,12 @@ import { LevelBadge } from "@/components/LevelBadge";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
+import { SkillMastery } from "@/components/SkillMastery";
+import { CommunityStats } from "@/components/CommunityStats";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
+import type { QuizCategory } from "@/data/quizQuestions";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
