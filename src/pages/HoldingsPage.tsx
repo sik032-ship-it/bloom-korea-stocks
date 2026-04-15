@@ -106,10 +106,14 @@ export default function HoldingsPage() {
           {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-muted rounded-lg animate-pulse" />)}
         </div>
       ) : holdings.length === 0 ? (
-        <div className="text-center py-16">
-          <span className="text-5xl block mb-4">🌱</span>
-          <p className="text-title text-foreground mb-2">아직 종목이 없어요</p>
-          <p className="text-small text-muted-foreground">첫 종목을 추가해보세요!</p>
+        <div className="text-center py-12">
+          <Mascot mood="wave" size="lg" className="mx-auto mb-4" />
+          <p className="text-title text-foreground mb-2">아직 보유 종목이 없어요</p>
+          <p className="text-small text-muted-foreground mb-1">종목을 추가하면 맞춤 질문으로</p>
+          <p className="text-small text-muted-foreground mb-4">투자 마인드를 훈련할 수 있어요!</p>
+          <button onClick={() => setShowAdd(true)} className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-small hover:opacity-90 transition-all press-effect">
+            🌰 첫 종목 추가하기
+          </button>
         </div>
       ) : (
         <div className="space-y-3">

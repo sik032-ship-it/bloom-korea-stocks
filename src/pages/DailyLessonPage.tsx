@@ -9,13 +9,19 @@ import { QuestionBadge } from "@/components/QuestionBadge";
 import { LevelUpModal } from "@/components/LevelUpModal";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
 import { getDailyQuizSet, type QuizQuestion } from "@/data/quizQuestions";
+import {
+  getCorrectMessage,
+  getWrongMessage,
+  getLessonMotivation,
+  getCompletionInsight,
+  getLoadingMessage,
+} from "@/utils/mascotDialogue";
 import Confetti from "react-confetti";
 import type { Database } from "@/integrations/supabase/types";
 import type { QuestionType } from "@/styles/colors";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
-// Total lesson steps: 3 quiz questions + 1 sentence writing = 4
 const QUIZ_COUNT = 3;
 const TOTAL_STEPS = QUIZ_COUNT + 1;
 
@@ -31,93 +37,44 @@ function LessonProgressBar({ current, total, streak }: { current: number; total:
         />
       </div>
       {streak > 0 && (
-        <span className="text-xs font-bold text-primary">{streak}번 연속 정답</span>
+        <span className="text-xs font-bold text-primary">{streak}번 연속 정답 🔥</span>
       )}
     </div>
   );
 }
 
 // ===== O/X Quiz Component =====
-function OXQuiz({
-  statement,
-  onAnswer,
-}: {
-  statement: string;
-  onAnswer: (correct: boolean) => void;
-}) {
+function OXQuiz({ statement, onAnswer }: { statement: string; onAnswer: (correct: boolean) => void }) {
   const [selected, setSelected] = useState<boolean | null>(null);
-
   return (
     <div className="flex-1 flex flex-col items-center justify-center animate-slide-up">
       <h2 className="text-title font-bold text-foreground text-center mb-8 px-4">
         다음 문장이 맞으면 O, 틀리면 X를 누르세요
       </h2>
-
       <div className="bg-card border-2 border-border rounded-2xl p-6 mb-10 mx-4 max-w-md">
         <p className="text-body text-foreground text-center leading-relaxed">{statement}</p>
       </div>
-
       <div className="flex gap-6">
-        <button
-          onClick={() => { setSelected(true); onAnswer(true); }}
-          disabled={selected !== null}
-          className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all ${
-            selected === true
-              ? "border-primary bg-primary/10 text-primary scale-110"
-              : "border-border hover:border-primary/50 text-foreground hover:scale-105"
-          } disabled:cursor-default`}
-        >
-          ⭕
-        </button>
-        <button
-          onClick={() => { setSelected(false); onAnswer(false); }}
-          disabled={selected !== null}
-          className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all ${
-            selected === false
-              ? "border-destructive bg-destructive/10 text-destructive scale-110"
-              : "border-border hover:border-destructive/50 text-foreground hover:scale-105"
-          } disabled:cursor-default`}
-        >
-          ❌
-        </button>
+        <button onClick={() => { setSelected(true); onAnswer(true); }} disabled={selected !== null}
+          className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all ${selected === true ? "border-primary bg-primary/10 text-primary scale-110" : "border-border hover:border-primary/50 text-foreground hover:scale-105"} disabled:cursor-default`}>⭕</button>
+        <button onClick={() => { setSelected(false); onAnswer(false); }} disabled={selected !== null}
+          className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all ${selected === false ? "border-destructive bg-destructive/10 text-destructive scale-110" : "border-border hover:border-destructive/50 text-foreground hover:scale-105"} disabled:cursor-default`}>❌</button>
       </div>
     </div>
   );
 }
 
 // ===== Multiple Choice Component =====
-function MultipleChoice({
-  question,
-  options,
-  onAnswer,
-}: {
-  question: string;
-  options: string[];
-  onAnswer: (index: number) => void;
-}) {
+function MultipleChoice({ question, options, onAnswer }: { question: string; options: string[]; onAnswer: (index: number) => void }) {
   const [selected, setSelected] = useState<number | null>(null);
-
   return (
     <div className="flex-1 flex flex-col animate-slide-up">
-      <h2 className="text-title font-bold text-foreground text-center mt-4 mb-8 px-2">
-        {question}
-      </h2>
-
+      <h2 className="text-title font-bold text-foreground text-center mt-4 mb-8 px-2">{question}</h2>
       <div className="space-y-3 px-2">
         {options.map((opt, i) => (
-          <button
-            key={i}
-            onClick={() => { setSelected(i); onAnswer(i); }}
-            disabled={selected !== null}
-            className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${
-              selected === i
-                ? "border-primary bg-accent shadow-sm scale-[1.02]"
-                : "border-border hover:border-muted-foreground/30"
-            } disabled:cursor-default`}
-          >
-            <span className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-small font-bold text-muted-foreground shrink-0">
-              {i + 1}
-            </span>
+          <button key={i} onClick={() => { setSelected(i); onAnswer(i); }} disabled={selected !== null}
+            className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${selected === i ? "border-primary bg-accent shadow-sm scale-[1.02]" : "border-border hover:border-muted-foreground/30"} disabled:cursor-default`}>
+            <span className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-small font-bold text-muted-foreground shrink-0">{i + 1}</span>
             <span className="text-body text-foreground">{opt}</span>
           </button>
         ))}
@@ -127,106 +84,53 @@ function MultipleChoice({
 }
 
 // ===== Fill in the Blank Component =====
-function FillBlank({
-  sentence,
-  hints,
-  onAnswer,
-}: {
-  sentence: string;
-  hints?: string[];
-  onAnswer: (value: string) => void;
-}) {
+function FillBlank({ sentence, hints, onAnswer }: { sentence: string; hints?: string[]; onAnswer: (value: string) => void }) {
   const [input, setInput] = useState("");
   const [submitted, setSubmitted] = useState(false);
-
   const parts = sentence.split("___");
-
-  const handleSubmit = () => {
-    if (!input.trim()) return;
-    setSubmitted(true);
-    onAnswer(input.trim());
-  };
+  const handleSubmit = () => { if (!input.trim()) return; setSubmitted(true); onAnswer(input.trim()); };
 
   return (
     <div className="flex-1 flex flex-col animate-slide-up">
-      <h2 className="text-title font-bold text-foreground text-center mt-4 mb-8">
-        빈칸에 들어갈 단어를 입력하세요
-      </h2>
-
+      <h2 className="text-title font-bold text-foreground text-center mt-4 mb-8">빈칸에 들어갈 단어를 입력하세요</h2>
       <div className="bg-card border-2 border-border rounded-2xl p-6 mx-2 mb-6">
         <p className="text-body text-foreground leading-loose text-center">
           {parts[0]}
           <span className="inline-block min-w-[80px] border-b-2 border-primary mx-1 text-center">
-            {submitted ? (
-              <span className="text-primary font-bold">{input}</span>
-            ) : (
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className="bg-transparent text-center text-primary font-bold outline-none w-full"
-                placeholder="..."
-                autoFocus
-              />
-            )}
+            {submitted ? <span className="text-primary font-bold">{input}</span> : <input value={input} onChange={(e) => setInput(e.target.value)} className="bg-transparent text-center text-primary font-bold outline-none w-full" placeholder="..." autoFocus />}
           </span>
           {parts[1]}
         </p>
       </div>
-
-      {hints && !submitted && (
-        <p className="text-xs text-muted-foreground text-center mb-4">
-          힌트: {hints.join(", ")}
-        </p>
-      )}
-
+      {hints && !submitted && <p className="text-xs text-muted-foreground text-center mb-4">힌트: {hints.join(", ")}</p>}
       {!submitted && (
         <div className="px-2 mt-auto pb-6">
-          <button
-            disabled={!input.trim()}
-            onClick={handleSubmit}
-            className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all disabled:opacity-40"
-          >
-            확인하기
-          </button>
+          <button disabled={!input.trim()} onClick={handleSubmit} className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all disabled:opacity-40">확인하기</button>
         </div>
       )}
     </div>
   );
 }
 
-// ===== Feedback Banner =====
-function FeedbackBanner({
-  correct,
-  explanation,
-  onContinue,
-}: {
-  correct: boolean;
-  explanation: string;
-  onContinue: () => void;
-}) {
+// ===== Feedback Banner with soul =====
+function FeedbackBanner({ correct, explanation, streakCount, onContinue }: { correct: boolean; explanation: string; streakCount: number; onContinue: () => void }) {
+  const message = correct ? getCorrectMessage(streakCount) : getWrongMessage();
+
   return (
-    <div
-      className={`fixed bottom-0 left-0 right-0 z-50 p-5 animate-slide-up ${
-        correct ? "bg-primary/10 border-t-2 border-primary" : "bg-destructive/10 border-t-2 border-destructive"
-      }`}
-    >
+    <div className={`fixed bottom-0 left-0 right-0 z-50 p-5 animate-slide-up ${correct ? "bg-primary/10 border-t-2 border-primary" : "bg-destructive/10 border-t-2 border-destructive"}`}>
       <div className="max-w-lg mx-auto flex items-start gap-3">
         <div className="shrink-0">
           <Mascot mood={correct ? "celebrate" : "wave"} size="sm" />
         </div>
         <div className="flex-1 min-w-0">
           <p className={`text-body font-bold ${correct ? "text-primary" : "text-destructive"}`}>
-            {correct ? "정말 잘했어요! 🎉" : "아쉬워요! 다음엔 꼭! 💪"}
+            {message}
           </p>
           <p className="text-small text-foreground/80 mt-1">{explanation}</p>
         </div>
         <button
           onClick={onContinue}
-          className={`shrink-0 px-6 py-3 rounded-xl font-bold text-small ${
-            correct
-              ? "bg-primary text-primary-foreground"
-              : "bg-destructive text-destructive-foreground"
-          }`}
+          className={`shrink-0 px-6 py-3 rounded-xl font-bold text-small ${correct ? "bg-primary text-primary-foreground" : "bg-destructive text-destructive-foreground"}`}
         >
           계속하기
         </button>
@@ -240,7 +144,6 @@ export default function DailyLessonPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Quiz state
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [quizStreak, setQuizStreak] = useState(0);
@@ -250,7 +153,6 @@ export default function DailyLessonPage() {
   const [lastCorrect, setLastCorrect] = useState(false);
   const [lastExplanation, setLastExplanation] = useState("");
 
-  // Sentence writing state
   const [inSentenceStep, setInSentenceStep] = useState(false);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [selectedHolding, setSelectedHolding] = useState<Holding | null>(null);
@@ -260,7 +162,6 @@ export default function DailyLessonPage() {
   const [answer, setAnswer] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Completion state
   const [completed, setCompleted] = useState(false);
   const [newTotal, setNewTotal] = useState(0);
   const [showLevelUp, setShowLevelUp] = useState(false);
@@ -270,6 +171,7 @@ export default function DailyLessonPage() {
   const [loading, setLoading] = useState(true);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [userLevel, setUserLevel] = useState(1);
+  const [totalSentences, setTotalSentences] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -281,21 +183,16 @@ export default function DailyLessonPage() {
         .single();
 
       const today = new Date().toISOString().split("T")[0];
-      const isDoneToday = profile?.last_sentence_date === today;
-      setAlreadyDone(isDoneToday);
+      setAlreadyDone(profile?.last_sentence_date === today);
 
-      // Load quiz questions based on user level
       const lvl = profile?.current_level || 1;
       setUserLevel(lvl);
       setCurrentStreak(profile?.current_streak || 0);
+      setTotalSentences(profile?.total_sentences || 0);
       setQuizQuestions(getDailyQuizSet(QUIZ_COUNT, lvl));
 
-      // Load holdings for sentence writing
       const { data: h } = await supabase
-        .from("holdings")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("is_active", true);
+        .from("holdings").select("*").eq("user_id", user.id).eq("is_active", true);
 
       if (h && h.length > 0) {
         setHoldings(h);
@@ -318,26 +215,21 @@ export default function DailyLessonPage() {
     (userAnswer: boolean | number | string) => {
       const q = quizQuestions[currentQuizIndex];
       if (!q) return;
-
       let correct = false;
-      if (q.format === "ox") {
-        correct = userAnswer === q.answer;
-      } else if (q.format === "multiple_choice") {
-        correct = userAnswer === q.correctIndex;
-      } else if (q.format === "fill_blank") {
-        const normalizedInput = String(userAnswer).trim().toLowerCase();
-        const normalizedAnswer = q.answer.toLowerCase();
-        const hints = q.hints?.map((h) => h.toLowerCase()) || [];
-        correct = normalizedInput === normalizedAnswer || hints.includes(normalizedInput);
+      if (q.format === "ox") correct = userAnswer === q.answer;
+      else if (q.format === "multiple_choice") correct = userAnswer === q.correctIndex;
+      else if (q.format === "fill_blank") {
+        const ni = String(userAnswer).trim().toLowerCase();
+        const na = q.answer.toLowerCase();
+        correct = ni === na || (q.hints?.map(h => h.toLowerCase()) || []).includes(ni);
       }
-
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
       if (correct) {
         setCorrectCount(prev => prev + 1);
-        const newStreak = quizStreak + 1;
-        setQuizStreak(newStreak);
-        setBestStreak(prev => Math.max(prev, newStreak));
+        const ns = quizStreak + 1;
+        setQuizStreak(ns);
+        setBestStreak(prev => Math.max(prev, ns));
       } else {
         setQuizStreak(0);
       }
@@ -351,20 +243,13 @@ export default function DailyLessonPage() {
     if (currentQuizIndex + 1 < QUIZ_COUNT) {
       setCurrentQuizIndex(currentQuizIndex + 1);
     } else {
-      // Move to sentence writing
-      if (holdings.length > 0) {
-        setInSentenceStep(true);
-      } else {
-        // No holdings → complete
-        handleComplete();
-      }
+      if (holdings.length > 0) setInSentenceStep(true);
+      else handleComplete();
     }
   };
 
   const handleComplete = async () => {
     if (!user) return;
-    
-    // If no holdings, just go to completion
     if (!selectedHolding) {
       setCompleted(true);
       setShowConfetti(true);
@@ -374,26 +259,13 @@ export default function DailyLessonPage() {
 
     setSaving(true);
     await supabase.from("sentences").insert({
-      user_id: user.id,
-      holding_id: selectedHolding.id,
-      question_type: questionType,
-      question_text: questionText,
-      answer_text: answer,
+      user_id: user.id, holding_id: selectedHolding.id,
+      question_type: questionType, question_text: questionText, answer_text: answer,
     });
+    await supabase.from("holdings").update({ sentence_count: selectedHolding.sentence_count + 1 }).eq("id", selectedHolding.id);
 
-    await supabase
-      .from("holdings")
-      .update({ sentence_count: selectedHolding.sentence_count + 1 })
-      .eq("id", selectedHolding.id);
-
-    // Only update streaks/XP on first completion of the day
     if (!alreadyDone) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
       if (profile) {
         const today = new Date().toISOString().split("T")[0];
         const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
@@ -401,25 +273,14 @@ export default function DailyLessonPage() {
         const newStreak = wasYesterday ? profile.current_streak + 1 : 1;
         const newLongest = Math.max(profile.longest_streak, newStreak);
         const total = profile.total_sentences + 1;
-
         setOldTotal(profile.total_sentences);
         setNewTotal(total);
-
-        if (isLevelUp(profile.total_sentences, total)) {
-          setShowLevelUp(true);
-        }
-
+        if (isLevelUp(profile.total_sentences, total)) setShowLevelUp(true);
         const newLevel = getLevelForCount(total);
-        await supabase
-          .from("profiles")
-          .update({
-            total_sentences: total,
-            current_streak: newStreak,
-            longest_streak: newLongest,
-            last_sentence_date: today,
-            current_level: newLevel.level,
-          })
-          .eq("id", user.id);
+        await supabase.from("profiles").update({
+          total_sentences: total, current_streak: newStreak, longest_streak: newLongest,
+          last_sentence_date: today, current_level: newLevel.level,
+        }).eq("id", user.id);
       }
     }
 
@@ -439,33 +300,32 @@ export default function DailyLessonPage() {
     }
   };
 
-  // Loading
+  // Loading with soul
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
         <Mascot mood="default" size="lg" className="animate-float" />
-        <p className="text-small text-muted-foreground animate-fade-in">오늘의 레슨을 준비 중...</p>
+        <p className="text-small text-muted-foreground animate-fade-in">{getLoadingMessage()}</p>
         <div className="w-48 h-2 rounded-full skeleton-shimmer mt-2" />
       </div>
     );
   }
 
-  // Removed: alreadyDone blocking screen — users can always do lessons
-
-  // Completion screen
+  // Completion screen with insight
   if (completed) {
     const accuracy = QUIZ_COUNT > 0 ? Math.round((correctCount / QUIZ_COUNT) * 100) : 0;
     const isRepeat = alreadyDone;
-    const xpEarned = isRepeat ? Math.round((correctCount * 10 + (answer.length >= 10 ? 15 : 0)) * 0.3) : correctCount * 10 + (answer.length >= 10 ? 15 : 0);
+    const xpEarned = isRepeat
+      ? Math.round((correctCount * 10 + (answer.length >= 10 ? 15 : 0)) * 0.3)
+      : correctCount * 10 + (answer.length >= 10 ? 15 : 0);
+
+    const insight = getCompletionInsight(accuracy, isRepeat);
 
     return (
       <div className="min-h-screen bg-background flex flex-col items-center px-6 pt-8 pb-6">
         {showConfetti && <Confetti recycle={false} numberOfPieces={400} />}
-        {showLevelUp && (
-          <LevelUpModal oldLevel={oldTotal} newLevel={newTotal} onClose={() => setShowLevelUp(false)} />
-        )}
+        {showLevelUp && <LevelUpModal oldLevel={oldTotal} newLevel={newTotal} onClose={() => setShowLevelUp(false)} />}
 
-        {/* Header */}
         <Mascot mood="celebrate" size="xl" className="mb-3" />
         <h1 className="text-display text-foreground mb-1">{isRepeat ? "복습 완료! 📚" : "레슨 완료! 🌟"}</h1>
         <p className="text-small text-muted-foreground mb-6">
@@ -479,7 +339,7 @@ export default function DailyLessonPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="w-full max-w-sm grid grid-cols-3 gap-3 mb-6">
+        <div className="w-full max-w-sm grid grid-cols-3 gap-3 mb-4">
           <div className="bg-card border border-border rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-foreground">{accuracy}%</p>
             <p className="text-xs text-muted-foreground mt-1">정답률</p>
@@ -494,38 +354,38 @@ export default function DailyLessonPage() {
           </div>
         </div>
 
+        {/* 💡 Insight Card */}
+        <div className="w-full max-w-sm bg-accent/50 border border-border rounded-xl p-4 mb-4 flex items-start gap-3">
+          <Mascot mood="thinking" size="sm" />
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-primary mb-1">💡 투자 인사이트</p>
+            <p className="text-small text-foreground">{insight}</p>
+          </div>
+        </div>
+
         {/* Quiz breakdown */}
         <div className="w-full max-w-sm bg-card border border-border rounded-xl p-4 mb-6">
           <p className="text-small font-semibold text-foreground mb-3">퀴즈 결과</p>
           <div className="flex items-center gap-2 mb-2">
             <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-1000"
-                style={{ width: `${accuracy}%` }}
-              />
+              <div className="h-full bg-primary rounded-full transition-all duration-1000" style={{ width: `${accuracy}%` }} />
             </div>
             <span className="text-xs font-bold text-foreground">{correctCount}/{QUIZ_COUNT}</span>
           </div>
           <p className="text-xs text-muted-foreground">
-            {accuracy === 100
-              ? "완벽해요! 투자 지식이 탄탄하네요 💪"
-              : accuracy >= 67
-              ? "잘했어요! 조금만 더 공부하면 완벽해요 📚"
+            {accuracy === 100 ? "완벽해요! 투자 지식이 탄탄하네요 💪"
+              : accuracy >= 67 ? "잘했어요! 조금만 더 공부하면 완벽해요 📚"
               : "괜찮아요! 틀린 문제가 오히려 더 기억에 남아요 🌱"}
           </p>
         </div>
 
-        {/* Total sentences */}
         {newTotal > 0 && (
           <p className="text-small text-muted-foreground mb-6">
             총 <span className="font-bold text-primary">{newTotal}</span>문장 — 매일 쌓이는 복리 지식 🌱
           </p>
         )}
 
-        <button
-          onClick={() => navigate("/")}
-          className="w-full max-w-sm py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all"
-        >
+        <button onClick={() => navigate("/")} className="w-full max-w-sm py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all">
           홈으로 돌아가기
         </button>
       </div>
@@ -543,31 +403,25 @@ export default function DailyLessonPage() {
       <LessonProgressBar current={currentStep} total={TOTAL_STEPS} streak={quizStreak} />
 
       <div className="flex-1 flex flex-col px-4 max-w-lg mx-auto w-full relative">
+        {/* Motivation message before quiz starts */}
+        {!inSentenceStep && currentQuizIndex === 0 && !showFeedback && (
+          <div className="bg-accent/30 rounded-xl px-4 py-3 mb-2 flex items-center gap-2 animate-fade-in">
+            <span className="text-sm">💡</span>
+            <p className="text-xs text-muted-foreground">{getLessonMotivation(totalSentences, currentStreak)}</p>
+          </div>
+        )}
+
         {/* Quiz Phase */}
         {!inSentenceStep && quizQuestions[currentQuizIndex] && (
           <>
             {quizQuestions[currentQuizIndex].format === "ox" && (
-              <OXQuiz
-                key={currentQuizIndex}
-                statement={(quizQuestions[currentQuizIndex] as any).statement}
-                onAnswer={(val) => handleQuizAnswer(val)}
-              />
+              <OXQuiz key={currentQuizIndex} statement={(quizQuestions[currentQuizIndex] as any).statement} onAnswer={(val) => handleQuizAnswer(val)} />
             )}
             {quizQuestions[currentQuizIndex].format === "multiple_choice" && (
-              <MultipleChoice
-                key={currentQuizIndex}
-                question={(quizQuestions[currentQuizIndex] as any).question}
-                options={(quizQuestions[currentQuizIndex] as any).options}
-                onAnswer={(val) => handleQuizAnswer(val)}
-              />
+              <MultipleChoice key={currentQuizIndex} question={(quizQuestions[currentQuizIndex] as any).question} options={(quizQuestions[currentQuizIndex] as any).options} onAnswer={(val) => handleQuizAnswer(val)} />
             )}
             {quizQuestions[currentQuizIndex].format === "fill_blank" && (
-              <FillBlank
-                key={currentQuizIndex}
-                sentence={(quizQuestions[currentQuizIndex] as any).sentence}
-                hints={(quizQuestions[currentQuizIndex] as any).hints}
-                onAnswer={(val) => handleQuizAnswer(val)}
-              />
+              <FillBlank key={currentQuizIndex} sentence={(quizQuestions[currentQuizIndex] as any).sentence} hints={(quizQuestions[currentQuizIndex] as any).hints} onAnswer={(val) => handleQuizAnswer(val)} />
             )}
           </>
         )}
@@ -586,33 +440,23 @@ export default function DailyLessonPage() {
               </SpeechBubble>
             </div>
 
-            <button
-              onClick={pickDifferent}
-              className="text-xs text-primary font-medium mb-3 self-start hover:underline"
-            >
+            <button onClick={pickDifferent} className="text-xs text-primary font-medium mb-3 self-start hover:underline">
               🔄 다른 질문 받기
             </button>
 
             <textarea
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder={placeholderText}
+              value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder={placeholderText}
               maxLength={500}
               className="w-full h-32 bg-card border-2 border-border rounded-xl p-4 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary resize-none"
             />
             <div className="flex justify-between mt-1 mb-4">
-              <p className={`text-xs ${answer.length < 10 ? "text-destructive" : "text-muted-foreground"}`}>
-                최소 10자
-              </p>
+              <p className={`text-xs ${answer.length < 10 ? "text-destructive" : "text-muted-foreground"}`}>최소 10자</p>
               <p className="text-xs text-muted-foreground">{answer.length}/500</p>
             </div>
 
             <div className="mt-auto pb-6">
-              <button
-                disabled={answer.length < 10 || saving}
-                onClick={handleComplete}
-                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all disabled:opacity-40"
-              >
+              <button disabled={answer.length < 10 || saving} onClick={handleComplete}
+                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all disabled:opacity-40">
                 {saving ? "저장 중..." : "✍️ 문장 심기"}
               </button>
             </div>
@@ -620,11 +464,12 @@ export default function DailyLessonPage() {
         )}
       </div>
 
-      {/* Feedback Banner */}
+      {/* Feedback Banner with soul */}
       {showFeedback && (
         <FeedbackBanner
           correct={lastCorrect}
           explanation={lastExplanation}
+          streakCount={quizStreak}
           onContinue={handleContinue}
         />
       )}
