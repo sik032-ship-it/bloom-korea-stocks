@@ -206,6 +206,10 @@ export default function DailyLessonPage() {
 
       if (h && h.length > 0) {
         setHoldings(h);
+        // Personalize quiz with holdings
+        const holdingNames = h.map(holding => holding.company_name_kr);
+        setQuizQuestions(prev => prev.map(q => personalizeQuiz(q, holdingNames)));
+        
         const question = await selectQuestion(h);
         if (question) {
           setSelectedHolding(question.holding);
