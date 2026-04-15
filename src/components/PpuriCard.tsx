@@ -11,8 +11,8 @@ export const PpuriCard = forwardRef<HTMLDivElement, PpuriCardProps>(
       <div
         ref={ref}
         className={cn(
-          "bg-card rounded-lg border border-border p-5 shadow-card transition-shadow duration-200",
-          hoverable && "hover:shadow-card-hover cursor-pointer",
+          "bg-card rounded-lg border border-border p-5 shadow-card transition-all duration-200",
+          hoverable && "hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer press-effect",
           className
         )}
         {...props}

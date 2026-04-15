@@ -23,7 +23,7 @@ export const PpuriButton = forwardRef<HTMLButtonElement, PpuriButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "h-11 px-5 rounded-md font-semibold text-body transition-all duration-150 disabled:opacity-50 disabled:pointer-events-none",
+          "h-11 px-5 rounded-md font-semibold text-body transition-all duration-150 disabled:opacity-50 disabled:pointer-events-none press-effect",
           variantStyles[variant],
           fullWidth && "w-full",
           className
