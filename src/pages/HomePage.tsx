@@ -197,6 +197,9 @@ export default function HomePage() {
           {user && <WeeklyCalendar userId={user.id} />}
         </PpuriCard>
 
+        {/* Skill Mastery */}
+        <SkillMastery categoryScores={categoryScores} totalLessons={profile?.total_sentences || 0} />
+
         {/* Quick Actions — 2x2 grid */}
         <div className="grid grid-cols-2 gap-3">
           <button
@@ -228,6 +231,9 @@ export default function HomePage() {
             보유 종목
           </button>
         </div>
+
+        {/* Community Stats */}
+        <CommunityStats />
       </div>
     </Layout>
   );
