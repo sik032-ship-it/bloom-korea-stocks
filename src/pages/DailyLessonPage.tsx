@@ -231,6 +231,8 @@ export default function DailyLessonPage() {
       }
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
+      // Store insight for feedback banner
+      (window as any).__currentQuizInsight = (q as any).insight || null;
       if (correct) {
         setCorrectCount(prev => prev + 1);
         const ns = quizStreak + 1;
