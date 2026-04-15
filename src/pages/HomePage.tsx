@@ -198,6 +198,16 @@ export default function HomePage() {
           {user && <WeeklyCalendar userId={user.id} />}
         </PpuriCard>
 
+        {/* Today's Progress + AI Insight */}
+        {user && (
+          <TodayProgress
+            userId={user.id}
+            totalSentences={profile?.total_sentences || 0}
+            currentStreak={streak}
+            todayDone={todayDone}
+          />
+        )}
+
         {/* Skill Mastery */}
         <SkillMastery categoryScores={categoryScores} totalLessons={profile?.total_sentences || 0} />
 
