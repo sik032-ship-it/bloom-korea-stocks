@@ -8,6 +8,9 @@ import { Mascot } from "@/components/Mascot";
 import { LevelBadge } from "@/components/LevelBadge";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
+import { HomeSkeleton } from "@/components/HomeSkeleton";
+import { getProgressToNextLevel } from "@/utils/levelSystem";
+import type { Database } from "@/integrations/supabase/types";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -73,11 +76,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <Layout>
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-muted rounded-xl animate-pulse" />
-          ))}
-        </div>
+        <HomeSkeleton />
       </Layout>
     );
   }
@@ -91,6 +90,7 @@ export default function HomePage() {
       currentStreak={streak}
       longestStreak={profile?.longest_streak || 0}
     >
+      <div className="stagger-children">
       {/* Mascot Greeting */}
       <div className="flex items-start gap-3 pt-2">
         <Mascot level={userLevel} size="lg" showLevelTag />
