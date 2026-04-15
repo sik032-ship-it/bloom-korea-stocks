@@ -4,7 +4,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { PpuriButton } from "@/components/PpuriButton";
-import { Shield, TrendingDown, Flame, Waves, Landmark, DollarSign, BarChart3, TrendingUp, Trophy, Zap, type LucideIcon } from "lucide-react";
+import { ShareCard } from "@/components/ShareCard";
+import { GrowthComparison } from "@/components/GrowthComparison";
+import { Shield, TrendingDown, Flame, Waves, Landmark, DollarSign, BarChart3, TrendingUp, Trophy, Zap, Share2, Sparkles, Loader2, type LucideIcon } from "lucide-react";
+import { toast } from "sonner";
 import type { MascotMood } from "@/components/Mascot";
 
 interface CrisisScenario {
@@ -30,6 +33,7 @@ interface CrisisRecord {
   score: number;
   max_score: number;
   score_percentage: number;
+  step_scores: number[];
   completed_at: string;
 }
 
@@ -230,10 +234,9 @@ const scenarios: CrisisScenario[] = [
 function GrowthChart({ records }: { records: CrisisRecord[] }) {
   const [animatedHeights, setAnimatedHeights] = useState<number[]>([]);
   
-  const recent = records.slice(0, 10).reverse(); // oldest first, max 10
+  const recent = records.slice(0, 10).reverse();
   
   useEffect(() => {
-    // Animate bars sequentially
     setAnimatedHeights(new Array(recent.length).fill(0));
     recent.forEach((_, i) => {
       setTimeout(() => {
@@ -256,7 +259,6 @@ function GrowthChart({ records }: { records: CrisisRecord[] }) {
 
   return (
     <div className="w-full">
-      {/* Stats row */}
       <div className="grid grid-cols-3 gap-2 mb-5">
         <div className="bg-card border border-border rounded-xl p-3 text-center">
           <div className="flex items-center justify-center gap-1 mb-1">
@@ -283,7 +285,6 @@ function GrowthChart({ records }: { records: CrisisRecord[] }) {
         </div>
       </div>
 
-      {/* Bar chart */}
       <div className="bg-card border border-border rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp size={14} className="text-primary" />
@@ -321,7 +322,6 @@ function GrowthChart({ records }: { records: CrisisRecord[] }) {
           })}
         </div>
 
-        {/* Survival level */}
         {records.length >= 3 && (
           <div className="mt-4 pt-3 border-t border-border">
             <SurvivalLevel avg={avg} totalAttempts={records.length} />
@@ -372,6 +372,19 @@ function SurvivalLevel({ avg, totalAttempts }: { avg: number; totalAttempts: num
   );
 }
 
+function getSurvivalInfo(records: CrisisRecord[]) {
+  if (records.length < 3) return { label: "신입 투자자", icon: "🌱" };
+  const avg = Math.round(records.reduce((s, r) => s + r.score_percentage, 0) / records.length);
+  const levels = [
+    { min: 85, label: "불사조 투자자", icon: "🔥" },
+    { min: 70, label: "위기 전문가", icon: "🏅" },
+    { min: 50, label: "침착한 생존자", icon: "⚔️" },
+    { min: 30, label: "생존자 후보", icon: "🛡️" },
+    { min: 0, label: "신입 투자자", icon: "🌱" },
+  ];
+  return levels.find(l => avg >= l.min) || levels[levels.length - 1];
+}
+
 type Phase = "intro" | "playing" | "result" | "growth";
 
 export default function CrisisModePage() {
@@ -386,10 +399,15 @@ export default function CrisisModePage() {
   const [stepScores, setStepScores] = useState<number[]>([]);
   const [pastResults, setPastResults] = useState<CrisisRecord[]>([]);
   const [saving, setSaving] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
+  const [aiScenarios, setAiScenarios] = useState<CrisisScenario[]>([]);
+  const [generatingAI, setGeneratingAI] = useState(false);
+  const [holdings, setHoldings] = useState<{ ticker: string; company_name_kr: string }[]>([]);
 
-  // Load past results
+  // Load past results + holdings
   useEffect(() => {
     if (!user) return;
+    
     supabase
       .from("crisis_results")
       .select("*")
@@ -398,7 +416,49 @@ export default function CrisisModePage() {
       .then(({ data }) => {
         if (data) setPastResults(data as CrisisRecord[]);
       });
+
+    supabase
+      .from("holdings")
+      .select("ticker, company_name_kr")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .then(({ data }) => {
+        if (data) setHoldings(data);
+      });
   }, [user]);
+
+  const generateAIScenario = async () => {
+    if (holdings.length === 0) {
+      toast.error("먼저 보유 종목을 등록해주세요!", {
+        action: { label: "등록하기", onClick: () => navigate("/holdings") },
+      });
+      return;
+    }
+
+    setGeneratingAI(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-crisis-scenario", {
+        body: { holdings },
+      });
+
+      if (error) throw error;
+
+      const scenario: CrisisScenario = {
+        ...data.scenario,
+        icon: Sparkles,
+        iconColor: "#8B5CF6",
+      };
+
+      setAiScenarios(prev => [scenario, ...prev]);
+      startScenario(scenario);
+      toast.success("AI가 맞춤 시나리오를 만들었어요!");
+    } catch (e) {
+      console.error(e);
+      toast.error("시나리오 생성에 실패했어요. 다시 시도해주세요.");
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
 
   const startScenario = (scenario: CrisisScenario) => {
     setSelectedScenario(scenario);
@@ -424,9 +484,6 @@ export default function CrisisModePage() {
       setStepIndex(stepIndex + 1);
       setSelectedOption(null);
     } else {
-      // Save result
-      const pct = Math.round(((totalScore + (selectedScenario.steps[stepIndex].options[selectedOption!]?.score || 0) - (stepScores[stepScores.length - 1] || 0) + (stepScores[stepScores.length - 1] || 0)) / maxScore) * 100);
-      
       if (user) {
         setSaving(true);
         const finalPct = Math.round((totalScore / maxScore) * 100);
@@ -483,11 +540,14 @@ export default function CrisisModePage() {
               <PpuriButton onClick={() => setPhase("intro")}>시뮬레이션 시작하기</PpuriButton>
             </div>
           ) : (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in space-y-5">
               <GrowthChart records={pastResults} />
               
+              {/* Growth Comparison — past vs present */}
+              <GrowthComparison records={pastResults} />
+              
               {/* Recent history */}
-              <div className="mt-5 bg-card border border-border rounded-2xl p-4">
+              <div className="bg-card border border-border rounded-2xl p-4">
                 <p className="text-xs font-semibold text-foreground mb-3">최근 도전 기록</p>
                 <div className="space-y-2.5">
                   {pastResults.slice(0, 5).map((r) => {
@@ -557,6 +617,71 @@ export default function CrisisModePage() {
             </p>
           </div>
 
+          {/* AI Custom Scenario Button */}
+          <button
+            onClick={generateAIScenario}
+            disabled={generatingAI}
+            className="w-full mb-4 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-2 border-violet-500/30 rounded-2xl p-5 text-left hover:border-violet-500/50 transition-all press-effect animate-fade-in"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center">
+                {generatingAI ? (
+                  <Loader2 size={20} className="text-violet-500 animate-spin" />
+                ) : (
+                  <Sparkles size={20} className="text-violet-500" />
+                )}
+              </div>
+              <div className="flex-1">
+                <h3 className="text-body font-bold text-foreground">
+                  {generatingAI ? "시나리오 생성 중..." : "🤖 AI 맞춤 시나리오"}
+                </h3>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  {holdings.length > 0 
+                    ? `${holdings.map(h => h.company_name_kr).slice(0, 3).join(", ")} 기반 위기 상황`
+                    : "보유 종목을 등록하면 맞춤 시나리오를 만들어요"
+                  }
+                </p>
+              </div>
+            </div>
+          </button>
+
+          {/* AI generated scenarios */}
+          {aiScenarios.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs font-semibold text-muted-foreground mb-2 px-1">AI가 만든 시나리오</p>
+              <div className="space-y-3">
+                {aiScenarios.map((s, i) => {
+                  const Icon = s.icon;
+                  const attempts = pastResults.filter(r => r.scenario_id === s.id).length;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => startScenario(s)}
+                      className="w-full bg-card border-2 border-violet-500/20 rounded-2xl p-5 text-left hover:border-violet-500/40 transition-all press-effect"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                          <Icon size={20} className="text-violet-500" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-body font-bold text-foreground">{s.title}</h3>
+                            <span className="text-[9px] bg-violet-500/10 text-violet-600 px-1.5 py-0.5 rounded-full font-medium">AI</span>
+                          </div>
+                          {attempts > 0 && (
+                            <p className="text-[10px] text-muted-foreground">{attempts}회 도전</p>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-small text-muted-foreground whitespace-pre-line pl-[52px]">{s.description}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Standard scenarios */}
           <div className="space-y-3">
             {scenarios.map((s, i) => {
               const Icon = s.icon;
@@ -600,11 +725,11 @@ export default function CrisisModePage() {
       : pct >= 40 ? { label: "성장 중인 투자자", color: "#F59E0B", msg: "감정에 흔들린 순간이 있었지만, 배움이 있었어요!" }
       : { label: "감정적 투자자", color: "#EF4444", msg: "괜찮아요! 여기서 연습하는 것 자체가 대단한 거예요!" };
 
-    // Previous best for this scenario
     const prevBest = pastResults
       .filter(r => r.scenario_id === selectedScenario.id && r.id !== pastResults[0]?.id)
       .reduce((best, r) => Math.max(best, r.score_percentage), 0);
     const isNewBest = prevBest > 0 && pct > prevBest;
+    const survival = getSurvivalInfo(pastResults);
 
     return (
       <div className="min-h-screen bg-background flex flex-col items-center px-6 pt-8 pb-6 animate-fade-in">
@@ -651,6 +776,16 @@ export default function CrisisModePage() {
         </div>
 
         <div className="w-full max-w-sm space-y-3">
+          {/* Share button */}
+          <PpuriButton 
+            fullWidth 
+            onClick={() => setShowShareCard(true)}
+            className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 border-none"
+          >
+            <Share2 size={16} className="mr-2" />
+            결과 공유하기
+          </PpuriButton>
+
           {pastResults.length >= 2 && (
             <PpuriButton fullWidth variant="secondary" onClick={() => setPhase("growth")}>
               <TrendingUp size={16} className="mr-2" />
@@ -664,6 +799,20 @@ export default function CrisisModePage() {
             홈으로
           </PpuriButton>
         </div>
+
+        {/* Share Card Modal */}
+        {showShareCard && (
+          <ShareCard
+            scenarioTitle={selectedScenario.title}
+            scorePercent={pct}
+            totalScore={totalScore}
+            maxScore={maxScore}
+            survivalLevel={survival.label}
+            survivalIcon={survival.icon}
+            attemptCount={pastResults.length}
+            onClose={() => setShowShareCard(false)}
+          />
+        )}
       </div>
     );
   }
