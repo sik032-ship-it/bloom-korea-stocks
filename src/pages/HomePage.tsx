@@ -96,7 +96,7 @@ export default function HomePage() {
       <div className="stagger-children">
         {/* 스트릭 깨짐 위로 배너 */}
         {streakBrokenMsg && (
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
+          <div className="bg-accent border border-border rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
             <Mascot mood={streakBrokenMsg.mood} size="sm" />
             <div className="flex-1">
               <p className="text-small text-foreground whitespace-pre-line">{streakBrokenMsg.text}</p>
