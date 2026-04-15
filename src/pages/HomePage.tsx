@@ -217,6 +217,7 @@ export default function HomePage() {
           로그아웃
         </button>
       </div>
+      </div>
     </Layout>
   );
 }
