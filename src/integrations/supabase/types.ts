@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      crisis_results: {
+        Row: {
+          completed_at: string
+          id: string
+          max_score: number
+          scenario_id: string
+          scenario_title: string
+          score: number
+          score_percentage: number
+          step_scores: number[]
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          max_score: number
+          scenario_id: string
+          scenario_title: string
+          score: number
+          score_percentage: number
+          step_scores?: number[]
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          max_score?: number
+          scenario_id?: string
+          scenario_title?: string
+          score?: number
+          score_percentage?: number
+          step_scores?: number[]
+          user_id?: string
+        }
+        Relationships: []
+      }
       holdings: {
         Row: {
           added_at: string
