@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { selectQuestion, selectNewQuestion } from "@/services/questionEngine";
 import { HoldingsContext } from "@/components/HoldingsContext";
+import { BehavioralNudge } from "@/components/BehavioralNudge";
 import { Mascot } from "@/components/Mascot";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { QuestionBadge } from "@/components/QuestionBadge";
