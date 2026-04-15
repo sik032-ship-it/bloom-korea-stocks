@@ -28,7 +28,7 @@ type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 const QUIZ_COUNT = 3;
 const TOTAL_STEPS = QUIZ_COUNT + 1;
 
-function LessonProgressBar({ current, total, streak }: { current: number; total: number; streak: number }) {
+function LessonProgressBar({ current, total, streak, onClose }: { current: number; total: number; streak: number; onClose: () => void }) {
   const percent = (current / total) * 100;
   return (
     <div className="flex items-center gap-3 px-4 py-3">
