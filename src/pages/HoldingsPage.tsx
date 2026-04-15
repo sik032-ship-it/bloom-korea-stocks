@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/Layout";
 import { PpuriCard } from "@/components/PpuriCard";
 import { PpuriButton } from "@/components/PpuriButton";
+import { Mascot } from "@/components/Mascot";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 
