@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { getDailyQuizSet, type QuizQuestion } from "@/data/quizQuestions";
+import { getCorrectMessage, getWrongMessage, getLoadingMessage } from "@/utils/mascotDialogue";
 
 const QUIZ_COUNT = 5;
 
@@ -126,7 +127,10 @@ export default function PracticePage() {
   };
 
   if (questions.length === 0) {
-    return <div className="min-h-screen bg-background flex items-center justify-center"><Mascot mood="default" size="lg" className="animate-bounce" /></div>;
+    return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
+      <Mascot mood="default" size="lg" className="animate-float" />
+      <p className="text-small text-muted-foreground">{getLoadingMessage()}</p>
+    </div>;
   }
 
   if (completed) {
@@ -178,7 +182,7 @@ export default function PracticePage() {
           <div className="max-w-lg mx-auto flex items-start gap-3">
             <Mascot mood={lastCorrect ? "celebrate" : "wave"} size="sm" />
             <div className="flex-1 min-w-0">
-              <p className={`text-body font-bold ${lastCorrect ? "text-primary" : "text-destructive"}`}>{lastCorrect ? "정답! 🎉" : "아쉬워요! 💪"}</p>
+              <p className={`text-body font-bold ${lastCorrect ? "text-primary" : "text-destructive"}`}>{lastCorrect ? getCorrectMessage(streak) : getWrongMessage()}</p>
               <p className="text-small text-foreground/80 mt-1">{lastExplanation}</p>
             </div>
             <button onClick={handleContinue} className={`shrink-0 px-6 py-3 rounded-xl font-bold text-small ${lastCorrect ? "bg-primary text-primary-foreground" : "bg-destructive text-destructive-foreground"}`}>계속</button>
