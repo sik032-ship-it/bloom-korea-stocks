@@ -443,8 +443,9 @@ export default function DailyLessonPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
-        <Mascot mood="default" size="lg" className="animate-bounce" />
-        <p className="text-small text-muted-foreground">오늘의 레슨을 준비 중...</p>
+        <Mascot mood="default" size="lg" className="animate-float" />
+        <p className="text-small text-muted-foreground animate-fade-in">오늘의 레슨을 준비 중...</p>
+        <div className="w-48 h-2 rounded-full skeleton-shimmer mt-2" />
       </div>
     );
   }
