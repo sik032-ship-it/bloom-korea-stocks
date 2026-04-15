@@ -19,14 +19,6 @@ const DATE_FILTERS = [
   { label: "모든 기간", value: "all" },
 ];
 
-const TYPE_FILTERS: { label: string; value: QuestionType | "all" }[] = [
-  { label: "전체", value: "all" },
-  { label: "일상", value: "daily" },
-  { label: "실적", value: "earnings" },
-  { label: "하락", value: "drop" },
-  { label: "급등", value: "surge" },
-  { label: "FOMO", value: "fomo" },
-];
 
 function getDateRange(filter: string): Date | null {
   const now = new Date();
@@ -61,8 +53,6 @@ export default function ArchivePage() {
   const [sentences, setSentences] = useState<Sentence[]>([]);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [loading, setLoading] = useState(true);
-  const [holdingFilter, setHoldingFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState<QuestionType | "all">("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
@@ -92,8 +82,6 @@ export default function ArchivePage() {
       .order("created_at", { ascending: false })
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
 
-    if (holdingFilter !== "all") query = query.eq("holding_id", holdingFilter);
-    if (typeFilter !== "all") query = query.eq("question_type", typeFilter);
 
     const start = getDateRange(dateFilter);
     const end = getDateRangeEnd(dateFilter);
@@ -117,7 +105,7 @@ export default function ArchivePage() {
     setPage(0);
     setLoading(true);
     fetchSentences(true);
-  }, [user, holdingFilter, typeFilter, dateFilter]);
+  }, [user, dateFilter]);
 
   const loadMore = () => {
     setPage((p) => p + 1);
