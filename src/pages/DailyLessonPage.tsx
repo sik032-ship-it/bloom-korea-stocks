@@ -197,7 +197,9 @@ export default function DailyLessonPage() {
       setUserLevel(lvl);
       setCurrentStreak(profile?.current_streak || 0);
       setTotalSentences(profile?.total_sentences || 0);
-      setQuizQuestions(getDailyQuizSet(QUIZ_COUNT, lvl));
+      const baseQuiz = getDailyQuizSet(QUIZ_COUNT, lvl);
+      // Will personalize after holdings load
+      setQuizQuestions(baseQuiz);
 
       const { data: h } = await supabase
         .from("holdings").select("*").eq("user_id", user.id).eq("is_active", true);
