@@ -8,7 +8,7 @@ import type { MascotMood } from "@/components/Mascot";
 interface CrisisScenario {
   id: string;
   title: string;
-  icon: React.FC<{ size?: number; className?: string }>;
+  icon: LucideIcon;
   iconColor: string;
   description: string;
   historicalContext: string;
