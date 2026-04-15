@@ -131,8 +131,8 @@ function FeedbackBanner({ correct, explanation, streakCount, onContinue }: { cor
           </p>
           <p className="text-small text-foreground/80 mt-1">{explanation}</p>
           {/* Show insight if available */}
-          {(window as any).__currentQuizInsight && (
-            <p className="text-xs text-primary/80 mt-2 italic">💡 {(window as any).__currentQuizInsight}</p>
+          {insight && (
+            <p className="text-xs text-primary/80 mt-2 italic">💡 {insight}</p>
           )}
         </div>
         <button
@@ -159,6 +159,7 @@ export default function DailyLessonPage() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [lastCorrect, setLastCorrect] = useState(false);
   const [lastExplanation, setLastExplanation] = useState("");
+  const [currentInsight, setCurrentInsight] = useState<string | null>(null);
 
   const [inSentenceStep, setInSentenceStep] = useState(false);
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -232,8 +233,7 @@ export default function DailyLessonPage() {
       }
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
-      // Store insight for feedback banner
-      (window as any).__currentQuizInsight = (q as any).insight || null;
+      setCurrentInsight((q as any).insight || null);
       if (correct) {
         setCorrectCount(prev => prev + 1);
         const ns = quizStreak + 1;
