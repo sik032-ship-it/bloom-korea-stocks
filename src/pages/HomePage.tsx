@@ -8,6 +8,7 @@ import { Mascot } from "@/components/Mascot";
 import { LevelBadge } from "@/components/LevelBadge";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
+import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -73,11 +74,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <Layout>
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-muted rounded-xl animate-pulse" />
-          ))}
-        </div>
+        <HomeSkeleton />
       </Layout>
     );
   }
@@ -91,6 +88,7 @@ export default function HomePage() {
       currentStreak={streak}
       longestStreak={profile?.longest_streak || 0}
     >
+      <div className="stagger-children">
       {/* Mascot Greeting */}
       <div className="flex items-start gap-3 pt-2">
         <Mascot level={userLevel} size="lg" showLevelTag />
@@ -118,7 +116,7 @@ export default function HomePage() {
             <p className="text-body text-muted-foreground mb-3">오늘의 레슨이 기다리고 있어요</p>
             <button
               onClick={() => navigate("/lesson")}
-              className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+              className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-button hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all press-effect"
             >
               🌰 오늘의 레슨 시작하기
             </button>
@@ -190,19 +188,19 @@ export default function HomePage() {
       <div className="grid grid-cols-3 gap-3">
         <button
           onClick={() => navigate("/practice")}
-          className="py-3 rounded-xl border-2 border-primary/30 bg-primary/5 text-foreground font-medium text-small hover:bg-primary/10 transition-colors"
+          className="py-3 rounded-xl border-2 border-primary/30 bg-primary/5 text-foreground font-medium text-small hover:bg-primary/10 transition-all press-effect hover:-translate-y-0.5"
         >
           📚 연습장
         </button>
         <button
           onClick={() => navigate("/crisis")}
-          className="py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-colors"
+          className="py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5"
         >
           🛡️ 위기
         </button>
         <button
           onClick={() => navigate("/archive")}
-          className="py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-colors"
+          className="py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5"
         >
           📖 기록
         </button>
@@ -216,6 +214,7 @@ export default function HomePage() {
         >
           로그아웃
         </button>
+      </div>
       </div>
     </Layout>
   );

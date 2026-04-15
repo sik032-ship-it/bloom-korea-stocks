@@ -32,10 +32,10 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm animate-fade-in">
         <div className="text-center mb-8">
-          <span className="text-5xl block mb-3">🌱</span>
-          <h1 className="text-display text-foreground">PPURI</h1>
+          <span className="text-5xl block mb-3 animate-float">🌱</span>
+          <h1 className="text-display text-foreground animate-scale-pop">PPURI</h1>
           <p className="text-small text-muted-foreground mt-1">
             매일 한 문장으로 투자 체질을 만들어요
           </p>

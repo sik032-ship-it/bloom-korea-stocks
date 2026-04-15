@@ -19,6 +19,7 @@ function getLast28Days(): string[] {
 
 export function WeeklyCalendar({ userId }: WeeklyCalendarProps) {
   const [activeDays, setActiveDays] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchActivity = async () => {
@@ -34,6 +35,7 @@ export function WeeklyCalendar({ userId }: WeeklyCalendarProps) {
         const days = new Set(data.map((s) => s.created_at.split("T")[0]));
         setActiveDays(days);
       }
+      setLoading(false);
     };
     fetchActivity();
   }, [userId]);
@@ -41,10 +43,23 @@ export function WeeklyCalendar({ userId }: WeeklyCalendarProps) {
   const days = getLast28Days();
   const today = new Date().toISOString().split("T")[0];
 
-  // Group into 4 weeks (rows)
   const weeks: string[][] = [];
   for (let i = 0; i < days.length; i += 7) {
     weeks.push(days.slice(i, i + 7));
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-1.5">
+        {[0, 1, 2, 3].map((wi) => (
+          <div key={wi} className="flex justify-between">
+            {[0, 1, 2, 3, 4, 5, 6].map((di) => (
+              <div key={di} className="w-8 h-8 rounded-lg skeleton-shimmer" />
+            ))}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (
@@ -65,12 +80,12 @@ export function WeeklyCalendar({ userId }: WeeklyCalendarProps) {
               return (
                 <div
                   key={day}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-medium transition-all ${
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-medium transition-all duration-200 hover:scale-110 cursor-default ${
                     isActive
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : isToday
                       ? "bg-accent border-2 border-primary/30 text-foreground"
-                      : "bg-muted text-muted-foreground/40"
+                      : "bg-muted text-muted-foreground/40 hover:bg-muted-foreground/10"
                   }`}
                   title={day}
                 >
