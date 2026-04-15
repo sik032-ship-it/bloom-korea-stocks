@@ -420,6 +420,19 @@ export default function DailyLessonPage() {
         {/* Quiz Phase */}
         {!inSentenceStep && quizQuestions[currentQuizIndex] && (
           <>
+            {/* Category badge */}
+            {!showFeedback && (() => {
+              const q = quizQuestions[currentQuizIndex];
+              const cat = categoryLabels[q.category];
+              return cat ? (
+                <div className="flex items-center justify-center gap-2 mb-2 animate-fade-in">
+                  <span className="text-sm">{cat.emoji}</span>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: cat.color + "15", color: cat.color }}>{cat.name}</span>
+                  <span className="text-[10px] text-muted-foreground">| {getQuizWhyItMatters(q.category)}</span>
+                </div>
+              ) : null;
+            })()}
+
             {quizQuestions[currentQuizIndex].format === "ox" && (
               <OXQuiz key={currentQuizIndex} statement={(quizQuestions[currentQuizIndex] as any).statement} onAnswer={(val) => handleQuizAnswer(val)} />
             )}
