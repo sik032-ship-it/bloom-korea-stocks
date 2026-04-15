@@ -10,6 +10,7 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { SkillMastery } from "@/components/SkillMastery";
+import { TodayProgress } from "@/components/TodayProgress";
 import { CommunityStats } from "@/components/CommunityStats";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
