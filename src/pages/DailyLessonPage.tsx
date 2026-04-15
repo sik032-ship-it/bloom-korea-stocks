@@ -401,17 +401,11 @@ export default function DailyLessonPage() {
     );
   }
 
-  // No holdings — auto-complete via effect
-  useEffect(() => {
-    if (holdings.length === 0 && inSentenceStep && !completed) {
-      handleComplete();
-    }
-  }, [inSentenceStep, holdings.length, completed]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
-      <LessonProgressBar current={currentStep} total={TOTAL_STEPS} streak={quizStreak} />
+      <LessonProgressBar current={currentStep} total={TOTAL_STEPS} streak={quizStreak} onClose={() => navigate("/")} />
 
       <div className="flex-1 flex flex-col px-4 max-w-lg mx-auto w-full relative">
         {/* Motivation message before quiz starts */}
