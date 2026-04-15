@@ -5,6 +5,7 @@ import { Layout } from "@/components/Layout";
 import { PpuriCard } from "@/components/PpuriCard";
 import { QuestionBadge } from "@/components/QuestionBadge";
 import { PpuriButton } from "@/components/PpuriButton";
+import { InvestmentTimeline } from "@/components/InvestmentTimeline";
 import type { Database } from "@/integrations/supabase/types";
 import type { QuestionType } from "@/styles/colors";
 
@@ -129,6 +130,14 @@ export default function ArchivePage() {
   return (
     <Layout currentStreak={profile?.current_streak || 0} longestStreak={profile?.longest_streak || 0}>
       <h1 className="text-display text-foreground">기록 보관소</h1>
+
+      {/* Investment Timeline */}
+      {user && holdings.length > 0 && (
+        <PpuriCard>
+          <p className="text-small font-semibold text-foreground mb-3">📅 투자 일기 타임라인</p>
+          <InvestmentTimeline userId={user.id} holdings={holdings} />
+        </PpuriCard>
+      )}
 
       {/* Filters */}
       <div className="space-y-3">
