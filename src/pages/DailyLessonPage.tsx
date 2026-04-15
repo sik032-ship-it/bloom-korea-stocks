@@ -8,7 +8,7 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { QuestionBadge } from "@/components/QuestionBadge";
 import { LevelUpModal } from "@/components/LevelUpModal";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
-import { getDailyQuizSet, type QuizQuestion } from "@/data/quizQuestions";
+import { getDailyQuizSet, personalizeQuiz, type QuizQuestion } from "@/data/quizQuestions";
 import {
   getCorrectMessage,
   getWrongMessage,
@@ -197,13 +197,19 @@ export default function DailyLessonPage() {
       setUserLevel(lvl);
       setCurrentStreak(profile?.current_streak || 0);
       setTotalSentences(profile?.total_sentences || 0);
-      setQuizQuestions(getDailyQuizSet(QUIZ_COUNT, lvl));
+      const baseQuiz = getDailyQuizSet(QUIZ_COUNT, lvl);
+      // Will personalize after holdings load
+      setQuizQuestions(baseQuiz);
 
       const { data: h } = await supabase
         .from("holdings").select("*").eq("user_id", user.id).eq("is_active", true);
 
       if (h && h.length > 0) {
         setHoldings(h);
+        // Personalize quiz with holdings
+        const holdingNames = h.map(holding => holding.company_name_kr);
+        setQuizQuestions(prev => prev.map(q => personalizeQuiz(q, holdingNames)));
+        
         const question = await selectQuestion(h);
         if (question) {
           setSelectedHolding(question.holding);

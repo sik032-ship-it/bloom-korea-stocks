@@ -9,9 +9,12 @@ import { LevelBadge } from "@/components/LevelBadge";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
+import { SkillMastery } from "@/components/SkillMastery";
+import { CommunityStats } from "@/components/CommunityStats";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
+import type { QuizCategory } from "@/data/quizQuestions";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
@@ -25,6 +28,7 @@ export default function HomePage() {
   const [todayDone, setTodayDone] = useState(false);
   const [showStreakBroken, setShowStreakBroken] = useState(false);
   const [previousStreak, setPreviousStreak] = useState(0);
+  const [categoryScores, setCategoryScores] = useState<Record<QuizCategory, number>>({ risk: 0, psychology: 0, crisis: 0, judgment: 0 });
 
   useEffect(() => {
     if (!user) return;
@@ -48,6 +52,19 @@ export default function HomePage() {
         }
       }
       if (holdingsData) setHoldings(holdingsData);
+      
+      // Estimate category scores from total sentences (each lesson = ~1 point per category)
+      const total = profileData?.total_sentences || 0;
+      const base = Math.floor(total / 4);
+      const remainder = total % 4;
+      const cats: QuizCategory[] = ["risk", "psychology", "crisis", "judgment"];
+      const scores: Record<QuizCategory, number> = { risk: base, psychology: base, crisis: base, judgment: base };
+      for (let i = 0; i < remainder; i++) scores[cats[i]] += 1;
+      // Add crisis simulation bonus
+      const { count: crisisCount } = await supabase.from("crisis_results").select("id", { count: "exact", head: true }).eq("user_id", user.id);
+      scores.crisis += (crisisCount || 0) * 2;
+      setCategoryScores(scores);
+      
       setLoading(false);
     };
     fetchData();
@@ -180,6 +197,9 @@ export default function HomePage() {
           {user && <WeeklyCalendar userId={user.id} />}
         </PpuriCard>
 
+        {/* Skill Mastery */}
+        <SkillMastery categoryScores={categoryScores} totalLessons={profile?.total_sentences || 0} />
+
         {/* Quick Actions — 2x2 grid */}
         <div className="grid grid-cols-2 gap-3">
           <button
@@ -211,6 +231,9 @@ export default function HomePage() {
             보유 종목
           </button>
         </div>
+
+        {/* Community Stats */}
+        <CommunityStats />
       </div>
     </Layout>
   );
