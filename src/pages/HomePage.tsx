@@ -52,6 +52,19 @@ export default function HomePage() {
         }
       }
       if (holdingsData) setHoldings(holdingsData);
+      
+      // Estimate category scores from total sentences (each lesson = ~1 point per category)
+      const total = profileData?.total_sentences || 0;
+      const base = Math.floor(total / 4);
+      const remainder = total % 4;
+      const cats: QuizCategory[] = ["risk", "psychology", "crisis", "judgment"];
+      const scores: Record<QuizCategory, number> = { risk: base, psychology: base, crisis: base, judgment: base };
+      for (let i = 0; i < remainder; i++) scores[cats[i]] += 1;
+      // Add crisis simulation bonus
+      const { count: crisisCount } = await supabase.from("crisis_results").select("id", { count: "exact", head: true }).eq("user_id", user.id);
+      scores.crisis += (crisisCount || 0) * 2;
+      setCategoryScores(scores);
+      
       setLoading(false);
     };
     fetchData();
