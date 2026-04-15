@@ -10,50 +10,48 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
+import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-
-function getGreeting(): string {
-  const h = new Date().getHours();
-  if (h >= 6 && h < 12) return "좋은 아침이에요! ☀️";
-  if (h >= 12 && h < 18) return "좋은 오후네요! 🌤️";
-  return "좋은 저녁이에요! 🌙";
-}
-
-function getMascotMessage(todayDone: boolean, streak: number): string {
-  if (todayDone) {
-    if (streak >= 7) return "대단해요! 일주일 넘게 연속이에요! 🔥";
-    if (streak >= 3) return "오늘도 완료! 연속 기록이 멋져요! ✨";
-    return "오늘 레슨 완료! 내일도 기대할게요 😊";
-  }
-  if (streak >= 3) return `${streak}일 연속 중이에요! 오늘도 이어가볼까요?`;
-  return "오늘의 도토리를 모으러 가볼까요? 🌰";
-}
+type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
 export default function HomePage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [holdings, setHoldings] = useState<Holding[]>([]);
   const [loading, setLoading] = useState(true);
   const [todayDone, setTodayDone] = useState(false);
+  const [showStreakBroken, setShowStreakBroken] = useState(false);
+  const [previousStreak, setPreviousStreak] = useState(0);
 
   useEffect(() => {
     if (!user) return;
-    const fetchProfile = async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-      if (data) {
-        setProfile(data);
+    const fetchData = async () => {
+      const [{ data: profileData }, { data: holdingsData }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", user.id).single(),
+        supabase.from("holdings").select("*").eq("user_id", user.id).eq("is_active", true),
+      ]);
+
+      if (profileData) {
+        setProfile(profileData);
         const today = new Date().toISOString().split("T")[0];
-        setTodayDone(data.last_sentence_date === today);
+        setTodayDone(profileData.last_sentence_date === today);
+
+        // Check if streak was broken (last date is >1 day ago and they had a streak)
+        if (profileData.last_sentence_date && profileData.last_sentence_date !== today) {
+          const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+          if (profileData.last_sentence_date < yesterday && profileData.longest_streak > 0 && profileData.current_streak === 0) {
+            setPreviousStreak(profileData.longest_streak);
+            setShowStreakBroken(true);
+          }
+        }
       }
+      if (holdingsData) setHoldings(holdingsData);
       setLoading(false);
     };
-    fetchProfile();
+    fetchData();
 
     const channel = supabase
       .channel("profile-changes")
@@ -72,149 +70,179 @@ export default function HomePage() {
   }, [user]);
 
   if (loading) {
-    return (
-      <Layout>
-        <HomeSkeleton />
-      </Layout>
-    );
+    return <Layout><HomeSkeleton /></Layout>;
   }
 
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "투자자";
   const streak = profile?.current_streak || 0;
   const userLevel = Math.min(6, Math.max(1, profile?.current_level || 1));
 
-  return (
-    <Layout
-      currentStreak={streak}
-      longestStreak={profile?.longest_streak || 0}
-    >
-      <div className="stagger-children">
-      {/* Mascot Greeting */}
-      <div className="flex items-start gap-3 pt-2">
-        <Mascot level={userLevel} size="lg" showLevelTag />
-        <div className="flex-1">
-          <p className="text-small text-muted-foreground">{getGreeting()}</p>
-          <p className="text-title text-foreground font-bold mb-1">{displayName}님</p>
-          <SpeechBubble>
-            <p className="text-small text-foreground">
-              {getMascotMessage(todayDone, streak)}
-            </p>
-          </SpeechBubble>
-        </div>
-      </div>
+  // 🐿️ 컨텍스트 인식 대사
+  const greeting = getHomeGreeting({
+    displayName,
+    streak,
+    longestStreak: profile?.longest_streak || 0,
+    totalSentences: profile?.total_sentences || 0,
+    currentLevel: userLevel,
+    todayDone,
+    lastSentenceDate: profile?.last_sentence_date || null,
+    holdingNames: holdings.map(h => h.company_name_kr),
+  });
 
-      {/* Today's Lesson CTA */}
-      <PpuriCard className={todayDone ? "border-primary/20 bg-primary/5" : ""}>
-        {todayDone ? (
-          <div className="text-center py-3">
-            <span className="text-4xl mb-2 block">✅</span>
-            <p className="text-title text-foreground font-semibold">오늘 완료!</p>
-            <p className="text-small text-muted-foreground">내일도 도토리를 모아봐요 🌰</p>
-          </div>
-        ) : (
-          <div className="text-center py-3">
-            <p className="text-body text-muted-foreground mb-3">오늘의 레슨이 기다리고 있어요</p>
-            <button
-              onClick={() => navigate("/lesson")}
-              className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-button hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all press-effect"
-            >
-              🌰 오늘의 레슨 시작하기
-            </button>
+  const streakBrokenMsg = showStreakBroken ? getStreakBrokenMessage(previousStreak) : null;
+
+  return (
+    <Layout currentStreak={streak} longestStreak={profile?.longest_streak || 0}>
+      <div className="stagger-children">
+        {/* 스트릭 깨짐 위로 배너 */}
+        {streakBrokenMsg && (
+          <div className="bg-accent border border-border rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
+            <Mascot mood={streakBrokenMsg.mood} size="sm" />
+            <div className="flex-1">
+              <p className="text-small text-foreground whitespace-pre-line">{streakBrokenMsg.text}</p>
+              <button
+                onClick={() => setShowStreakBroken(false)}
+                className="text-xs text-primary font-medium mt-2 hover:underline"
+              >
+                알겠어요, 다시 시작! 💪
+              </button>
+            </div>
           </div>
         )}
-      </PpuriCard>
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-3 gap-3">
-        <PpuriCard className="text-center !p-3">
-          <p className="text-2xl mb-1">📝</p>
-          <p className="text-title text-primary font-bold">{profile?.total_sentences || 0}</p>
-          <p className="text-xs text-muted-foreground">총 문장</p>
-        </PpuriCard>
-        <PpuriCard className="text-center !p-3">
-          <p className={`text-2xl mb-1 ${streak > 0 ? "animate-streak-pulse" : ""}`}>🔥</p>
-          <p className="text-title text-foreground font-bold">{streak}</p>
-          <p className="text-xs text-muted-foreground">연속일</p>
-        </PpuriCard>
-        <PpuriCard className="text-center !p-3">
-          <p className="text-2xl mb-1">🏆</p>
-          <p className="text-title text-foreground font-bold">{profile?.longest_streak || 0}</p>
-          <p className="text-xs text-muted-foreground">최장 기록</p>
-        </PpuriCard>
-      </div>
-
-      {/* XP Progress to Next Level */}
-      {(() => {
-        const progress = getProgressToNextLevel(profile?.total_sentences || 0);
-        return (
-          <PpuriCard>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-small font-semibold text-foreground">다음 레벨까지</p>
-              <span className="text-xs text-primary font-bold">{progress.current}/{progress.next}</span>
-            </div>
-            <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-700"
-                style={{ width: `${progress.percent}%` }}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Mascot level={userLevel} size="sm" />
-              <span className="text-xs text-muted-foreground">
-                {progress.percent >= 100 ? "최고 레벨 달성! 🏆" : `${Math.round(progress.percent)}% 달성`}
-              </span>
-            </div>
-          </PpuriCard>
-        );
-      })()}
-
-      {/* Weekly Activity Calendar */}
-      <PpuriCard>
-        <p className="text-small font-semibold text-foreground mb-3">📅 학습 캘린더</p>
-        {user && <WeeklyCalendar userId={user.id} />}
-      </PpuriCard>
-
-      {/* Level Badge */}
-      <PpuriCard>
-        <div className="flex items-center gap-4">
-          <Mascot level={userLevel} size="md" />
+        {/* Mascot Greeting */}
+        <div className="flex items-start gap-3 pt-2">
+          <Mascot level={userLevel} size="lg" showLevelTag mood={greeting.mood} />
           <div className="flex-1">
-            <LevelBadge totalSentences={profile?.total_sentences || 0} />
+            <p className="text-title text-foreground font-bold mb-1">{displayName}님</p>
+            <SpeechBubble>
+              <p className="text-small text-foreground whitespace-pre-line">
+                {greeting.text}
+              </p>
+            </SpeechBubble>
           </div>
         </div>
-      </PpuriCard>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-3 gap-3">
-        <button
-          onClick={() => navigate("/practice")}
-          className="py-3 rounded-xl border-2 border-primary/30 bg-primary/5 text-foreground font-medium text-small hover:bg-primary/10 transition-all press-effect hover:-translate-y-0.5"
-        >
-          📚 연습장
-        </button>
-        <button
-          onClick={() => navigate("/crisis")}
-          className="py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5"
-        >
-          🛡️ 위기
-        </button>
-        <button
-          onClick={() => navigate("/archive")}
-          className="py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5"
-        >
-          📖 기록
-        </button>
-      </div>
+        {/* Today's Lesson CTA */}
+        <PpuriCard className={todayDone ? "border-primary/20 bg-primary/5" : ""}>
+          {todayDone ? (
+            <div className="text-center py-3">
+              <span className="text-4xl mb-2 block">✅</span>
+              <p className="text-title text-foreground font-semibold">오늘 완료!</p>
+              <p className="text-small text-muted-foreground mb-3">내일도 도토리를 모아봐요 🌰</p>
+              <button
+                onClick={() => navigate("/lesson")}
+                className="w-full py-3 rounded-xl border-2 border-primary/30 bg-primary/5 text-primary font-bold text-small hover:bg-primary/10 transition-all press-effect"
+              >
+                📚 복습하기 (XP 30%)
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-3">
+              <p className="text-body text-muted-foreground mb-3">오늘의 레슨이 기다리고 있어요</p>
+              <button
+                onClick={() => navigate("/lesson")}
+                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-button hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all press-effect"
+              >
+                🌰 오늘의 레슨 시작하기
+              </button>
+            </div>
+          )}
+        </PpuriCard>
 
-      {/* Sign Out */}
-      <div className="text-center">
-        <button
-          onClick={signOut}
-          className="text-small text-muted-foreground hover:text-destructive"
-        >
-          로그아웃
-        </button>
-      </div>
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-3">
+          <PpuriCard className="text-center !p-3">
+            <p className="text-2xl mb-1">📝</p>
+            <p className="text-title text-primary font-bold">{profile?.total_sentences || 0}</p>
+            <p className="text-xs text-muted-foreground">총 문장</p>
+          </PpuriCard>
+          <PpuriCard className="text-center !p-3">
+            <p className={`text-2xl mb-1 ${streak > 0 ? "animate-streak-pulse" : ""}`}>🔥</p>
+            <p className="text-title text-foreground font-bold">{streak}</p>
+            <p className="text-xs text-muted-foreground">연속일</p>
+          </PpuriCard>
+          <PpuriCard className="text-center !p-3">
+            <p className="text-2xl mb-1">🏆</p>
+            <p className="text-title text-foreground font-bold">{profile?.longest_streak || 0}</p>
+            <p className="text-xs text-muted-foreground">최장 기록</p>
+          </PpuriCard>
+        </div>
+
+        {/* XP Progress to Next Level */}
+        {(() => {
+          const progress = getProgressToNextLevel(profile?.total_sentences || 0);
+          return (
+            <PpuriCard>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-small font-semibold text-foreground">다음 레벨까지</p>
+                <span className="text-xs text-primary font-bold">{progress.current}/{progress.next}</span>
+              </div>
+              <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-700"
+                  style={{ width: `${progress.percent}%` }}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Mascot level={userLevel} size="sm" />
+                <span className="text-xs text-muted-foreground">
+                  {progress.percent >= 100 ? "최고 레벨 달성! 🏆" :
+                   progress.percent >= 90 ? `거의 다 왔어요! ${Math.round(progress.percent)}%! 🎯` :
+                   `${Math.round(progress.percent)}% 달성`}
+                </span>
+              </div>
+            </PpuriCard>
+          );
+        })()}
+
+        {/* Weekly Activity Calendar */}
+        <PpuriCard>
+          <p className="text-small font-semibold text-foreground mb-3">📅 학습 캘린더</p>
+          {user && <WeeklyCalendar userId={user.id} />}
+        </PpuriCard>
+
+        {/* Level Badge */}
+        <PpuriCard>
+          <div className="flex items-center gap-4">
+            <Mascot level={userLevel} size="md" />
+            <div className="flex-1">
+              <LevelBadge totalSentences={profile?.total_sentences || 0} />
+            </div>
+          </div>
+        </PpuriCard>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            onClick={() => navigate("/practice")}
+            className="py-3 rounded-xl border-2 border-primary/30 bg-primary/5 text-foreground font-medium text-small hover:bg-primary/10 transition-all press-effect hover:-translate-y-0.5"
+          >
+            📚 연습장
+          </button>
+          <button
+            onClick={() => navigate("/crisis")}
+            className="py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5"
+          >
+            🛡️ 위기
+          </button>
+          <button
+            onClick={() => navigate("/archive")}
+            className="py-3 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5"
+          >
+            📖 기록
+          </button>
+        </div>
+
+        {/* Sign Out */}
+        <div className="text-center">
+          <button
+            onClick={signOut}
+            className="text-small text-muted-foreground hover:text-destructive"
+          >
+            로그아웃
+          </button>
+        </div>
       </div>
     </Layout>
   );

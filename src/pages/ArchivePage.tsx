@@ -187,10 +187,11 @@ export default function ArchivePage() {
           {[1, 2, 3].map((i) => <div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />)}
         </div>
       ) : sentences.length === 0 ? (
-        <div className="text-center py-16">
-          <span className="text-5xl block mb-4">🌱</span>
-          <p className="text-title text-foreground mb-2">기록이 없어요</p>
-          <p className="text-small text-muted-foreground">첫 문장을 작성해보세요!</p>
+        <div className="text-center py-12">
+          <span className="text-5xl block mb-3">📖</span>
+          <p className="text-title text-foreground mb-2">아직 기록이 없어요</p>
+          <p className="text-small text-muted-foreground mb-1">레슨을 완료하면 여기에</p>
+          <p className="text-small text-muted-foreground">나만의 투자 일기가 쌓여요!</p>
         </div>
       ) : (
         <div className="space-y-3">

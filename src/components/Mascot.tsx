@@ -9,7 +9,7 @@ import mascotLevel4 from "@/assets/mascot-level4.png";
 import mascotLevel5 from "@/assets/mascot-level5.png";
 import mascotLevel6 from "@/assets/mascot-level6.png";
 
-type MascotMood = "default" | "celebrate" | "thinking" | "wave";
+export type MascotMood = "default" | "celebrate" | "thinking" | "wave";
 
 const mascotImages: Record<MascotMood, string> = {
   default: mascotDefault,
