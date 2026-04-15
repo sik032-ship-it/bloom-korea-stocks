@@ -1,7 +1,7 @@
-import { Crosshair, Brain, Shield, Scale } from "lucide-react";
+import { Crosshair, Brain, Shield, Scale, type LucideIcon } from "lucide-react";
 import type { QuizCategory } from "@/data/quizQuestions";
 
-const iconMap: Record<QuizCategory, React.FC<{ size?: number; className?: string }>> = {
+const iconMap: Record<QuizCategory, LucideIcon> = {
   risk: Crosshair,
   psychology: Brain,
   crisis: Shield,
@@ -17,5 +17,5 @@ interface CategoryIconProps {
 
 export function CategoryIcon({ category, size = 14, color, className }: CategoryIconProps) {
   const Icon = iconMap[category];
-  return <Icon size={size} className={className} style={color ? { color } : undefined} />;
+  return <Icon size={size} className={className} color={color} />;
 }

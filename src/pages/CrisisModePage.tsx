@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mascot } from "@/components/Mascot";
 import { PpuriButton } from "@/components/PpuriButton";
-import { Shield, TrendingDown, Flame, Waves, Landmark, DollarSign, BarChart3 } from "lucide-react";
+import { Shield, TrendingDown, Flame, Waves, Landmark, DollarSign, BarChart3, type LucideIcon } from "lucide-react";
 import type { MascotMood } from "@/components/Mascot";
 
 interface CrisisScenario {

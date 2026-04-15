@@ -18,6 +18,7 @@ import {
   getQuizWhyItMatters,
 } from "@/utils/mascotDialogue";
 import { categoryLabels } from "@/data/quizQuestions";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import Confetti from "react-confetti";
 import type { Database } from "@/integrations/supabase/types";
 import type { QuestionType } from "@/styles/colors";
