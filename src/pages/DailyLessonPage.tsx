@@ -8,7 +8,7 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { QuestionBadge } from "@/components/QuestionBadge";
 import { LevelUpModal } from "@/components/LevelUpModal";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
-import { getDailyQuizSet, type QuizQuestion } from "@/data/quizQuestions";
+import { getDailyQuizSet, personalizeQuiz, type QuizQuestion } from "@/data/quizQuestions";
 import {
   getCorrectMessage,
   getWrongMessage,
