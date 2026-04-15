@@ -28,6 +28,7 @@ export default function HomePage() {
   const [todayDone, setTodayDone] = useState(false);
   const [showStreakBroken, setShowStreakBroken] = useState(false);
   const [previousStreak, setPreviousStreak] = useState(0);
+  const [categoryScores, setCategoryScores] = useState<Record<QuizCategory, number>>({ risk: 0, psychology: 0, crisis: 0, judgment: 0 });
 
   useEffect(() => {
     if (!user) return;
