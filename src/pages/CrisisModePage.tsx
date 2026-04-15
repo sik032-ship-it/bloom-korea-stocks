@@ -303,7 +303,7 @@ export default function CrisisModePage() {
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: s.iconColor + "15" }}>
-                      <Icon size={20} style={{ color: s.iconColor }} />
+                      <Icon size={20} color={s.iconColor} />
                     </div>
                     <h3 className="text-body font-bold text-foreground">{s.title}</h3>
                   </div>
@@ -396,7 +396,7 @@ export default function CrisisModePage() {
         <div className="bg-card border-2 border-border rounded-2xl p-5 mb-4 animate-slide-up">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: selectedScenario.iconColor + "15" }}>
-              <ScenarioIcon size={14} style={{ color: selectedScenario.iconColor }} />
+              <ScenarioIcon size={14} color={selectedScenario.iconColor} />
             </div>
             <p className="text-xs font-semibold text-primary">상황 {stepIndex + 1}</p>
           </div>
