@@ -404,9 +404,14 @@ export default function DailyLessonPage() {
         </div>
 
         {newTotal > 0 && (
-          <p className="text-small text-muted-foreground mb-6">
+          <p className="text-small text-muted-foreground mb-4">
             총 <span className="font-bold text-primary">{newTotal}</span>문장 — 매일 쌓이는 복리 지식 🌱
           </p>
+        )}
+
+        {/* Behavioral Bias Detection & Nudge */}
+        {user && holdings.length > 0 && (
+          <BehavioralNudge userId={user.id} holdings={holdings} triggerAfterLesson={true} />
         )}
 
         <button onClick={() => navigate("/")} className="w-full max-w-sm py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all">
