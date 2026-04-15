@@ -10,6 +10,7 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { SkillMastery } from "@/components/SkillMastery";
+import { TodayProgress } from "@/components/TodayProgress";
 import { CommunityStats } from "@/components/CommunityStats";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
@@ -196,6 +197,16 @@ export default function HomePage() {
           <p className="text-small font-semibold text-foreground mb-3">📅 학습 캘린더</p>
           {user && <WeeklyCalendar userId={user.id} />}
         </PpuriCard>
+
+        {/* Today's Progress + AI Insight */}
+        {user && (
+          <TodayProgress
+            userId={user.id}
+            totalSentences={profile?.total_sentences || 0}
+            currentStreak={streak}
+            todayDone={todayDone}
+          />
+        )}
 
         {/* Skill Mastery */}
         <SkillMastery categoryScores={categoryScores} totalLessons={profile?.total_sentences || 0} />
