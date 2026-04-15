@@ -32,7 +32,7 @@ function LessonProgressBar({ current, total, streak }: { current: number; total:
   const percent = (current / total) * 100;
   return (
     <div className="flex items-center gap-3 px-4 py-3">
-      <button className="text-muted-foreground text-xl">✕</button>
+      <button onClick={onClose} className="text-muted-foreground text-xl hover:text-foreground transition-colors">✕</button>
       <div className="flex-1 h-4 bg-muted rounded-full overflow-hidden relative">
         <div
           className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
@@ -401,10 +401,12 @@ export default function DailyLessonPage() {
     );
   }
 
-  // No holdings
-  if (holdings.length === 0 && inSentenceStep) {
-    return handleComplete() as unknown as React.ReactElement;
-  }
+  // No holdings — auto-complete via effect
+  useEffect(() => {
+    if (holdings.length === 0 && inSentenceStep && !completed) {
+      handleComplete();
+    }
+  }, [inSentenceStep, holdings.length, completed]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
