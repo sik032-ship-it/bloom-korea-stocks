@@ -28,11 +28,11 @@ type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 const QUIZ_COUNT = 3;
 const TOTAL_STEPS = QUIZ_COUNT + 1;
 
-function LessonProgressBar({ current, total, streak }: { current: number; total: number; streak: number }) {
+function LessonProgressBar({ current, total, streak, onClose }: { current: number; total: number; streak: number; onClose: () => void }) {
   const percent = (current / total) * 100;
   return (
     <div className="flex items-center gap-3 px-4 py-3">
-      <button className="text-muted-foreground text-xl">✕</button>
+      <button onClick={onClose} className="text-muted-foreground text-xl hover:text-foreground transition-colors">✕</button>
       <div className="flex-1 h-4 bg-muted rounded-full overflow-hidden relative">
         <div
           className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
@@ -116,7 +116,7 @@ function FillBlank({ sentence, hints, onAnswer }: { sentence: string; hints?: st
 }
 
 // ===== Feedback Banner with soul =====
-function FeedbackBanner({ correct, explanation, streakCount, onContinue }: { correct: boolean; explanation: string; streakCount: number; onContinue: () => void }) {
+function FeedbackBanner({ correct, explanation, streakCount, insight, onContinue }: { correct: boolean; explanation: string; streakCount: number; insight?: string | null; onContinue: () => void }) {
   const message = correct ? getCorrectMessage(streakCount) : getWrongMessage();
 
   return (
@@ -131,8 +131,8 @@ function FeedbackBanner({ correct, explanation, streakCount, onContinue }: { cor
           </p>
           <p className="text-small text-foreground/80 mt-1">{explanation}</p>
           {/* Show insight if available */}
-          {(window as any).__currentQuizInsight && (
-            <p className="text-xs text-primary/80 mt-2 italic">💡 {(window as any).__currentQuizInsight}</p>
+          {insight && (
+            <p className="text-xs text-primary/80 mt-2 italic">💡 {insight}</p>
           )}
         </div>
         <button
@@ -159,6 +159,7 @@ export default function DailyLessonPage() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [lastCorrect, setLastCorrect] = useState(false);
   const [lastExplanation, setLastExplanation] = useState("");
+  const [currentInsight, setCurrentInsight] = useState<string | null>(null);
 
   const [inSentenceStep, setInSentenceStep] = useState(false);
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -216,6 +217,13 @@ export default function DailyLessonPage() {
     load();
   }, [user]);
 
+  // Auto-complete when no holdings and sentence step reached
+  useEffect(() => {
+    if (holdings.length === 0 && inSentenceStep && !completed) {
+      handleComplete();
+    }
+  }, [inSentenceStep, holdings.length, completed]);
+
   const currentStep = inSentenceStep ? QUIZ_COUNT + 1 : currentQuizIndex + 1;
 
   const handleQuizAnswer = useCallback(
@@ -232,8 +240,7 @@ export default function DailyLessonPage() {
       }
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
-      // Store insight for feedback banner
-      (window as any).__currentQuizInsight = (q as any).insight || null;
+      setCurrentInsight((q as any).insight || null);
       if (correct) {
         setCorrectCount(prev => prev + 1);
         const ns = quizStreak + 1;
@@ -401,15 +408,11 @@ export default function DailyLessonPage() {
     );
   }
 
-  // No holdings
-  if (holdings.length === 0 && inSentenceStep) {
-    return handleComplete() as unknown as React.ReactElement;
-  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
-      <LessonProgressBar current={currentStep} total={TOTAL_STEPS} streak={quizStreak} />
+      <LessonProgressBar current={currentStep} total={TOTAL_STEPS} streak={quizStreak} onClose={() => navigate("/")} />
 
       <div className="flex-1 flex flex-col px-4 max-w-lg mx-auto w-full relative">
         {/* Motivation message before quiz starts */}
@@ -492,6 +495,7 @@ export default function DailyLessonPage() {
           correct={lastCorrect}
           explanation={lastExplanation}
           streakCount={quizStreak}
+          insight={currentInsight}
           onContinue={handleContinue}
         />
       )}
