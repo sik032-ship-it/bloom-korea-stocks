@@ -620,16 +620,15 @@ export default function CrisisModePage() {
             </p>
           </div>
 
-          {/* 첫 방문 툴팁 — localStorage 기반 1회성 안내 */}
-          {pastResults.length === 0 && !localStorage.getItem("ppuri_crisis_tooltip_dismissed") && (
-            <div className="mb-4 bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300/50 rounded-2xl p-4 animate-fade-in relative">
+          {/* 첫 방문 툴팁 — 1회성 안내 (위기 훈련 미경험자만) */}
+          {pastResults.length === 0 && !tooltipDismissed && (
+            <div className="mb-4 bg-accent border-2 border-primary/30 rounded-2xl p-4 animate-fade-in relative">
               <button
                 onClick={() => {
                   localStorage.setItem("ppuri_crisis_tooltip_dismissed", "1");
-                  // 강제 리렌더 — 간단히 toast로 닫힘 알림
-                  toast.success("알겠어요! 시작해볼까요?");
+                  setTooltipDismissed(true);
                 }}
-                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/60 hover:bg-white text-muted-foreground hover:text-foreground text-sm font-bold flex items-center justify-center transition-colors"
+                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-background/80 hover:bg-background text-muted-foreground hover:text-foreground text-sm font-bold flex items-center justify-center transition-colors"
                 aria-label="닫기"
               >
                 ×
@@ -643,7 +642,7 @@ export default function CrisisModePage() {
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     실제 폭락장이 오기 전에 <strong className="text-foreground">머리로 미리 연습</strong>하는 시뮬레이션이에요. 정답은 없어요. 어떤 선택을 하든 그 결과로 배우게 됩니다.
                   </p>
-                  <p className="text-[11px] text-amber-700 mt-2 font-medium">
+                  <p className="text-[11px] text-primary mt-2 font-medium">
                     ⏱️ 약 2분 · 3가지 상황 선택지
                   </p>
                 </div>
