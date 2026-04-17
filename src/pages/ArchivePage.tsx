@@ -150,11 +150,49 @@ export default function ArchivePage() {
           {[1, 2, 3].map((i) => <div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />)}
         </div>
       ) : sentences.length === 0 ? (
-        <div className="text-center py-12">
-          <span className="text-5xl block mb-3">📖</span>
-          <p className="text-title text-foreground mb-2">아직 기록이 없어요</p>
-          <p className="text-small text-muted-foreground mb-1">레슨을 완료하면 여기에</p>
-          <p className="text-small text-muted-foreground">나만의 투자 일기가 쌓여요!</p>
+        <div className="space-y-4 py-6 animate-fade-in">
+          <div className="text-center">
+            <span className="text-5xl block mb-3">📖</span>
+            <p className="text-title text-foreground mb-1">아직 기록이 없어요</p>
+            <p className="text-small text-muted-foreground">
+              레슨을 완료하면 여기에<br />나만의 투자 일기가 쌓여요!
+            </p>
+          </div>
+
+          {/* 샘플 문장 예시 — "이렇게 쓰면 돼요" */}
+          <div className="mt-6">
+            <p className="text-xs font-semibold text-muted-foreground mb-2 px-1">
+              💡 이렇게 쓰면 돼요 (예시)
+            </p>
+            <div className="space-y-3">
+              <PpuriCard className="border-dashed bg-accent/20">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground">📅 예시 · AAPL 애플</p>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+                    하락 대응
+                  </span>
+                </div>
+                <p className="text-small text-foreground/80 italic leading-relaxed">
+                  "애플이 -8% 떨어졌지만 아이폰 판매량은 그대로다. 가격이 떨어진 거지 회사 가치가 떨어진 게 아니다. <strong>나는 5년 후를 보고 산 것이지, 다음 분기 실적을 보고 산 게 아니다.</strong>"
+                </p>
+              </PpuriCard>
+
+              <PpuriCard className="border-dashed bg-accent/20">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground">📅 예시 · NVDA 엔비디아</p>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+                    FOMO 점검
+                  </span>
+                </div>
+                <p className="text-small text-foreground/80 italic leading-relaxed">
+                  "엔비디아가 일주일 만에 +20% 올랐다. 더 사고 싶은 마음이 든다. <strong>하지만 내가 사려는 이유는 '오르고 있어서'이지, 회사가 더 좋아져서가 아니다. 추격은 하지 않는다.</strong>"
+                </p>
+              </PpuriCard>
+            </div>
+            <p className="text-[11px] text-muted-foreground text-center mt-4">
+              👆 정답은 없어요. <strong className="text-foreground">자기 생각을 솔직히 적는 것</strong>이 핵심입니다.
+            </p>
+          </div>
         </div>
       ) : (
         <div className="space-y-3">
