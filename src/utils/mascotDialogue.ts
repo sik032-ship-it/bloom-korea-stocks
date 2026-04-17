@@ -52,7 +52,16 @@ export function getHomeGreeting(ctx: UserContext): MascotMessage {
   const name = ctx.displayName;
 
   if (ctx.totalSentences === 0) {
-    return { text: `${name}님, 반가워요! 🎉\n첫 도토리를 모으러 같이 가볼까요?`, mood: "wave" };
+    return {
+      text: `${name}님, 환영해요! 🌱\n오늘 첫 문장을 써보면 평생의 투자 습관이 시작돼요.\n같이 작은 도토리부터 모아볼까요? 🌰`,
+      mood: "wave",
+    };
+  }
+  if (ctx.totalSentences < 3) {
+    return {
+      text: `${name}님, 좋은 시작이에요! ✨\n3개만 더 쓰면 첫 레벨 진화가 가까워져요!`,
+      mood: "celebrate",
+    };
   }
   if (daysSince >= 7) {
     return { text: `${name}님, 정말 보고싶었어요! 🥺\n다시 돌아와줘서 너무 기뻐요. 천천히 시작해봐요!`, mood: "wave" };

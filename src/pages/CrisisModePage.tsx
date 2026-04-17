@@ -403,6 +403,9 @@ export default function CrisisModePage() {
   const [aiScenarios, setAiScenarios] = useState<CrisisScenario[]>([]);
   const [generatingAI, setGeneratingAI] = useState(false);
   const [holdings, setHoldings] = useState<{ ticker: string; company_name_kr: string }[]>([]);
+  const [tooltipDismissed, setTooltipDismissed] = useState(
+    typeof window !== "undefined" && !!localStorage.getItem("ppuri_crisis_tooltip_dismissed")
+  );
 
   // Load past results + holdings
   useEffect(() => {
@@ -616,6 +619,36 @@ export default function CrisisModePage() {
               <br />감정을 다스리고 올바른 판단을 연습하세요.
             </p>
           </div>
+
+          {/* 첫 방문 툴팁 — 1회성 안내 (위기 훈련 미경험자만) */}
+          {pastResults.length === 0 && !tooltipDismissed && (
+            <div className="mb-4 bg-accent border-2 border-primary/30 rounded-2xl p-4 animate-fade-in relative">
+              <button
+                onClick={() => {
+                  localStorage.setItem("ppuri_crisis_tooltip_dismissed", "1");
+                  setTooltipDismissed(true);
+                }}
+                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-background/80 hover:bg-background text-muted-foreground hover:text-foreground text-sm font-bold flex items-center justify-center transition-colors"
+                aria-label="닫기"
+              >
+                ×
+              </button>
+              <div className="flex items-start gap-2 pr-6">
+                <span className="text-xl">💡</span>
+                <div>
+                  <p className="text-small font-bold text-foreground mb-1">
+                    위기 훈련이 뭔가요?
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    실제 폭락장이 오기 전에 <strong className="text-foreground">머리로 미리 연습</strong>하는 시뮬레이션이에요. 정답은 없어요. 어떤 선택을 하든 그 결과로 배우게 됩니다.
+                  </p>
+                  <p className="text-[11px] text-primary mt-2 font-medium">
+                    ⏱️ 약 2분 · 3가지 상황 선택지
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* AI Custom Scenario Button */}
           <button
