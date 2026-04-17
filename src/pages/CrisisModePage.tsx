@@ -403,6 +403,9 @@ export default function CrisisModePage() {
   const [aiScenarios, setAiScenarios] = useState<CrisisScenario[]>([]);
   const [generatingAI, setGeneratingAI] = useState(false);
   const [holdings, setHoldings] = useState<{ ticker: string; company_name_kr: string }[]>([]);
+  const [tooltipDismissed, setTooltipDismissed] = useState(
+    typeof window !== "undefined" && !!localStorage.getItem("ppuri_crisis_tooltip_dismissed")
+  );
 
   // Load past results + holdings
   useEffect(() => {
