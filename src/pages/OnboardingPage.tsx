@@ -434,16 +434,16 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* STEP 5: 첫 레슨 미리보기 (OX 1문제) */}
+        {/* STEP 5: 첫 레슨 미리보기 (랜덤 OX 1문제) */}
         {step === 5 && (
           <div className="flex-1 flex flex-col animate-slide-up">
             <div className="flex items-start gap-3 mb-6 mt-4">
-              <Mascot mood={previewAnswer === null ? "thinking" : previewAnswer === false ? "celebrate" : "default"} size="lg" />
+              <Mascot mood={previewAnswer === null ? "thinking" : isCorrect ? "celebrate" : "default"} size="lg" />
               <SpeechBubble className="mt-2">
                 <p className="text-body font-bold text-foreground">
                   {previewAnswer === null
                     ? "한 문제만 같이 풀어볼까요? 🌰"
-                    : previewAnswer === false
+                    : isCorrect
                     ? "정답이에요! 정말 잘했어요 ✨"
                     : "괜찮아요, 이게 핵심이에요!"}
                 </p>
@@ -451,9 +451,9 @@ export default function OnboardingPage() {
             </div>
 
             <div className="bg-accent/30 border-2 border-border rounded-2xl p-5 mb-4">
-              <p className="text-xs text-muted-foreground mb-2">📝 OX 퀴즈 · 위험 이해</p>
+              <p className="text-xs text-muted-foreground mb-2">📝 OX 퀴즈 · {previewCategory.name}</p>
               <p className="text-body font-bold text-foreground leading-relaxed">
-                "투자에서 리스크가 없다는 말을 들으면 안심해도 된다"
+                "{previewQuestion.statement}"
               </p>
             </div>
 
@@ -473,13 +473,18 @@ export default function OnboardingPage() {
                 </button>
               </div>
             ) : (
-              <div className={`p-4 rounded-xl border-2 ${previewAnswer === false ? "border-primary bg-primary/5" : "border-orange-300 bg-orange-50"} mb-4`}>
+              <div className={`p-4 rounded-xl border-2 ${isCorrect ? "border-primary bg-primary/5" : "border-orange-300 bg-orange-50"} mb-4`}>
                 <p className="text-small font-bold text-foreground mb-2">
-                  💡 정답: ❌ 아니다
+                  💡 정답: {previewQuestion.answer ? "⭕ 맞다" : "❌ 아니다"}
                 </p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  하워드 막스: "투자에서 가장 위험한 것은 리스크가 없다는 믿음이다." <strong className="text-foreground">리스크가 보이지 않을 때가 가장 위험해요.</strong>
+                  {previewQuestion.explanation}
                 </p>
+                {previewQuestion.insight && (
+                  <p className="text-xs text-foreground/80 leading-relaxed mt-2 pt-2 border-t border-border/50">
+                    🌱 <strong>{previewQuestion.insight}</strong>
+                  </p>
+                )}
               </div>
             )}
 
