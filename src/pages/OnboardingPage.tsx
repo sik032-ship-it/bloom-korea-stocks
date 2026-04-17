@@ -1,9 +1,21 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { SpeechBubble } from "@/components/SpeechBubble";
+import { allQuestions, categoryLabels, type OXQuestion } from "@/data/quizQuestions";
+
+// 온보딩용: 초보자 친화적인 OX 문제만 풀에서 랜덤 선택
+function pickRandomPreviewQuestion(): OXQuestion {
+  const oxBeginner = allQuestions.filter(
+    (q): q is OXQuestion => q.format === "ox" && q.difficulty === "beginner"
+  );
+  const pool = oxBeginner.length > 0
+    ? oxBeginner
+    : allQuestions.filter((q): q is OXQuestion => q.format === "ox");
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 const POPULAR_STOCKS = [
   { ticker: "AAPL", name: "애플", emoji: "🍎" },
