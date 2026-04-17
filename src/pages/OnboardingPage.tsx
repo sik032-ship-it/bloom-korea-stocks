@@ -103,6 +103,10 @@ export default function OnboardingPage() {
   const [customTicker, setCustomTicker] = useState("");
   const [customName, setCustomName] = useState("");
   const [previewAnswer, setPreviewAnswer] = useState<boolean | null>(null);
+  // 매번 랜덤 OX 문제 — 컴포넌트 마운트 시 한번만 결정 (재가입/재방문 시 신선)
+  const previewQuestion = useMemo(() => pickRandomPreviewQuestion(), []);
+  const isCorrect = previewAnswer !== null && previewAnswer === previewQuestion.answer;
+  const previewCategory = categoryLabels[previewQuestion.category];
   const [saving, setSaving] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
