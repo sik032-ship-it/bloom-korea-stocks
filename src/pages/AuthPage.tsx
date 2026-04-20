@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PpuriButton } from "@/components/PpuriButton";
+import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { translateAuthError } from "@/utils/authErrors";
-import { Shield, Brain, Crosshair, TrendingUp, Eye, EyeOff, X } from "lucide-react";
+import { evaluatePassword, validateEmail } from "@/utils/passwordStrength";
+import { Shield, Brain, Crosshair, TrendingUp, Eye, EyeOff, X, Check } from "lucide-react";
 
 const ONBOARDING_SLIDES = [
   {
