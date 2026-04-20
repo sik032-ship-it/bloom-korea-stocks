@@ -8,6 +8,9 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import React, { Suspense, lazy } from "react";
 
 const AuthPage = lazy(() => import("./pages/AuthPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const DailyLessonPage = lazy(() => import("./pages/DailyLessonPage"));
@@ -53,6 +56,9 @@ const App = () => (
             <Suspense fallback={<LoadingFallback />}>
               <Routes>
                 <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
                 <Route path="/lesson" element={<ProtectedRoute><DailyLessonPage /></ProtectedRoute>} />
                 <Route path="/holdings" element={<ProtectedRoute><HoldingsPage /></ProtectedRoute>} />

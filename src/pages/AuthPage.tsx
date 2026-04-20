@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { PpuriButton } from "@/components/PpuriButton";
-import { Shield, Brain, Crosshair, TrendingUp } from "lucide-react";
+import { translateAuthError } from "@/utils/authErrors";
+import { Shield, Brain, Crosshair, TrendingUp, Eye, EyeOff, X } from "lucide-react";
 
 const ONBOARDING_SLIDES = [
   {
@@ -60,7 +62,6 @@ function OnboardingSlides({ onComplete }: { onComplete: () => void }) {
     }
   }, [current]);
 
-  // Auto-advance timer
   useEffect(() => {
     const timer = setTimeout(goNext, 6000);
     return () => clearTimeout(timer);
@@ -81,7 +82,6 @@ function OnboardingSlides({ onComplete }: { onComplete: () => void }) {
         setTouchStart(null);
       }}
     >
-      {/* Skip button */}
       <div className="flex justify-end px-5 pt-4">
         <button
           onClick={onComplete}
@@ -91,7 +91,6 @@ function OnboardingSlides({ onComplete }: { onComplete: () => void }) {
         </button>
       </div>
 
-      {/* Slide content */}
       <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8">
         <div
           key={current}
@@ -99,34 +98,25 @@ function OnboardingSlides({ onComplete }: { onComplete: () => void }) {
             direction === "next" ? "animate-slide-up" : "animate-fade-in"
           }`}
         >
-          {/* Icon */}
           <div
             className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
             style={{ backgroundColor: slide.iconBg }}
           >
             <Icon size={36} style={{ color: slide.iconColor }} />
           </div>
-
-          {/* Title */}
           <h1 className="text-[26px] leading-tight font-bold text-foreground mb-4 whitespace-pre-line">
             {slide.title}
           </h1>
-
-          {/* Subtitle */}
           <p className="text-small text-muted-foreground leading-relaxed mb-6 whitespace-pre-line max-w-[280px]">
             {slide.subtitle}
           </p>
-
-          {/* Highlight pill */}
           <div className="px-4 py-2 rounded-full bg-muted border border-border">
             <p className="text-xs font-semibold text-foreground">{slide.highlight}</p>
           </div>
         </div>
       </div>
 
-      {/* Bottom area */}
       <div className="px-6 pb-8">
-        {/* Dots */}
         <div className="flex items-center justify-center gap-2 mb-6">
           {ONBOARDING_SLIDES.map((_, i) => (
             <button
@@ -138,8 +128,6 @@ function OnboardingSlides({ onComplete }: { onComplete: () => void }) {
             />
           ))}
         </div>
-
-        {/* CTA */}
         <button
           onClick={goNext}
           className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-button hover:opacity-90 transition-all press-effect"
@@ -151,18 +139,90 @@ function OnboardingSlides({ onComplete }: { onComplete: () => void }) {
   );
 }
 
+function ForgotPasswordModal({ onClose }: { onClose: () => void }) {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) setError(translateAuthError(error));
+    else setSent(true);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center px-6 animate-fade-in">
+      <div className="w-full max-w-sm bg-card border-2 border-border rounded-2xl p-6 relative animate-scale-pop">
+        <button
+          onClick={onClose}
+          className="absolute right-3 top-3 p-2 rounded-lg hover:bg-muted text-muted-foreground"
+          aria-label="닫기"
+        >
+          <X size={20} />
+        </button>
+
+        {sent ? (
+          <div className="text-center py-4">
+            <span className="text-5xl block mb-3">📧</span>
+            <h2 className="text-xl font-bold text-foreground mb-2">이메일을 확인해주세요</h2>
+            <p className="text-small text-muted-foreground mb-6">
+              <strong className="text-foreground">{email}</strong>으로<br />
+              비밀번호 재설정 링크를 보냈어요.
+            </p>
+            <PpuriButton fullWidth onClick={onClose}>확인</PpuriButton>
+          </div>
+        ) : (
+          <>
+            <h2 className="text-xl font-bold text-foreground mb-2">비밀번호 찾기</h2>
+            <p className="text-small text-muted-foreground mb-5">
+              가입하신 이메일을 입력하시면<br />재설정 링크를 보내드려요.
+            </p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="email"
+                placeholder="이메일"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+              />
+              {error && (
+                <p className="text-small text-destructive text-center animate-fade-in">{error}</p>
+              )}
+              <PpuriButton type="submit" fullWidth disabled={loading}>
+                {loading ? "전송 중..." : "재설정 링크 보내기"}
+              </PpuriButton>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AuthPage() {
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [agreeAge, setAgreeAge] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
-  // Show onboarding only once per session
   useEffect(() => {
     if (sessionStorage.getItem("ppuri_onboarding_seen")) {
       setShowOnboarding(false);
@@ -174,18 +234,38 @@ export default function AuthPage() {
     setShowOnboarding(false);
   };
 
+  const allAgreed = agreeTerms && agreePrivacy && agreeAge;
+  const toggleAll = () => {
+    const next = !(agreeTerms && agreePrivacy && agreeAge);
+    setAgreeTerms(next);
+    setAgreePrivacy(next);
+    setAgreeAge(next);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!isLogin) {
+      if (password.length < 8) {
+        setError("비밀번호는 최소 8자 이상이어야 해요.");
+        return;
+      }
+      if (!agreeTerms || !agreePrivacy || !agreeAge) {
+        setError("필수 항목에 모두 동의해주세요.");
+        return;
+      }
+    }
+
     setLoading(true);
 
     if (isLogin) {
       const { error } = await signIn(email, password);
-      if (error) setError(error.message);
+      if (error) setError(translateAuthError(error));
       else navigate("/");
     } else {
       const { error } = await signUp(email, password, displayName);
-      if (error) setError(error.message);
+      if (error) setError(translateAuthError(error));
       else navigate("/onboarding");
     }
     setLoading(false);
@@ -196,7 +276,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-8">
       <div className="w-full max-w-sm animate-fade-in">
         <div className="text-center mb-8">
           <span className="text-5xl block mb-3 animate-float">🌱</span>
@@ -213,6 +293,7 @@ export default function AuthPage() {
               placeholder="닉네임"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+              maxLength={20}
               className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
             />
           )}
@@ -222,26 +303,101 @@ export default function AuthPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete={isLogin ? "username" : "email"}
             className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
           />
-          <input
-            type="password"
-            placeholder="비밀번호"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder={isLogin ? "비밀번호" : "비밀번호 (최소 8자)"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={isLogin ? 6 : 8}
+              autoComplete={isLogin ? "current-password" : "new-password"}
+              className="w-full h-12 px-4 pr-12 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(s => !s)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+              aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+
+          {/* 약관 동의 (회원가입 시만) */}
+          {!isLogin && (
+            <div className="space-y-2 pt-2 pb-1 border-y border-border py-3">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={allAgreed}
+                  onChange={toggleAll}
+                  className="w-5 h-5 rounded accent-primary cursor-pointer"
+                />
+                <span className="text-small font-bold text-foreground">전체 동의</span>
+              </label>
+              <div className="pl-7 space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    className="w-4 h-4 rounded accent-primary cursor-pointer"
+                  />
+                  <span className="text-xs text-muted-foreground flex-1">
+                    [필수] <Link to="/terms" target="_blank" className="underline text-foreground">이용약관</Link> 동의
+                  </span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreePrivacy}
+                    onChange={(e) => setAgreePrivacy(e.target.checked)}
+                    className="w-4 h-4 rounded accent-primary cursor-pointer"
+                  />
+                  <span className="text-xs text-muted-foreground flex-1">
+                    [필수] <Link to="/privacy" target="_blank" className="underline text-foreground">개인정보 처리방침</Link> 동의
+                  </span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreeAge}
+                    onChange={(e) => setAgreeAge(e.target.checked)}
+                    className="w-4 h-4 rounded accent-primary cursor-pointer"
+                  />
+                  <span className="text-xs text-muted-foreground flex-1">
+                    [필수] 만 14세 이상입니다
+                  </span>
+                </label>
+              </div>
+            </div>
+          )}
 
           {error && (
             <p className="text-small text-destructive text-center animate-fade-in">{error}</p>
           )}
 
-          <PpuriButton type="submit" fullWidth disabled={loading}>
+          <PpuriButton
+            type="submit"
+            fullWidth
+            disabled={loading || (!isLogin && !allAgreed)}
+          >
             {loading ? "잠시만..." : isLogin ? "로그인" : "회원가입"}
           </PpuriButton>
         </form>
+
+        {isLogin && (
+          <button
+            onClick={() => setShowForgot(true)}
+            className="w-full mt-3 text-xs text-muted-foreground hover:text-primary text-center transition-colors"
+          >
+            비밀번호를 잊으셨나요?
+          </button>
+        )}
 
         <button
           onClick={() => { setIsLogin(!isLogin); setError(""); }}
@@ -250,6 +406,8 @@ export default function AuthPage() {
           {isLogin ? "계정이 없으신가요? 회원가입" : "이미 계정이 있으신가요? 로그인"}
         </button>
       </div>
+
+      {showForgot && <ForgotPasswordModal onClose={() => setShowForgot(false)} />}
     </div>
   );
 }
