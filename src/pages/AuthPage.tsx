@@ -453,7 +453,7 @@ export default function AuthPage() {
           <PpuriButton
             type="submit"
             fullWidth
-            disabled={loading || (!isLogin && !allAgreed)}
+            disabled={!canSubmit}
           >
             {loading ? "잠시만..." : isLogin ? "로그인" : "회원가입"}
           </PpuriButton>
