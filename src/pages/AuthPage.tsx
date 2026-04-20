@@ -329,7 +329,7 @@ export default function AuthPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3" noValidate>
           {!isLogin && (
             <input
               type="text"
@@ -340,34 +340,60 @@ export default function AuthPage() {
               className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
             />
           )}
-          <input
-            type="email"
-            placeholder="이메일"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete={isLogin ? "username" : "email"}
-            className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-          />
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder={isLogin ? "비밀번호" : "비밀번호 (최소 8자)"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={isLogin ? 6 : 8}
-              autoComplete={isLogin ? "current-password" : "new-password"}
-              className="w-full h-12 px-4 pr-12 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(s => !s)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
-              aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
-            >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
+          <div>
+            <div className="relative">
+              <input
+                type="email"
+                inputMode="email"
+                placeholder="이메일"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete={isLogin ? "username" : "email"}
+                className={`w-full h-12 px-4 pr-10 rounded-xl bg-input border-2 text-body text-foreground placeholder:text-muted-foreground focus:outline-none transition-colors ${
+                  showEmailError
+                    ? "border-destructive focus:border-destructive"
+                    : "border-border focus:border-primary"
+                }`}
+              />
+              {emailCheck.valid && (
+                <Check
+                  size={18}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-fade-in"
+                  aria-label="유효한 이메일"
+                />
+              )}
+            </div>
+            {showEmailError && (
+              <p className="text-xs text-destructive mt-1 animate-fade-in">{emailCheck.message}</p>
+            )}
+          </div>
+          <div>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder={isLogin ? "비밀번호" : "비밀번호 (최소 8자)"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={isLogin ? 6 : 8}
+                autoComplete={isLogin ? "current-password" : "new-password"}
+                className="w-full h-12 px-4 pr-12 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(s => !s)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {!isLogin && (
+              <div className="mt-2">
+                <PasswordStrengthMeter password={password} />
+              </div>
+            )}
           </div>
 
           {/* 약관 동의 (회원가입 시만) */}
