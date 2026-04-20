@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PpuriButton } from "@/components/PpuriButton";
+import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { translateAuthError } from "@/utils/authErrors";
-import { Shield, Brain, Crosshair, TrendingUp, Eye, EyeOff, X } from "lucide-react";
+import { evaluatePassword, validateEmail } from "@/utils/passwordStrength";
+import { Shield, Brain, Crosshair, TrendingUp, Eye, EyeOff, X, Check } from "lucide-react";
 
 const ONBOARDING_SLIDES = [
   {
@@ -144,15 +146,26 @@ function ForgotPasswordModal({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const submittingRef = useRef(false);
+
+  const emailCheck = useMemo(() => validateEmail(email), [email]);
+  const showEmailError = email.length > 0 && !emailCheck.valid;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
+    if (!emailCheck.valid) {
+      setError(emailCheck.message || "올바른 이메일을 입력해주세요.");
+      return;
+    }
+    submittingRef.current = true;
     setError("");
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setLoading(false);
+    submittingRef.current = false;
     if (error) setError(translateAuthError(error));
     else setSent(true);
   };
@@ -184,19 +197,26 @@ function ForgotPasswordModal({ onClose }: { onClose: () => void }) {
             <p className="text-small text-muted-foreground mb-5">
               가입하신 이메일을 입력하시면<br />재설정 링크를 보내드려요.
             </p>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3" noValidate>
               <input
                 type="email"
+                inputMode="email"
                 placeholder="이메일"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                autoComplete="email"
+                className={`w-full h-12 px-4 rounded-xl bg-input border-2 text-body text-foreground placeholder:text-muted-foreground focus:outline-none transition-colors ${
+                  showEmailError ? "border-destructive focus:border-destructive" : "border-border focus:border-primary"
+                }`}
               />
+              {showEmailError && (
+                <p className="text-xs text-destructive animate-fade-in">{emailCheck.message}</p>
+              )}
               {error && (
                 <p className="text-small text-destructive text-center animate-fade-in">{error}</p>
               )}
-              <PpuriButton type="submit" fullWidth disabled={loading}>
+              <PpuriButton type="submit" fullWidth disabled={loading || !emailCheck.valid}>
                 {loading ? "전송 중..." : "재설정 링크 보내기"}
               </PpuriButton>
             </form>
@@ -220,8 +240,14 @@ export default function AuthPage() {
   const [showForgot, setShowForgot] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const submittingRef = useRef(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+
+  // 실시간 검증
+  const emailCheck = useMemo(() => validateEmail(email), [email]);
+  const showEmailError = email.length > 0 && !emailCheck.valid;
+  const passwordStrength = useMemo(() => evaluatePassword(password), [password]);
 
   useEffect(() => {
     if (sessionStorage.getItem("ppuri_onboarding_seen")) {
@@ -242,33 +268,50 @@ export default function AuthPage() {
     setAgreeAge(next);
   };
 
+  // 회원가입은 강도 2 이상(약함) 이상 + 모든 약관 + 8자 이상 필요
+  const canSubmit = isLogin
+    ? emailCheck.valid && password.length >= 6 && !loading
+    : emailCheck.valid && password.length >= 8 && passwordStrength.score >= 2 && allAgreed && !loading;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return; // 중복 제출 방지
     setError("");
+
+    if (!emailCheck.valid) {
+      setError(emailCheck.message || "올바른 이메일을 입력해주세요.");
+      return;
+    }
 
     if (!isLogin) {
       if (password.length < 8) {
         setError("비밀번호는 최소 8자 이상이어야 해요.");
         return;
       }
-      if (!agreeTerms || !agreePrivacy || !agreeAge) {
+      if (passwordStrength.score < 2) {
+        setError("비밀번호가 너무 약해요. 더 안전한 비밀번호를 사용해주세요.");
+        return;
+      }
+      if (!allAgreed) {
         setError("필수 항목에 모두 동의해주세요.");
         return;
       }
     }
 
+    submittingRef.current = true;
     setLoading(true);
 
     if (isLogin) {
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(email.trim(), password);
       if (error) setError(translateAuthError(error));
       else navigate("/");
     } else {
-      const { error } = await signUp(email, password, displayName);
+      const { error } = await signUp(email.trim(), password, displayName.trim());
       if (error) setError(translateAuthError(error));
       else navigate("/onboarding");
     }
     setLoading(false);
+    submittingRef.current = false;
   };
 
   if (showOnboarding) {
@@ -286,7 +329,7 @@ export default function AuthPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3" noValidate>
           {!isLogin && (
             <input
               type="text"
@@ -297,34 +340,60 @@ export default function AuthPage() {
               className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
             />
           )}
-          <input
-            type="email"
-            placeholder="이메일"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete={isLogin ? "username" : "email"}
-            className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-          />
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder={isLogin ? "비밀번호" : "비밀번호 (최소 8자)"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={isLogin ? 6 : 8}
-              autoComplete={isLogin ? "current-password" : "new-password"}
-              className="w-full h-12 px-4 pr-12 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(s => !s)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
-              aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
-            >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
+          <div>
+            <div className="relative">
+              <input
+                type="email"
+                inputMode="email"
+                placeholder="이메일"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete={isLogin ? "username" : "email"}
+                className={`w-full h-12 px-4 pr-10 rounded-xl bg-input border-2 text-body text-foreground placeholder:text-muted-foreground focus:outline-none transition-colors ${
+                  showEmailError
+                    ? "border-destructive focus:border-destructive"
+                    : "border-border focus:border-primary"
+                }`}
+              />
+              {emailCheck.valid && (
+                <Check
+                  size={18}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-fade-in"
+                  aria-label="유효한 이메일"
+                />
+              )}
+            </div>
+            {showEmailError && (
+              <p className="text-xs text-destructive mt-1 animate-fade-in">{emailCheck.message}</p>
+            )}
+          </div>
+          <div>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder={isLogin ? "비밀번호" : "비밀번호 (최소 8자)"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={isLogin ? 6 : 8}
+                autoComplete={isLogin ? "current-password" : "new-password"}
+                className="w-full h-12 px-4 pr-12 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(s => !s)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {!isLogin && (
+              <div className="mt-2">
+                <PasswordStrengthMeter password={password} />
+              </div>
+            )}
           </div>
 
           {/* 약관 동의 (회원가입 시만) */}
@@ -384,7 +453,7 @@ export default function AuthPage() {
           <PpuriButton
             type="submit"
             fullWidth
-            disabled={loading || (!isLogin && !allAgreed)}
+            disabled={!canSubmit}
           >
             {loading ? "잠시만..." : isLogin ? "로그인" : "회원가입"}
           </PpuriButton>
