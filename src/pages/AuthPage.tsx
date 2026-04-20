@@ -197,19 +197,26 @@ function ForgotPasswordModal({ onClose }: { onClose: () => void }) {
             <p className="text-small text-muted-foreground mb-5">
               가입하신 이메일을 입력하시면<br />재설정 링크를 보내드려요.
             </p>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3" noValidate>
               <input
                 type="email"
+                inputMode="email"
                 placeholder="이메일"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                autoComplete="email"
+                className={`w-full h-12 px-4 rounded-xl bg-input border-2 text-body text-foreground placeholder:text-muted-foreground focus:outline-none transition-colors ${
+                  showEmailError ? "border-destructive focus:border-destructive" : "border-border focus:border-primary"
+                }`}
               />
+              {showEmailError && (
+                <p className="text-xs text-destructive animate-fade-in">{emailCheck.message}</p>
+              )}
               {error && (
                 <p className="text-small text-destructive text-center animate-fade-in">{error}</p>
               )}
-              <PpuriButton type="submit" fullWidth disabled={loading}>
+              <PpuriButton type="submit" fullWidth disabled={loading || !emailCheck.valid}>
                 {loading ? "전송 중..." : "재설정 링크 보내기"}
               </PpuriButton>
             </form>
