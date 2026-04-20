@@ -16,6 +16,16 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isRecoverySession, setIsRecoverySession] = useState(false);
+  const submittingRef = useRef(false);
+
+  const passwordStrength = useMemo(() => evaluatePassword(password), [password]);
+  const passwordsMatch = password.length > 0 && password === confirmPassword;
+  const showMismatch = confirmPassword.length > 0 && password !== confirmPassword;
+  const canSubmit =
+    password.length >= 8 &&
+    passwordStrength.score >= 2 &&
+    passwordsMatch &&
+    !loading;
 
   // 복구 토큰으로 진입했는지 확인
   useEffect(() => {
@@ -23,7 +33,6 @@ export default function ResetPasswordPage() {
     if (hash.includes("type=recovery") || hash.includes("access_token")) {
       setIsRecoverySession(true);
     } else {
-      // 세션이 있으면 복구 흐름으로 간주
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) setIsRecoverySession(true);
       });
@@ -32,10 +41,15 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
     setError("");
 
     if (password.length < 8) {
       setError("비밀번호는 최소 8자 이상이어야 해요.");
+      return;
+    }
+    if (passwordStrength.score < 2) {
+      setError("비밀번호가 너무 약해요. 더 안전한 비밀번호를 사용해주세요.");
       return;
     }
     if (password !== confirmPassword) {
@@ -43,15 +57,16 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    submittingRef.current = true;
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
+    submittingRef.current = false;
 
     if (error) {
       setError(translateAuthError(error));
     } else {
       setSuccess(true);
-      // 3초 후 로그인 페이지로
       setTimeout(async () => {
         await supabase.auth.signOut();
         navigate("/auth");
