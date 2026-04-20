@@ -116,41 +116,60 @@ export default function ResetPasswordPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="relative">
+        <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+          <div>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="새 비밀번호"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={8}
+                autoComplete="new-password"
+                className="w-full h-12 px-4 pr-12 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(s => !s)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            <div className="mt-2">
+              <PasswordStrengthMeter password={password} />
+            </div>
+          </div>
+
+          <div>
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="새 비밀번호"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              placeholder="비밀번호 확인"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={8}
-              className="w-full h-12 px-4 pr-12 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+              autoComplete="new-password"
+              className={`w-full h-12 px-4 rounded-xl bg-input border-2 text-body text-foreground placeholder:text-muted-foreground focus:outline-none transition-colors ${
+                showMismatch
+                  ? "border-destructive focus:border-destructive"
+                  : passwordsMatch
+                    ? "border-primary"
+                    : "border-border focus:border-primary"
+              }`}
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(s => !s)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
-              aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
-            >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
+            {showMismatch && (
+              <p className="text-xs text-destructive mt-1 animate-fade-in">비밀번호가 일치하지 않아요.</p>
+            )}
           </div>
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="비밀번호 확인"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            minLength={8}
-            className="w-full h-12 px-4 rounded-xl bg-input border-2 border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-          />
 
           {error && (
             <p className="text-small text-destructive text-center animate-fade-in">{error}</p>
           )}
 
-          <PpuriButton type="submit" fullWidth disabled={loading}>
+          <PpuriButton type="submit" fullWidth disabled={!canSubmit}>
             {loading ? "변경 중..." : "비밀번호 변경"}
           </PpuriButton>
         </form>
