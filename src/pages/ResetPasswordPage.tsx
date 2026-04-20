@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PpuriButton } from "@/components/PpuriButton";
+import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { translateAuthError } from "@/utils/authErrors";
+import { evaluatePassword } from "@/utils/passwordStrength";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function ResetPasswordPage() {
