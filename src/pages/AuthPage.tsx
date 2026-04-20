@@ -146,15 +146,26 @@ function ForgotPasswordModal({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const submittingRef = useRef(false);
+
+  const emailCheck = useMemo(() => validateEmail(email), [email]);
+  const showEmailError = email.length > 0 && !emailCheck.valid;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
+    if (!emailCheck.valid) {
+      setError(emailCheck.message || "올바른 이메일을 입력해주세요.");
+      return;
+    }
+    submittingRef.current = true;
     setError("");
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setLoading(false);
+    submittingRef.current = false;
     if (error) setError(translateAuthError(error));
     else setSent(true);
   };
