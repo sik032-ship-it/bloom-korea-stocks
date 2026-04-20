@@ -240,8 +240,14 @@ export default function AuthPage() {
   const [showForgot, setShowForgot] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const submittingRef = useRef(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+
+  // 실시간 검증
+  const emailCheck = useMemo(() => validateEmail(email), [email]);
+  const showEmailError = email.length > 0 && !emailCheck.valid;
+  const passwordStrength = useMemo(() => evaluatePassword(password), [password]);
 
   useEffect(() => {
     if (sessionStorage.getItem("ppuri_onboarding_seen")) {
@@ -262,33 +268,50 @@ export default function AuthPage() {
     setAgreeAge(next);
   };
 
+  // 회원가입은 강도 2 이상(약함) 이상 + 모든 약관 + 8자 이상 필요
+  const canSubmit = isLogin
+    ? emailCheck.valid && password.length >= 6 && !loading
+    : emailCheck.valid && password.length >= 8 && passwordStrength.score >= 2 && allAgreed && !loading;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return; // 중복 제출 방지
     setError("");
+
+    if (!emailCheck.valid) {
+      setError(emailCheck.message || "올바른 이메일을 입력해주세요.");
+      return;
+    }
 
     if (!isLogin) {
       if (password.length < 8) {
         setError("비밀번호는 최소 8자 이상이어야 해요.");
         return;
       }
-      if (!agreeTerms || !agreePrivacy || !agreeAge) {
+      if (passwordStrength.score < 2) {
+        setError("비밀번호가 너무 약해요. 더 안전한 비밀번호를 사용해주세요.");
+        return;
+      }
+      if (!allAgreed) {
         setError("필수 항목에 모두 동의해주세요.");
         return;
       }
     }
 
+    submittingRef.current = true;
     setLoading(true);
 
     if (isLogin) {
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(email.trim(), password);
       if (error) setError(translateAuthError(error));
       else navigate("/");
     } else {
-      const { error } = await signUp(email, password, displayName);
+      const { error } = await signUp(email.trim(), password, displayName.trim());
       if (error) setError(translateAuthError(error));
       else navigate("/onboarding");
     }
     setLoading(false);
+    submittingRef.current = false;
   };
 
   if (showOnboarding) {
