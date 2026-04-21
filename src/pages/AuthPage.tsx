@@ -357,7 +357,7 @@ export default function AuthPage() {
     } else {
       const { error } = await signUp(email.trim(), password, displayName.trim());
       if (error) setError(translateAuthError(error));
-      else navigate("/onboarding");
+      else setVerificationSentTo(email.trim());
     }
     setLoading(false);
     submittingRef.current = false;
