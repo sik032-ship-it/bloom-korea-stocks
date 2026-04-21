@@ -271,9 +271,27 @@ export default function AuthPage() {
   const [showForgot, setShowForgot] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [verificationSentTo, setVerificationSentTo] = useState<string | null>(null);
   const submittingRef = useRef(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+
+  const handleGoogleLogin = async () => {
+    if (googleLoading) return;
+    setError("");
+    setGoogleLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      setError(translateAuthError(result.error));
+      setGoogleLoading(false);
+      return;
+    }
+    if (result.redirected) return; // 브라우저 리다이렉트
+    navigate("/");
+  };
 
   // 실시간 검증
   const emailCheck = useMemo(() => validateEmail(email), [email]);
