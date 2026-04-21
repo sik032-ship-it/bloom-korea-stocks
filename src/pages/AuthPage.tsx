@@ -272,13 +272,14 @@ export default function AuthPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const [verificationSentTo, setVerificationSentTo] = useState<string | null>(null);
   const submittingRef = useRef(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
   const handleGoogleLogin = async () => {
-    if (googleLoading) return;
+    if (googleLoading || appleLoading) return;
     setError("");
     setGoogleLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
@@ -290,6 +291,22 @@ export default function AuthPage() {
       return;
     }
     if (result.redirected) return; // 브라우저 리다이렉트
+    navigate("/");
+  };
+
+  const handleAppleLogin = async () => {
+    if (googleLoading || appleLoading) return;
+    setError("");
+    setAppleLoading(true);
+    const result = await lovable.auth.signInWithOAuth("apple", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      setError(translateAuthError(result.error));
+      setAppleLoading(false);
+      return;
+    }
+    if (result.redirected) return;
     navigate("/");
   };
 
