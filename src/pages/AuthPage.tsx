@@ -367,6 +367,19 @@ export default function AuthPage() {
     return <OnboardingSlides onComplete={handleOnboardingComplete} />;
   }
 
+  if (verificationSentTo) {
+    return (
+      <VerificationSentScreen
+        email={verificationSentTo}
+        onBack={() => {
+          setVerificationSentTo(null);
+          setIsLogin(true);
+          setPassword("");
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-8">
       <div className="w-full max-w-sm animate-fade-in">
@@ -376,6 +389,24 @@ export default function AuthPage() {
           <p className="text-small text-muted-foreground mt-1">
             위험을 이해하는 투자자로 성장하세요
           </p>
+        </div>
+
+        {/* Google 로그인 (상단 큰 버튼) */}
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={googleLoading || loading}
+          className="w-full h-12 rounded-xl bg-card border-2 border-border hover:border-primary/40 hover:bg-muted/50 transition-all flex items-center justify-center gap-3 font-semibold text-body text-foreground disabled:opacity-60 disabled:cursor-not-allowed press-effect"
+        >
+          <GoogleIcon size={20} />
+          {googleLoading ? "연결 중..." : `Google로 ${isLogin ? "로그인" : "시작하기"}`}
+        </button>
+
+        {/* 또는 구분선 */}
+        <div className="flex items-center gap-3 my-5">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs text-muted-foreground font-medium">또는 이메일로</span>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3" noValidate>
