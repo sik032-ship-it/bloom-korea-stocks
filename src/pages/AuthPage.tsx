@@ -554,6 +554,22 @@ export default function AuthPage() {
         >
           {isLogin ? "계정이 없으신가요? 회원가입" : "이미 계정이 있으신가요? 로그인"}
         </button>
+
+        {/* 신뢰 문구 */}
+        <div className="mt-6 pt-5 border-t border-border space-y-2">
+          <div className="flex items-start gap-2">
+            <Lock size={14} className="text-primary mt-0.5 shrink-0" />
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              비밀번호는 <strong className="text-foreground">암호화되어 안전하게 보관</strong>되며, 직원도 볼 수 없어요.
+            </p>
+          </div>
+          <div className="flex items-start gap-2">
+            <Mail size={14} className="text-primary mt-0.5 shrink-0" />
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              이메일은 <strong className="text-foreground">로그인과 비밀번호 재설정</strong>에만 사용해요. 마케팅 메일은 보내지 않아요.
+            </p>
+          </div>
+        </div>
       </div>
 
       {showForgot && <ForgotPasswordModal onClose={() => setShowForgot(false)} />}
