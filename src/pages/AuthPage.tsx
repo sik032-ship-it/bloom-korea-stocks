@@ -408,16 +408,29 @@ export default function AuthPage() {
           </p>
         </div>
 
-        {/* Google 로그인 (상단 큰 버튼) */}
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={googleLoading || loading}
-          className="w-full h-12 rounded-xl bg-card border-2 border-border hover:border-primary/40 hover:bg-muted/50 transition-all flex items-center justify-center gap-3 font-semibold text-body text-foreground disabled:opacity-60 disabled:cursor-not-allowed press-effect"
-        >
-          <GoogleIcon size={20} />
-          {googleLoading ? "연결 중..." : `Google로 ${isLogin ? "로그인" : "시작하기"}`}
-        </button>
+        {/* 소셜 로그인 (상단) */}
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={googleLoading || appleLoading || loading}
+            className="w-full h-12 rounded-xl bg-card border-2 border-border hover:border-primary/40 hover:bg-muted/50 transition-all flex items-center justify-center gap-3 font-semibold text-body text-foreground disabled:opacity-60 disabled:cursor-not-allowed press-effect"
+          >
+            <GoogleIcon size={20} />
+            {googleLoading ? "연결 중..." : `Google로 ${isLogin ? "로그인" : "시작하기"}`}
+          </button>
+          <button
+            type="button"
+            onClick={handleAppleLogin}
+            disabled={googleLoading || appleLoading || loading}
+            className="w-full h-12 rounded-xl bg-black text-white hover:bg-black/90 transition-all flex items-center justify-center gap-3 font-semibold text-body disabled:opacity-60 disabled:cursor-not-allowed press-effect"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+            </svg>
+            {appleLoading ? "연결 중..." : `Apple로 ${isLogin ? "로그인" : "시작하기"}`}
+          </button>
+        </div>
 
         {/* 또는 구분선 */}
         <div className="flex items-center gap-3 my-5">
