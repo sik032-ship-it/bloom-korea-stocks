@@ -26,6 +26,7 @@ export function TodayProgress({ userId, totalSentences, currentStreak, todayDone
         .from("sentences")
         .select("question_text, answer_text")
         .eq("user_id", userId)
+        .is("deleted_at", null)
         .gte("created_at", todayStart);
 
       const count = todaySentences?.length || 0;

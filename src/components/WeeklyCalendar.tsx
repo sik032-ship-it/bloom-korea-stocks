@@ -29,6 +29,7 @@ export function WeeklyCalendar({ userId }: WeeklyCalendarProps) {
         .from("sentences")
         .select("created_at")
         .eq("user_id", userId)
+        .is("deleted_at", null)
         .gte("created_at", since.toISOString());
 
       if (data) {

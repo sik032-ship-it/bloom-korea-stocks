@@ -64,7 +64,7 @@ export default function ArchivePage() {
   const fetchHoldings = async () => {
     if (!user) return;
     const [{ data: h }, { data: p }] = await Promise.all([
-      supabase.from("holdings").select("*").eq("user_id", user.id),
+      supabase.from("holdings").select("*").eq("user_id", user.id).is("deleted_at", null),
       supabase.from("profiles").select("current_streak, longest_streak").eq("id", user.id).single(),
     ]);
     if (h) setHoldings(h);
@@ -79,6 +79,7 @@ export default function ArchivePage() {
       .from("sentences")
       .select("*")
       .eq("user_id", user.id)
+      .is("deleted_at", null)
       .order("created_at", { ascending: false })
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
 

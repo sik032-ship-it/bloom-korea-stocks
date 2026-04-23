@@ -65,6 +65,7 @@ export function BehavioralNudge({ userId, holdings, triggerAfterLesson }: Behavi
           .from("sentences")
           .select("question_text, answer_text")
           .eq("user_id", userId)
+          .is("deleted_at", null)
           .gte("created_at", weekAgo)
           .order("created_at", { ascending: false })
           .limit(10);
