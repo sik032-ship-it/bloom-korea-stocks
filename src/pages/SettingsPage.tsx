@@ -56,8 +56,8 @@ export default function SettingsPage() {
     const [{ data: profileData }, { data: holdingsData }, { data: sentencesData }] =
       await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).single(),
-        supabase.from("holdings").select("*").eq("user_id", user.id),
-        supabase.from("sentences").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("holdings").select("*").eq("user_id", user.id).is("deleted_at", null),
+        supabase.from("sentences").select("*").eq("user_id", user.id).is("deleted_at", null).order("created_at", { ascending: false }),
       ]);
 
     const exportData = {

@@ -31,6 +31,7 @@ export function HoldingsContext({ userId, holdings, currentHolding }: HoldingsCo
         .from("sentences")
         .select("holding_id, answer_text, created_at")
         .eq("user_id", userId)
+        .is("deleted_at", null)
         .order("created_at", { ascending: false })
         .limit(100);
 

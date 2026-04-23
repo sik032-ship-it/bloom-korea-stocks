@@ -425,6 +425,7 @@ export default function CrisisModePage() {
       .select("ticker, company_name_kr")
       .eq("user_id", user.id)
       .eq("is_active", true)
+      .is("deleted_at", null)
       .then(({ data }) => {
         if (data) setHoldings(data);
       });

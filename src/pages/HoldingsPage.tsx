@@ -6,6 +6,8 @@ import { PpuriCard } from "@/components/PpuriCard";
 import { PpuriButton } from "@/components/PpuriButton";
 import { Mascot } from "@/components/Mascot";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import { Trash2 } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
@@ -52,7 +54,7 @@ export default function HoldingsPage() {
   const fetchData = async () => {
     if (!user) return;
     const [{ data: h }, { data: p }] = await Promise.all([
-      supabase.from("holdings").select("*").eq("user_id", user.id).eq("is_active", true).order("added_at", { ascending: false }),
+      supabase.from("holdings").select("*").eq("user_id", user.id).eq("is_active", true).is("deleted_at", null).order("added_at", { ascending: false }),
       supabase.from("profiles").select("current_streak, longest_streak").eq("id", user.id).single(),
     ]);
     if (h) setHoldings(h);
@@ -87,10 +89,15 @@ export default function HoldingsPage() {
   };
 
   const confirmDelete = async () => {
-    if (!deleteId) return;
+    if (!deleteId || !user) return;
     const h = holdings.find((h) => h.id === deleteId);
-    await supabase.from("holdings").update({ is_active: false }).eq("id", deleteId);
-    toast.success(`${h?.ticker} 삭제 완료`);
+    const now = new Date().toISOString();
+    // Soft delete: holdings + cascade to its sentences
+    await Promise.all([
+      supabase.from("holdings").update({ deleted_at: now, is_active: false }).eq("id", deleteId),
+      supabase.from("sentences").update({ deleted_at: now }).eq("holding_id", deleteId).eq("user_id", user.id),
+    ]);
+    toast.success(`${h?.ticker} 휴지통으로 이동 (30일 내 복구 가능)`);
     setDeleteId(null);
     fetchData();
   };
@@ -99,7 +106,12 @@ export default function HoldingsPage() {
     <Layout currentStreak={profile?.current_streak || 0} longestStreak={profile?.longest_streak || 0}>
       <div className="flex items-center justify-between">
         <h1 className="text-display text-foreground">보유 종목</h1>
-        <PpuriButton onClick={() => setShowAdd(true)}>+ 종목 추가</PpuriButton>
+        <div className="flex items-center gap-2">
+          <Link to="/trash" className="p-2 text-muted-foreground hover:text-foreground transition-colors" aria-label="휴지통">
+            <Trash2 className="w-5 h-5" />
+          </Link>
+          <PpuriButton onClick={() => setShowAdd(true)}>+ 종목 추가</PpuriButton>
+        </div>
       </div>
 
       {loading ? (

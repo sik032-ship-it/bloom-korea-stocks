@@ -54,6 +54,7 @@ export type Database = {
         Row: {
           added_at: string
           company_name_kr: string
+          deleted_at: string | null
           id: string
           is_active: boolean
           sentence_count: number
@@ -63,6 +64,7 @@ export type Database = {
         Insert: {
           added_at?: string
           company_name_kr: string
+          deleted_at?: string | null
           id?: string
           is_active?: boolean
           sentence_count?: number
@@ -72,6 +74,7 @@ export type Database = {
         Update: {
           added_at?: string
           company_name_kr?: string
+          deleted_at?: string | null
           id?: string
           is_active?: boolean
           sentence_count?: number
@@ -155,6 +158,7 @@ export type Database = {
         Row: {
           answer_text: string
           created_at: string
+          deleted_at: string | null
           holding_id: string
           id: string
           question_text: string
@@ -164,6 +168,7 @@ export type Database = {
         Insert: {
           answer_text: string
           created_at?: string
+          deleted_at?: string | null
           holding_id: string
           id?: string
           question_text: string
@@ -173,6 +178,7 @@ export type Database = {
         Update: {
           answer_text?: string
           created_at?: string
+          deleted_at?: string | null
           holding_id?: string
           id?: string
           question_text?: string
@@ -239,7 +245,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      purge_old_soft_deleted: { Args: never; Returns: undefined }
     }
     Enums: {
       plan_type: "free" | "premium"
