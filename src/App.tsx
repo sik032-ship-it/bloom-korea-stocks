@@ -15,6 +15,7 @@ const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const DailyLessonPage = lazy(() => import("./pages/DailyLessonPage"));
 const HoldingsPage = lazy(() => import("./pages/HoldingsPage"));
+const TrashPage = lazy(() => import("./pages/TrashPage"));
 const ArchivePage = lazy(() => import("./pages/ArchivePage"));
 const CrisisModePage = lazy(() => import("./pages/CrisisModePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
                 <Route path="/lesson" element={<ProtectedRoute><DailyLessonPage /></ProtectedRoute>} />
                 <Route path="/holdings" element={<ProtectedRoute><HoldingsPage /></ProtectedRoute>} />
+                <Route path="/trash" element={<ProtectedRoute><TrashPage /></ProtectedRoute>} />
                 <Route path="/archive" element={<ProtectedRoute><ArchivePage /></ProtectedRoute>} />
                 <Route path="/crisis" element={<ProtectedRoute><CrisisModePage /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
