@@ -30,7 +30,7 @@ export default function HomePage() {
     const fetchData = async () => {
       const [{ data: profileData }, { data: holdingsData }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).single(),
-        supabase.from("holdings").select("*").eq("user_id", user.id).eq("is_active", true),
+        supabase.from("holdings").select("*").eq("user_id", user.id).eq("is_active", true).is("deleted_at", null),
       ]);
 
       if (profileData) {

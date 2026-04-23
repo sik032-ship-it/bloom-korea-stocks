@@ -204,7 +204,7 @@ export default function DailyLessonPage() {
       setQuizQuestions(baseQuiz);
 
       const { data: h } = await supabase
-        .from("holdings").select("*").eq("user_id", user.id).eq("is_active", true);
+        .from("holdings").select("*").eq("user_id", user.id).eq("is_active", true).is("deleted_at", null);
 
       if (h && h.length > 0) {
         setHoldings(h);
