@@ -86,7 +86,7 @@ export default function TrashPage() {
         </div>
       ) : items.length === 0 ? (
         <div className="text-center py-12">
-          <Mascot mood="happy" size="lg" className="mx-auto mb-4" />
+          <Mascot mood="celebrate" size="lg" className="mx-auto mb-4" />
           <p className="text-title text-foreground mb-2">휴지통이 비어있어요</p>
           <p className="text-small text-muted-foreground">삭제된 종목이 여기 표시돼요</p>
         </div>
