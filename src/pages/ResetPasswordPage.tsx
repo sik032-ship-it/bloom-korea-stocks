@@ -27,16 +27,22 @@ export default function ResetPasswordPage() {
     passwordsMatch &&
     !loading;
 
-  // 복구 토큰으로 진입했는지 확인
+  // 복구 토큰으로 진입했는지 확인 (type=recovery만 허용 — OAuth 토큰 오인식 방지)
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash.includes("type=recovery") || hash.includes("access_token")) {
+    const search = window.location.search;
+    // Supabase recovery 링크는 hash 또는 query에 type=recovery를 포함
+    if (hash.includes("type=recovery") || search.includes("type=recovery")) {
       setIsRecoverySession(true);
-    } else {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) setIsRecoverySession(true);
-      });
+      return;
     }
+    // PASSWORD_RECOVERY 이벤트 리스닝 (Supabase가 토큰 처리 후 발생)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsRecoverySession(true);
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

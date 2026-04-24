@@ -282,32 +282,43 @@ export default function AuthPage() {
     if (googleLoading || appleLoading) return;
     setError("");
     setGoogleLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      setError(translateAuthError(result.error));
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        setError(translateAuthError(result.error));
+        setGoogleLoading(false);
+        return;
+      }
+      if (result.redirected) return; // 브라우저 리다이렉트 진행 중
+      // 토큰을 받아 세션이 설정된 경우 — onAuthStateChange가 PublicRoute를 통해 자동 리다이렉트
+      // navigate를 호출하지 않음 (race condition 방지)
+    } catch (e) {
+      setError(translateAuthError(e instanceof Error ? e : new Error(String(e))));
       setGoogleLoading(false);
-      return;
     }
-    if (result.redirected) return; // 브라우저 리다이렉트
-    navigate("/");
   };
 
   const handleAppleLogin = async () => {
     if (googleLoading || appleLoading) return;
     setError("");
     setAppleLoading(true);
-    const result = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      setError(translateAuthError(result.error));
+    try {
+      const result = await lovable.auth.signInWithOAuth("apple", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        setError(translateAuthError(result.error));
+        setAppleLoading(false);
+        return;
+      }
+      if (result.redirected) return;
+      // onAuthStateChange가 자동 처리
+    } catch (e) {
+      setError(translateAuthError(e instanceof Error ? e : new Error(String(e))));
       setAppleLoading(false);
-      return;
     }
-    if (result.redirected) return;
-    navigate("/");
   };
 
   // 실시간 검증
