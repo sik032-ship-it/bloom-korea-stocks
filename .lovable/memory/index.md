@@ -15,3 +15,4 @@ No CommunityStats on home (hide until 100+ users). Home: greeting + CTA + level 
 - [Quiz system](mem://features/quiz) — Daily lesson quiz formats and categories
 - [Product philosophy](mem://features/product-philosophy) — Risk literacy, DAU-first, simplicity
 - [Long-term vision](mem://features/long-term-vision) — 3-phase roadmap: behavioral → financial literacy → mental coaching
+- [Investment philosophy](mem://features/investment-philosophy) — 북극성: 장기/초우량/이해가능 기업, 위기 멘탈 코칭, 금지 영역
