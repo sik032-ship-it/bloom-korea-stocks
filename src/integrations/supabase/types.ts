@@ -93,6 +93,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          consent_privacy_version: string | null
+          consent_terms_version: string | null
+          consented_at: string | null
           created_at: string
           current_level: number
           current_streak: number
@@ -104,6 +107,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          consent_privacy_version?: string | null
+          consent_terms_version?: string | null
+          consented_at?: string | null
           created_at?: string
           current_level?: number
           current_streak?: number
@@ -115,6 +121,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          consent_privacy_version?: string | null
+          consent_terms_version?: string | null
+          consented_at?: string | null
           created_at?: string
           current_level?: number
           current_streak?: number

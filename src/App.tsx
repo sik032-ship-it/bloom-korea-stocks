@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ConsentGate } from "@/components/ConsentGate";
 import React, { Suspense, lazy } from "react";
 
 const AuthPage = lazy(() => import("./pages/AuthPage"));
@@ -36,7 +37,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingFallback />;
   if (!user) return <Navigate to="/auth" replace />;
-  return <>{children}</>;
+  return <ConsentGate>{children}</ConsentGate>;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
