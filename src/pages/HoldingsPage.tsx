@@ -109,6 +109,9 @@ export default function HoldingsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-display text-foreground">보유 종목</h1>
         <div className="flex items-center gap-2">
+          <Link to="/legends" className="p-2 text-muted-foreground hover:text-foreground transition-colors" aria-label="역사 속 헐값 카드">
+            <Sparkles className="w-5 h-5" />
+          </Link>
           <Link to="/trash" className="p-2 text-muted-foreground hover:text-foreground transition-colors" aria-label="휴지통">
             <Trash2 className="w-5 h-5" />
           </Link>
@@ -133,7 +136,7 @@ export default function HoldingsPage() {
       ) : (
         <div className="space-y-3">
           {holdings.map((h) => (
-            <PpuriCard key={h.id} hoverable>
+            <PpuriCard key={h.id}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="px-2.5 py-1 bg-primary text-primary-foreground rounded-md text-small font-bold">
@@ -149,10 +152,18 @@ export default function HoldingsPage() {
                 <button
                   onClick={() => setDeleteId(h.id)}
                   className="text-muted-foreground hover:text-destructive text-lg px-2"
+                  aria-label="삭제"
                 >
                   ×
                 </button>
               </div>
+              <button
+                onClick={() => setSimHolding(h)}
+                className="mt-3 w-full flex items-center justify-center gap-1.5 h-9 rounded-md bg-primary/8 text-primary text-small font-semibold hover:bg-primary/15 transition-all press-effect"
+              >
+                <TrendingUp className="w-4 h-4" />
+                2040년의 내가 본다면?
+              </button>
             </PpuriCard>
           ))}
         </div>
