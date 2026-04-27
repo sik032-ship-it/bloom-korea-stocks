@@ -50,6 +50,7 @@ export default function HoldingsPage() {
   const [customTicker, setCustomTicker] = useState("");
   const [customName, setCustomName] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [simHolding, setSimHolding] = useState<Holding | null>(null);
   const [profile, setProfile] = useState<{ current_streak: number; longest_streak: number } | null>(null);
 
   const fetchData = async () => {
