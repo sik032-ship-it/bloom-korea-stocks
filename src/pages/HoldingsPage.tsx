@@ -7,8 +7,9 @@ import { PpuriButton } from "@/components/PpuriButton";
 import { Mascot } from "@/components/Mascot";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
-import { Trash2 } from "lucide-react";
+import { Trash2, Sparkles, TrendingUp } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { FutureValueSimulator } from "@/components/FutureValueSimulator";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
