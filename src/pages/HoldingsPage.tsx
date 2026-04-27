@@ -252,6 +252,14 @@ export default function HoldingsPage() {
           </div>
         </div>
       )}
+
+      {simHolding && (
+        <FutureValueSimulator
+          ticker={simHolding.ticker}
+          companyName={simHolding.company_name_kr}
+          onClose={() => setSimHolding(null)}
+        />
+      )}
     </Layout>
   );
 }
