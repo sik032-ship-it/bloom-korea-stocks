@@ -14,6 +14,7 @@ interface UserContext {
   todayDone: boolean;
   lastSentenceDate: string | null;
   holdingNames?: string[];
+  experienceLevel?: string | null;
 }
 
 interface MascotMessage {
@@ -51,7 +52,21 @@ export function getHomeGreeting(ctx: UserContext): MascotMessage {
   const progress = getProgressPercent(ctx.totalSentences, ctx.currentLevel);
   const name = ctx.displayName;
 
+  // 첫 방문 — 경험 수준별 다른 환영
   if (ctx.totalSentences === 0) {
+    const exp = ctx.experienceLevel || "";
+    if (exp.includes("초보")) {
+      return {
+        text: `${name}님, 환영해요! 🌱\n주식이 처음이어도 괜찮아요.\n오늘은 딱 1문장만, 같이 천천히 시작해요 🌰`,
+        mood: "wave",
+      };
+    }
+    if (exp.includes("베테랑")) {
+      return {
+        text: `${name}님, 반가워요! 🐿️\n경험 많으신 분이라 더 기대돼요.\n위기 때 흔들리지 않는 멘탈을 같이 다져봐요 💪`,
+        mood: "wave",
+      };
+    }
     return {
       text: `${name}님, 환영해요! 🌱\n오늘 첫 문장을 써보면 평생의 투자 습관이 시작돼요.\n같이 작은 도토리부터 모아볼까요? 🌰`,
       mood: "wave",
