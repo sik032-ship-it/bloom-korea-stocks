@@ -20,6 +20,7 @@ import {
   getQuizWhyItMatters,
 } from "@/utils/mascotDialogue";
 import { categoryLabels } from "@/data/quizQuestions";
+import { isAnswerCorrect } from "@/utils/quizMatch";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import Confetti from "react-confetti";
 import type { Database } from "@/integrations/supabase/types";
@@ -96,19 +97,33 @@ function FillBlank({ sentence, hints, onAnswer }: { sentence: string; hints?: st
   const handleSubmit = () => { if (!input.trim()) return; setSubmitted(true); onAnswer(input.trim()); };
 
   // 입력값 길이에 따라 빈칸 너비 자동 조정 (한글은 약 1em/글자)
-  const blankWidth = `${Math.max(4, Math.min(input.length + 2, 14))}ch`;
+  const blankWidth = `${Math.max(4, Math.min(input.length + 2, 12))}ch`;
 
   return (
-    <div className="flex-1 flex flex-col animate-slide-up">
-      <h2 className="text-title font-bold text-foreground text-center mt-4 mb-8">빈칸에 들어갈 단어를 입력하세요</h2>
-      <div className="bg-card border-2 border-border rounded-2xl p-5 mx-2 mb-6">
-        <p className="text-body text-foreground leading-loose text-center break-keep">
+    <div className="flex-1 flex flex-col animate-slide-up min-w-0">
+      <h2 className="text-title font-bold text-foreground text-center mt-4 mb-6 px-2 break-keep">빈칸에 들어갈 단어를 입력하세요</h2>
+      <div className="bg-card border-2 border-border rounded-2xl p-4 sm:p-5 mx-2 mb-6 overflow-hidden">
+        <p className="text-base sm:text-body text-foreground leading-loose text-center break-keep [overflow-wrap:anywhere]">
           {parts[0]}
           <span
-            className="inline-block border-b-2 border-primary mx-1 text-center align-baseline"
-            style={{ width: blankWidth, minWidth: "4ch", maxWidth: "100%" }}
+            className="inline-block border-b-2 border-primary mx-1 text-center align-baseline max-w-full"
+            style={{ width: blankWidth, minWidth: "4ch" }}
           >
-            {submitted ? <span className="text-primary font-bold">{input}</span> : <input value={input} onChange={(e) => setInput(e.target.value)} className="bg-transparent text-center text-primary font-bold outline-none w-full" placeholder="..." autoFocus />}
+            {submitted ? (
+              <span className="text-primary font-bold break-keep">{input}</span>
+            ) : (
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="bg-transparent text-center text-primary font-bold outline-none w-full max-w-full"
+                placeholder="..."
+                autoFocus
+                inputMode="text"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+              />
+            )}
           </span>
           {parts[1]}
         </p>
@@ -248,9 +263,7 @@ export default function DailyLessonPage() {
       if (q.format === "ox") correct = userAnswer === q.answer;
       else if (q.format === "multiple_choice") correct = userAnswer === q.correctIndex;
       else if (q.format === "fill_blank") {
-        const ni = String(userAnswer).trim().toLowerCase();
-        const na = q.answer.toLowerCase();
-        correct = ni === na || (q.hints?.map(h => h.toLowerCase()) || []).includes(ni);
+        correct = isAnswerCorrect(String(userAnswer), q.answer, q.hints);
       }
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
