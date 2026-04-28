@@ -20,6 +20,7 @@ import {
   getQuizWhyItMatters,
 } from "@/utils/mascotDialogue";
 import { categoryLabels } from "@/data/quizQuestions";
+import { isAnswerCorrect } from "@/utils/quizMatch";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import Confetti from "react-confetti";
 import type { Database } from "@/integrations/supabase/types";
