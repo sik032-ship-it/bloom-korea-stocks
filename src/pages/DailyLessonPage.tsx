@@ -95,13 +95,19 @@ function FillBlank({ sentence, hints, onAnswer }: { sentence: string; hints?: st
   const parts = sentence.split("___");
   const handleSubmit = () => { if (!input.trim()) return; setSubmitted(true); onAnswer(input.trim()); };
 
+  // 입력값 길이에 따라 빈칸 너비 자동 조정 (한글은 약 1em/글자)
+  const blankWidth = `${Math.max(4, Math.min(input.length + 2, 14))}ch`;
+
   return (
     <div className="flex-1 flex flex-col animate-slide-up">
       <h2 className="text-title font-bold text-foreground text-center mt-4 mb-8">빈칸에 들어갈 단어를 입력하세요</h2>
-      <div className="bg-card border-2 border-border rounded-2xl p-6 mx-2 mb-6">
-        <p className="text-body text-foreground leading-loose text-center">
+      <div className="bg-card border-2 border-border rounded-2xl p-5 mx-2 mb-6">
+        <p className="text-body text-foreground leading-loose text-center break-keep">
           {parts[0]}
-          <span className="inline-block min-w-[80px] border-b-2 border-primary mx-1 text-center">
+          <span
+            className="inline-block border-b-2 border-primary mx-1 text-center align-baseline"
+            style={{ width: blankWidth, minWidth: "4ch", maxWidth: "100%" }}
+          >
             {submitted ? <span className="text-primary font-bold">{input}</span> : <input value={input} onChange={(e) => setInput(e.target.value)} className="bg-transparent text-center text-primary font-bold outline-none w-full" placeholder="..." autoFocus />}
           </span>
           {parts[1]}
