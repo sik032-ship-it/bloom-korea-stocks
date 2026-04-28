@@ -134,9 +134,18 @@ export default function OnboardingPage() {
         await supabase.from("holdings").insert(holdingsData);
       }
       const displayName = user.user_metadata?.display_name;
-      if (displayName) {
-        await supabase.from("profiles").update({ display_name: displayName }).eq("id", user.id);
-      }
+      // 일일 목표 라벨 → 숫자 (1/3/5)
+      const dailyGoalNum = dailyGoal.includes("5") ? 5 : dailyGoal.includes("3") ? 3 : 1;
+      await supabase
+        .from("profiles")
+        .update({
+          experience_level: experience || null,
+          investment_goal: investGoal || null,
+          daily_goal: dailyGoalNum,
+          onboarded_at: new Date().toISOString(),
+          ...(displayName ? { display_name: displayName } : {}),
+        })
+        .eq("id", user.id);
       navigate("/");
     } catch (err) {
       console.error(err);

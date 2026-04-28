@@ -25,6 +25,7 @@ export default function HomePage() {
   const [todayDone, setTodayDone] = useState(false);
   const [showStreakBroken, setShowStreakBroken] = useState(false);
   const [previousStreak, setPreviousStreak] = useState(0);
+  const [showFreezeUsed, setShowFreezeUsed] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -35,12 +36,41 @@ export default function HomePage() {
       ]);
 
       if (profileData) {
-        setProfile(profileData);
         const today = new Date().toISOString().split("T")[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+        const p = profileData as Profile & { streak_freezes?: number | null };
+
+        // 🛡️ Streak Freeze: 어제 레슨을 빠뜨렸지만 freeze가 남아있으면 자동 보호
+        const missedYesterday =
+          !!p.last_sentence_date &&
+          p.last_sentence_date < yesterday &&
+          p.current_streak > 0;
+        const freezesLeft = p.streak_freezes ?? 0;
+
+        if (missedYesterday && freezesLeft > 0) {
+          // freeze 1개 차감 + last_sentence_date를 어제로 끌어올려 연속 유지
+          const { data: updated } = await supabase
+            .from("profiles")
+            .update({
+              streak_freezes: freezesLeft - 1,
+              last_sentence_date: yesterday,
+            })
+            .eq("id", user.id)
+            .select()
+            .single();
+          if (updated) {
+            setProfile(updated);
+            setTodayDone(updated.last_sentence_date === today);
+            setShowFreezeUsed(true);
+            setLoading(false);
+            return;
+          }
+        }
+
+        setProfile(profileData);
         setTodayDone(profileData.last_sentence_date === today);
 
         if (profileData.last_sentence_date && profileData.last_sentence_date !== today) {
-          const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
           if (profileData.last_sentence_date < yesterday && profileData.longest_streak > 0 && profileData.current_streak === 0) {
             setPreviousStreak(profileData.longest_streak);
             setShowStreakBroken(true);
@@ -85,6 +115,7 @@ export default function HomePage() {
     todayDone,
     lastSentenceDate: profile?.last_sentence_date || null,
     holdingNames: holdings.map(h => h.company_name_kr),
+    experienceLevel: (profile as Profile & { experience_level?: string | null })?.experience_level ?? null,
   });
 
   const streakBrokenMsg = showStreakBroken ? getStreakBrokenMessage(previousStreak) : null;
@@ -104,6 +135,28 @@ export default function HomePage() {
                 className="text-xs text-primary font-medium mt-2 hover:underline"
               >
                 알겠어요, 다시 시작! 💪
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 🛡️ Streak Freeze 사용 알림 */}
+        {showFreezeUsed && (
+          <div className="bg-primary/5 border-2 border-primary/30 rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
+            <span className="text-2xl">🛡️</span>
+            <div className="flex-1">
+              <p className="text-small text-foreground font-bold mb-1">
+                스트릭 보호권을 사용했어요!
+              </p>
+              <p className="text-xs text-muted-foreground">
+                어제 못 했지만 연속 기록은 그대로 지켜줬어요.
+                남은 보호권: <strong className="text-primary">{(profile as Profile & { streak_freezes?: number | null })?.streak_freezes ?? 0}개</strong>
+              </p>
+              <button
+                onClick={() => setShowFreezeUsed(false)}
+                className="text-xs text-primary font-medium mt-2 hover:underline"
+              >
+                고마워요! 오늘은 꼭 할게요 💪
               </button>
             </div>
           </div>
@@ -176,24 +229,6 @@ export default function HomePage() {
 
         {/* Time Machine — daily companion */}
         <TimeMachinePreview holdingsTickers={holdings.map((h) => h.ticker)} />
-
-        {/* Quick Actions — 2 buttons */}
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => navigate("/crisis")}
-            className="py-4 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5 flex flex-col items-center gap-1"
-          >
-            <span className="text-lg">🛡️</span>
-            위기 훈련
-          </button>
-          <button
-            onClick={() => navigate("/archive")}
-            className="py-4 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5 flex flex-col items-center gap-1"
-          >
-            <span className="text-lg">📖</span>
-            기록 보관소
-          </button>
-        </div>
       </div>
     </Layout>
   );

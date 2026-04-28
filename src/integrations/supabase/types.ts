@@ -99,10 +99,15 @@ export type Database = {
           created_at: string
           current_level: number
           current_streak: number
+          daily_goal: number
           display_name: string | null
+          experience_level: string | null
           id: string
+          investment_goal: string | null
           last_sentence_date: string | null
           longest_streak: number
+          onboarded_at: string | null
+          streak_freezes: number
           total_sentences: number
           updated_at: string
         }
@@ -113,10 +118,15 @@ export type Database = {
           created_at?: string
           current_level?: number
           current_streak?: number
+          daily_goal?: number
           display_name?: string | null
+          experience_level?: string | null
           id: string
+          investment_goal?: string | null
           last_sentence_date?: string | null
           longest_streak?: number
+          onboarded_at?: string | null
+          streak_freezes?: number
           total_sentences?: number
           updated_at?: string
         }
@@ -127,10 +137,15 @@ export type Database = {
           created_at?: string
           current_level?: number
           current_streak?: number
+          daily_goal?: number
           display_name?: string | null
+          experience_level?: string | null
           id?: string
+          investment_goal?: string | null
           last_sentence_date?: string | null
           longest_streak?: number
+          onboarded_at?: string | null
+          streak_freezes?: number
           total_sentences?: number
           updated_at?: string
         }
