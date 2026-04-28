@@ -248,9 +248,7 @@ export default function DailyLessonPage() {
       if (q.format === "ox") correct = userAnswer === q.answer;
       else if (q.format === "multiple_choice") correct = userAnswer === q.correctIndex;
       else if (q.format === "fill_blank") {
-        const ni = String(userAnswer).trim().toLowerCase();
-        const na = q.answer.toLowerCase();
-        correct = ni === na || (q.hints?.map(h => h.toLowerCase()) || []).includes(ni);
+        correct = isAnswerCorrect(String(userAnswer), q.answer, q.hints);
       }
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
