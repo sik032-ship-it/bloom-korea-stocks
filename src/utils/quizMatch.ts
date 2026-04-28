@@ -10,10 +10,10 @@ export function normalizeAnswer(s: string): string {
   let v = s.trim().toLowerCase();
   // 모든 공백 + 일반 구두점 제거
   v = v.replace(/[\s.,!?'"`~()\[\]{}\-_/\\·•・]/g, "");
-  // 끝 조사 1개 제거 (가장 긴 것 우선)
+  // 끝 조사 1개 제거 (가장 긴 것 우선). 남는 어간이 1자 이상이면 잘라냄.
   const sorted = [...PARTICLES].sort((a, b) => b.length - a.length);
   for (const p of sorted) {
-    if (v.length > p.length + 1 && v.endsWith(p)) {
+    if (v.endsWith(p) && v.length - p.length >= 1) {
       v = v.slice(0, -p.length);
       break;
     }
