@@ -85,6 +85,7 @@ export default function HomePage() {
     todayDone,
     lastSentenceDate: profile?.last_sentence_date || null,
     holdingNames: holdings.map(h => h.company_name_kr),
+    experienceLevel: (profile as Profile & { experience_level?: string | null })?.experience_level ?? null,
   });
 
   const streakBrokenMsg = showStreakBroken ? getStreakBrokenMessage(previousStreak) : null;
@@ -176,24 +177,6 @@ export default function HomePage() {
 
         {/* Time Machine — daily companion */}
         <TimeMachinePreview holdingsTickers={holdings.map((h) => h.ticker)} />
-
-        {/* Quick Actions — 2 buttons */}
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => navigate("/crisis")}
-            className="py-4 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5 flex flex-col items-center gap-1"
-          >
-            <span className="text-lg">🛡️</span>
-            위기 훈련
-          </button>
-          <button
-            onClick={() => navigate("/archive")}
-            className="py-4 rounded-xl border-2 border-border text-foreground font-medium text-small hover:bg-accent transition-all press-effect hover:-translate-y-0.5 flex flex-col items-center gap-1"
-          >
-            <span className="text-lg">📖</span>
-            기록 보관소
-          </button>
-        </div>
       </div>
     </Layout>
   );
