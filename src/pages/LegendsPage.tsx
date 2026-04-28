@@ -116,7 +116,7 @@ export default function LegendsPage() {
             <p className="text-[10px] text-muted-foreground mt-3 leading-relaxed">
               ⚠️ 위 사례는 역사적 사실 기록으로, 특정 종목 매수를 권유하거나 미래 수익을 보장하지 않습니다.
               모든 투자 결정은 본인 책임입니다.
-            </div>
+            </p>
           </div>
         </div>
       )}
