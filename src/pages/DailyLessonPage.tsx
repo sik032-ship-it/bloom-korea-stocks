@@ -100,7 +100,7 @@ const FillBlank = React.forwardRef<HTMLDivElement, { sentence: string; hints?: s
   const blankWidth = `${Math.max(4, Math.min(input.length + 2, 12))}ch`;
 
   return (
-    <div className="flex-1 flex flex-col animate-slide-up min-w-0">
+    <div ref={ref} className="flex-1 flex flex-col animate-slide-up min-w-0">
       <h2 className="text-title font-bold text-foreground text-center mt-4 mb-6 px-2 break-keep">빈칸에 들어갈 단어를 입력하세요</h2>
       <div className="bg-card border-2 border-border rounded-2xl p-4 sm:p-5 mx-2 mb-6 overflow-hidden">
         <p className="text-base sm:text-body text-foreground leading-loose text-center break-keep [overflow-wrap:anywhere]">
@@ -136,7 +136,7 @@ const FillBlank = React.forwardRef<HTMLDivElement, { sentence: string; hints?: s
       )}
     </div>
   );
-}
+});
 
 // ===== Feedback Banner with soul =====
 function FeedbackBanner({ correct, explanation, streakCount, insight, onContinue }: { correct: boolean; explanation: string; streakCount: number; insight?: string | null; onContinue: () => void }) {
