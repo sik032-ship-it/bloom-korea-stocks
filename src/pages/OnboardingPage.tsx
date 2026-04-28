@@ -136,14 +136,16 @@ export default function OnboardingPage() {
       const displayName = user.user_metadata?.display_name;
       // 일일 목표 라벨 → 숫자 (1/3/5)
       const dailyGoalNum = dailyGoal.includes("5") ? 5 : dailyGoal.includes("3") ? 3 : 1;
-      const profileUpdate: Record<string, unknown> = {
-        experience_level: experience || null,
-        investment_goal: investGoal || null,
-        daily_goal: dailyGoalNum,
-        onboarded_at: new Date().toISOString(),
-      };
-      if (displayName) profileUpdate.display_name = displayName;
-      await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
+      await supabase
+        .from("profiles")
+        .update({
+          experience_level: experience || null,
+          investment_goal: investGoal || null,
+          daily_goal: dailyGoalNum,
+          onboarded_at: new Date().toISOString(),
+          ...(displayName ? { display_name: displayName } : {}),
+        })
+        .eq("id", user.id);
       navigate("/");
     } catch (err) {
       console.error(err);

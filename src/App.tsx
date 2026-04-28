@@ -20,7 +20,7 @@ const TrashPage = lazy(() => import("./pages/TrashPage"));
 const ArchivePage = lazy(() => import("./pages/ArchivePage"));
 const CrisisModePage = lazy(() => import("./pages/CrisisModePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
-const LegendsPage = lazy(() => import("./pages/LegendsPage"));
+
 const TimeMachinePage = lazy(() => import("./pages/TimeMachinePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
