@@ -299,6 +299,9 @@ export const FutureValueSimulator: React.FC<FutureValueSimulatorProps> = ({ tick
             <span className="text-primary font-bold ml-2">×{legendCase.multiplier < 10 ? legendCase.multiplier.toFixed(1) : Math.round(legendCase.multiplier)}배</span>
           </p>
           <p className="text-xs text-foreground mt-2 italic">"{legendCase.lesson}"</p>
+          {legendCase.source && (
+            <p className="text-[10px] text-muted-foreground mt-1.5">출처: {legendCase.source}</p>
+          )}
         </div>
 
         {/* 격언 */}
