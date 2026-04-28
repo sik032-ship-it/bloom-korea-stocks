@@ -57,19 +57,28 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-bold mb-2">제6조 (계정 해지)</h2>
           <p className="text-small text-muted-foreground leading-relaxed">
-            이용자는 언제든지 설정 페이지에서 계정을 삭제할 수 있어요. 해지 시 작성한 모든 데이터는 즉시 삭제됩니다.
+            이용자는 언제든지 설정 페이지에서 계정을 삭제할 수 있어요. 해지 시 작성한 데이터는 지체 없이 파기되며, 관련 법령에 따라 보관이 필요한 정보(결제·접속 기록 등)는 해당 법정 기간 동안 분리 보관 후 파기됩니다.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-bold mb-2">제7조 (약관의 변경)</h2>
           <p className="text-small text-muted-foreground leading-relaxed">
-            서비스는 필요 시 약관을 변경할 수 있으며, 변경 시 앱 내 공지를 통해 7일 전 알려드립니다.
+            서비스는 필요 시 약관을 변경할 수 있으며, 변경 시 앱 내 공지를 통해 7일 전 알려드립니다. 이용자에게 불리한 변경의 경우 30일 전 공지합니다.
           </p>
         </section>
 
+        <section>
+          <h2 className="text-lg font-bold mb-2">제8조 (운영자 정보 및 문의)</h2>
+          <ul className="text-small text-muted-foreground leading-relaxed list-disc pl-5 space-y-1">
+            <li><strong className="text-foreground">서비스명:</strong> PPURI (뿌리)</li>
+            <li><strong className="text-foreground">운영 형태:</strong> 개인 개발자 운영</li>
+            <li><strong className="text-foreground">문의 이메일:</strong> support@ppuri.app</li>
+          </ul>
+        </section>
+
         <p className="text-xs text-muted-foreground pt-4 border-t border-border">
-          시행일: 2026년 4월 20일
+          시행일: 2026년 4월 28일 · 문의: support@ppuri.app
         </p>
       </main>
     </div>
