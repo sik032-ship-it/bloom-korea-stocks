@@ -35,12 +35,40 @@ export default function HomePage() {
       ]);
 
       if (profileData) {
-        setProfile(profileData);
         const today = new Date().toISOString().split("T")[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+        const p = profileData as Profile & { streak_freezes?: number | null };
+
+        // 🛡️ Streak Freeze: 어제 레슨을 빠뜨렸지만 freeze가 남아있으면 자동 보호
+        const missedYesterday =
+          !!p.last_sentence_date &&
+          p.last_sentence_date < yesterday &&
+          p.current_streak > 0;
+        const freezesLeft = p.streak_freezes ?? 0;
+
+        if (missedYesterday && freezesLeft > 0) {
+          // freeze 1개 차감 + last_sentence_date를 어제로 끌어올려 연속 유지
+          const { data: updated } = await supabase
+            .from("profiles")
+            .update({
+              streak_freezes: freezesLeft - 1,
+              last_sentence_date: yesterday,
+            })
+            .eq("id", user.id)
+            .select()
+            .single();
+          if (updated) {
+            setProfile(updated);
+            setTodayDone(updated.last_sentence_date === today);
+            setLoading(false);
+            return;
+          }
+        }
+
+        setProfile(profileData);
         setTodayDone(profileData.last_sentence_date === today);
 
         if (profileData.last_sentence_date && profileData.last_sentence_date !== today) {
-          const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
           if (profileData.last_sentence_date < yesterday && profileData.longest_streak > 0 && profileData.current_streak === 0) {
             setPreviousStreak(profileData.longest_streak);
             setShowStreakBroken(true);
