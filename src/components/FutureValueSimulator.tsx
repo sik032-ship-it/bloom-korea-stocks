@@ -145,7 +145,11 @@ export const FutureValueSimulator: React.FC<FutureValueSimulatorProps> = ({ tick
           <p className="text-xs text-foreground mt-2 italic">"{legendCase.lesson}"</p>
         </div>
 
-        <PpuriButton fullWidth variant="ghost" className="mt-4" onClick={onClose}>
+        <p className="text-[10px] text-muted-foreground text-center mt-4 leading-relaxed">
+          ⚠️ 본 시뮬레이션은 S&amp;P500 과거 평균 수익률을 단순 적용한 교육용 참고치이며,
+          미래 수익을 보장하거나 투자 자문을 제공하지 않습니다. 모든 투자 결정은 본인 책임입니다.
+        </p>
+        <PpuriButton fullWidth variant="ghost" className="mt-3" onClick={onClose}>
           닫기
         </PpuriButton>
       </div>
