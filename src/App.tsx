@@ -21,6 +21,7 @@ const ArchivePage = lazy(() => import("./pages/ArchivePage"));
 const CrisisModePage = lazy(() => import("./pages/CrisisModePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const LegendsPage = lazy(() => import("./pages/LegendsPage"));
+const TimeMachinePage = lazy(() => import("./pages/TimeMachinePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -70,6 +71,7 @@ const App = () => (
                 <Route path="/crisis" element={<ProtectedRoute><CrisisModePage /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                 <Route path="/legends" element={<ProtectedRoute><LegendsPage /></ProtectedRoute>} />
+                <Route path="/timemachine" element={<ProtectedRoute><TimeMachinePage /></ProtectedRoute>} />
                 <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
