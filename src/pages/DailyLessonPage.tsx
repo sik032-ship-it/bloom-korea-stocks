@@ -90,7 +90,7 @@ function MultipleChoice({ question, options, onAnswer }: { question: string; opt
 }
 
 // ===== Fill in the Blank Component =====
-function FillBlank({ sentence, hints, onAnswer }: { sentence: string; hints?: string[]; onAnswer: (value: string) => void }) {
+const FillBlank = React.forwardRef<HTMLDivElement, { sentence: string; hints?: string[]; onAnswer: (value: string) => void }>(function FillBlank({ sentence, hints, onAnswer }, ref) {
   const [input, setInput] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const parts = sentence.split("___");
