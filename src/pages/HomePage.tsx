@@ -8,6 +8,7 @@ import { Mascot } from "@/components/Mascot";
 import { LevelBadge } from "@/components/LevelBadge";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
+import { TimeMachinePreview } from "@/components/TimeMachinePreview";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
@@ -172,6 +173,9 @@ export default function HomePage() {
             </div>
           </div>
         </PpuriCard>
+
+        {/* Time Machine — daily companion */}
+        <TimeMachinePreview holdingsTickers={holdings.map((h) => h.ticker)} />
 
         {/* Quick Actions — 2 buttons */}
         <div className="grid grid-cols-2 gap-3">
