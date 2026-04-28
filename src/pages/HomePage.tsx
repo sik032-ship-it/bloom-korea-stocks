@@ -140,6 +140,28 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* 🛡️ Streak Freeze 사용 알림 */}
+        {showFreezeUsed && (
+          <div className="bg-primary/5 border-2 border-primary/30 rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
+            <span className="text-2xl">🛡️</span>
+            <div className="flex-1">
+              <p className="text-small text-foreground font-bold mb-1">
+                스트릭 보호권을 사용했어요!
+              </p>
+              <p className="text-xs text-muted-foreground">
+                어제 못 했지만 연속 기록은 그대로 지켜줬어요.
+                남은 보호권: <strong className="text-primary">{(profile as Profile & { streak_freezes?: number | null })?.streak_freezes ?? 0}개</strong>
+              </p>
+              <button
+                onClick={() => setShowFreezeUsed(false)}
+                className="text-xs text-primary font-medium mt-2 hover:underline"
+              >
+                고마워요! 오늘은 꼭 할게요 💪
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Mascot Greeting */}
         <div className="flex items-start gap-3 pt-2">
           <Mascot level={userLevel} size="lg" showLevelTag mood={greeting.mood} />
