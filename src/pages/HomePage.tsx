@@ -25,6 +25,7 @@ export default function HomePage() {
   const [todayDone, setTodayDone] = useState(false);
   const [showStreakBroken, setShowStreakBroken] = useState(false);
   const [previousStreak, setPreviousStreak] = useState(0);
+  const [showFreezeUsed, setShowFreezeUsed] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -60,6 +61,7 @@ export default function HomePage() {
           if (updated) {
             setProfile(updated);
             setTodayDone(updated.last_sentence_date === today);
+            setShowFreezeUsed(true);
             setLoading(false);
             return;
           }
