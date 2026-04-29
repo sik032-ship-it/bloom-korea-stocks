@@ -28,8 +28,13 @@ import type { QuestionType } from "@/styles/colors";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
-const QUIZ_COUNT = 3;
-const TOTAL_STEPS = QUIZ_COUNT + 1;
+const DEFAULT_QUIZ_COUNT = 3;
+// daily_goal(문장 목표 1/3/5)에 맞춰 퀴즈 수도 동적으로 조정
+function quizCountForGoal(goal: number): number {
+  if (goal >= 5) return 5;
+  if (goal >= 3) return 3;
+  return 2; // 가벼운 시작 — 부담↓, 완주율↑
+}
 
 function LessonProgressBar({ current, total, streak, onClose }: { current: number; total: number; streak: number; onClose: () => void }) {
   const percent = (current / total) * 100;
@@ -203,13 +208,15 @@ export default function DailyLessonPage() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [userLevel, setUserLevel] = useState(1);
   const [totalSentences, setTotalSentences] = useState(0);
+  const [quizCount, setQuizCount] = useState(DEFAULT_QUIZ_COUNT);
+  const [experienceLevel, setExperienceLevel] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     const load = async () => {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("last_sentence_date, total_sentences, current_level, current_streak")
+        .select("last_sentence_date, total_sentences, current_level, current_streak, daily_goal, experience_level")
         .eq("id", user.id)
         .single();
 
@@ -217,10 +224,15 @@ export default function DailyLessonPage() {
       setAlreadyDone(profile?.last_sentence_date === today);
 
       const lvl = profile?.current_level || 1;
+      const exp = profile?.experience_level ?? null;
+      const goal = profile?.daily_goal ?? 1;
+      const qc = quizCountForGoal(goal);
       setUserLevel(lvl);
+      setExperienceLevel(exp);
+      setQuizCount(qc);
       setCurrentStreak(profile?.current_streak || 0);
       setTotalSentences(profile?.total_sentences || 0);
-      const baseQuiz = getDailyQuizSet(QUIZ_COUNT, lvl);
+      const baseQuiz = getDailyQuizSet(qc, lvl, exp);
       // Will personalize after holdings load
       setQuizQuestions(baseQuiz);
 
@@ -253,7 +265,7 @@ export default function DailyLessonPage() {
     }
   }, [inSentenceStep, holdings.length, completed]);
 
-  const currentStep = inSentenceStep ? QUIZ_COUNT + 1 : currentQuizIndex + 1;
+  const currentStep = inSentenceStep ? quizCount + 1 : currentQuizIndex + 1;
 
   const handleQuizAnswer = useCallback(
     (userAnswer: boolean | number | string) => {
@@ -283,7 +295,7 @@ export default function DailyLessonPage() {
 
   const handleContinue = () => {
     setShowFeedback(false);
-    if (currentQuizIndex + 1 < QUIZ_COUNT) {
+    if (currentQuizIndex + 1 < quizCount) {
       setCurrentQuizIndex(currentQuizIndex + 1);
     } else {
       if (holdings.length > 0) setInSentenceStep(true);
@@ -356,7 +368,7 @@ export default function DailyLessonPage() {
 
   // Completion screen with insight
   if (completed) {
-    const accuracy = QUIZ_COUNT > 0 ? Math.round((correctCount / QUIZ_COUNT) * 100) : 0;
+    const accuracy = quizCount > 0 ? Math.round((correctCount / quizCount) * 100) : 0;
     const isRepeat = alreadyDone;
     const xpEarned = isRepeat
       ? Math.round((correctCount * 10 + (answer.length >= 10 ? 15 : 0)) * 0.3)
@@ -413,7 +425,7 @@ export default function DailyLessonPage() {
             <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
               <div className="h-full bg-primary rounded-full transition-all duration-1000" style={{ width: `${accuracy}%` }} />
             </div>
-            <span className="text-xs font-bold text-foreground">{correctCount}/{QUIZ_COUNT}</span>
+            <span className="text-xs font-bold text-foreground">{correctCount}/{quizCount}</span>
           </div>
           <p className="text-xs text-muted-foreground">
             {accuracy === 100 ? "완벽해요! 투자 지식이 탄탄하네요 💪"
@@ -444,7 +456,7 @@ export default function DailyLessonPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
-      <LessonProgressBar current={currentStep} total={TOTAL_STEPS} streak={quizStreak} onClose={() => navigate("/")} />
+      <LessonProgressBar current={currentStep} total={(quizCount + 1)} streak={quizStreak} onClose={() => navigate("/")} />
 
       <div className="flex-1 flex flex-col px-4 max-w-lg mx-auto w-full relative">
         {/* Motivation message before quiz starts */}

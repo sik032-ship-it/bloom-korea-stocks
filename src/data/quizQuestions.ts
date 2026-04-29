@@ -191,16 +191,40 @@ export const allQuestions: QuizQuestion[] = [
   ...philosophyQuestions,
 ];
 
-// Map user level (1-6) to difficulty
-function getDifficultyForLevel(level: number): Difficulty[] {
-  if (level <= 2) return ["beginner"];
-  if (level <= 4) return ["beginner", "intermediate"];
-  return ["intermediate", "advanced"];
+export type ExperienceLevel = "완전 초보" | "조금 해봤어요" | "1년 이상 투자 중" | "베테랑 투자자";
+
+// 경험 수준을 레벨 보정값으로 변환 (온보딩 답변 → 가상 레벨 부스트)
+export function getExperienceBoost(experience?: string | null): number {
+  switch (experience) {
+    case "베테랑 투자자":
+      return 4;
+    case "1년 이상 투자 중":
+      return 2;
+    case "조금 해봤어요":
+      return 1;
+    case "완전 초보":
+    default:
+      return 0;
+  }
+}
+
+// Map user level (1-6) to difficulty (experience-aware)
+function getDifficultyForLevel(level: number, experience?: string | null): Difficulty[] {
+  const effectiveLevel = level + getExperienceBoost(experience);
+  // 베테랑은 처음부터 advanced까지 노출, 초보는 천천히 확장
+  if (effectiveLevel <= 2) return ["beginner"];
+  if (effectiveLevel <= 4) return ["beginner", "intermediate"];
+  if (effectiveLevel <= 6) return ["intermediate", "advanced"];
+  return ["advanced", "intermediate"]; // 베테랑+레벨업 시 advanced 비중↑
 }
 
 // Get quiz set based on user level — ensures category diversity
-export function getDailyQuizSet(count: number, userLevel: number = 1): QuizQuestion[] {
-  const difficulties = getDifficultyForLevel(userLevel);
+export function getDailyQuizSet(
+  count: number,
+  userLevel: number = 1,
+  experience?: string | null,
+): QuizQuestion[] {
+  const difficulties = getDifficultyForLevel(userLevel, experience);
   const categories: QuizCategory[] = ["risk", "psychology", "crisis", "judgment"];
 
   const result: QuizQuestion[] = [];
