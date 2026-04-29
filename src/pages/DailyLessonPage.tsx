@@ -28,7 +28,7 @@ import type { QuestionType } from "@/styles/colors";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
-const DEFAULT_quizCount = 3;
+const DEFAULT_QUIZ_COUNT = 3;
 // daily_goal(문장 목표 1/3/5)에 맞춰 퀴즈 수도 동적으로 조정
 function quizCountForGoal(goal: number): number {
   if (goal >= 5) return 5;
@@ -208,7 +208,7 @@ export default function DailyLessonPage() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [userLevel, setUserLevel] = useState(1);
   const [totalSentences, setTotalSentences] = useState(0);
-  const [quizCount, setQuizCount] = useState(DEFAULT_quizCount);
+  const [quizCount, setQuizCount] = useState(DEFAULT_QUIZ_COUNT);
   const [experienceLevel, setExperienceLevel] = useState<string | null>(null);
 
   useEffect(() => {
