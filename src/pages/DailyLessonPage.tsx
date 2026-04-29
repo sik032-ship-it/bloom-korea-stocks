@@ -28,8 +28,13 @@ import type { QuestionType } from "@/styles/colors";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
-const QUIZ_COUNT = 3;
-const TOTAL_STEPS = QUIZ_COUNT + 1;
+const DEFAULT_QUIZ_COUNT = 3;
+// daily_goal(문장 목표 1/3/5)에 맞춰 퀴즈 수도 동적으로 조정
+function quizCountForGoal(goal: number): number {
+  if (goal >= 5) return 5;
+  if (goal >= 3) return 3;
+  return 2; // 가벼운 시작 — 부담↓, 완주율↑
+}
 
 function LessonProgressBar({ current, total, streak, onClose }: { current: number; total: number; streak: number; onClose: () => void }) {
   const percent = (current / total) * 100;
