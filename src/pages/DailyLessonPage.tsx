@@ -208,13 +208,15 @@ export default function DailyLessonPage() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [userLevel, setUserLevel] = useState(1);
   const [totalSentences, setTotalSentences] = useState(0);
+  const [quizCount, setQuizCount] = useState(DEFAULT_QUIZ_COUNT);
+  const [experienceLevel, setExperienceLevel] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     const load = async () => {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("last_sentence_date, total_sentences, current_level, current_streak")
+        .select("last_sentence_date, total_sentences, current_level, current_streak, daily_goal, experience_level")
         .eq("id", user.id)
         .single();
 
@@ -222,10 +224,15 @@ export default function DailyLessonPage() {
       setAlreadyDone(profile?.last_sentence_date === today);
 
       const lvl = profile?.current_level || 1;
+      const exp = profile?.experience_level ?? null;
+      const goal = profile?.daily_goal ?? 1;
+      const qc = quizCountForGoal(goal);
       setUserLevel(lvl);
+      setExperienceLevel(exp);
+      setQuizCount(qc);
       setCurrentStreak(profile?.current_streak || 0);
       setTotalSentences(profile?.total_sentences || 0);
-      const baseQuiz = getDailyQuizSet(QUIZ_COUNT, lvl);
+      const baseQuiz = getDailyQuizSet(qc, lvl, exp);
       // Will personalize after holdings load
       setQuizQuestions(baseQuiz);
 
