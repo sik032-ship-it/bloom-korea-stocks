@@ -457,8 +457,26 @@ export default function DailyLessonPage() {
           <BehavioralNudge userId={user.id} holdings={holdings} triggerAfterLesson={true} />
         )}
 
-        <button onClick={() => navigate("/")} className="w-full max-w-sm py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all">
-          홈으로 돌아가기
+        {/* PX: 다음 행동을 자연스럽게 — 내일에 대한 기대 + 즉시 실행 가능한 CTA */}
+        <div className="w-full max-w-sm bg-card border border-border rounded-2xl p-4 mb-3 flex items-center gap-3">
+          <span className="text-2xl">🌙</span>
+          <div className="flex-1">
+            <p className="text-small font-semibold text-foreground">내일도 같은 시간에 만나요</p>
+            <p className="text-xs text-muted-foreground">하루 3분, 도토리가 모여 숲이 됩니다</p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => navigate("/")}
+          className="w-full max-w-sm py-4 rounded-2xl bg-primary text-primary-foreground font-bold shadow-button hover:opacity-95 transition-all press-effect animate-cta-breathe"
+        >
+          🏠 홈에서 성장 보기
+        </button>
+        <button
+          onClick={() => navigate("/holdings")}
+          className="w-full max-w-sm py-3 mt-2 rounded-xl text-muted-foreground font-medium text-small hover:text-foreground transition-colors"
+        >
+          내 종목 둘러보기 →
         </button>
       </div>
     );
