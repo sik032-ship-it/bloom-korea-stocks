@@ -9,6 +9,7 @@ import { Mascot } from "@/components/Mascot";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { QuestionBadge } from "@/components/QuestionBadge";
 import { LevelUpModal } from "@/components/LevelUpModal";
+import { RewardPeakSequence } from "@/components/RewardPeakSequence";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
 import { getDailyQuizSet, personalizeQuiz, type QuizQuestion } from "@/data/quizQuestions";
 import {
@@ -203,6 +204,7 @@ export default function DailyLessonPage() {
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [oldTotal, setOldTotal] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showRewardPeak, setShowRewardPeak] = useState(false);
   const [alreadyDone, setAlreadyDone] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentStreak, setCurrentStreak] = useState(0);
