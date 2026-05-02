@@ -1,8 +1,14 @@
 // 사고방식 훈련형 투자 퀴즈
-// 카테고리: risk (위험 이해), psychology (심리 조절), crisis (위기 대처), judgment (판단력)
+// 카테고리: risk, psychology, crisis, judgment, us_market(미국주식·매크로), legend_wisdom(레전드 어록)
 
 export type Difficulty = "beginner" | "intermediate" | "advanced";
-export type QuizCategory = "risk" | "psychology" | "crisis" | "judgment";
+export type QuizCategory =
+  | "risk"
+  | "psychology"
+  | "crisis"
+  | "judgment"
+  | "us_market"
+  | "legend_wisdom";
 
 export interface OXQuestion {
   format: "ox";
@@ -44,6 +50,8 @@ export const categoryLabels: Record<QuizCategory, { name: string; icon: string; 
   psychology: { name: "심리 조절", icon: "brain", color: "#8B5CF6" },
   crisis: { name: "위기 대처", icon: "shield", color: "#F59E0B" },
   judgment: { name: "판단력", icon: "scale", color: "#3B82F6" },
+  us_market: { name: "미국주식·매크로", icon: "trending-up", color: "#10B981" },
+  legend_wisdom: { name: "레전드의 지혜", icon: "sparkles", color: "#D97706" },
 };
 
 // ===== 위험 이해 (Risk) =====
