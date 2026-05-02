@@ -10,6 +10,7 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { QuestionBadge } from "@/components/QuestionBadge";
 import { LevelUpModal } from "@/components/LevelUpModal";
 import { RewardPeakSequence } from "@/components/RewardPeakSequence";
+import { WarmupPrompt, getTodayWarmup, type WarmupQuestion } from "@/components/WarmupPrompt";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
 import { getDailyQuizSet, personalizeQuiz, type QuizQuestion } from "@/data/quizQuestions";
 import {
@@ -23,6 +24,11 @@ import {
 import { categoryLabels } from "@/data/quizQuestions";
 import { isAnswerCorrect } from "@/utils/quizMatch";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import {
+  recordQuizResult,
+  getDifficultyBoost,
+  getDifficultyLabel,
+} from "@/utils/difficultyAdaptation";
 import Confetti from "react-confetti";
 import type { Database } from "@/integrations/supabase/types";
 import type { QuestionType } from "@/styles/colors";
@@ -214,6 +220,12 @@ export default function DailyLessonPage() {
   const [quizCount, setQuizCount] = useState(DEFAULT_QUIZ_COUNT);
   const [experienceLevel, setExperienceLevel] = useState<string | null>(null);
 
+  // PX Layer 2 — 3단 루틴
+  // phase: "warmup" → "quiz" → "sentence"
+  const [phase, setPhase] = useState<"warmup" | "quiz" | "sentence">("warmup");
+  const [warmupQuestion] = useState<WarmupQuestion>(() => getTodayWarmup());
+  const [difficultyBoost, setDifficultyBoost] = useState(0);
+
   useEffect(() => {
     if (!user) return;
     const load = async () => {
@@ -230,12 +242,17 @@ export default function DailyLessonPage() {
       const exp = profile?.experience_level ?? null;
       const goal = profile?.daily_goal ?? 1;
       const qc = quizCountForGoal(goal);
+      const streak = profile?.current_streak || 0;
+      // 동적 난이도: 정답률 + 스트릭 → boost
+      const boost = getDifficultyBoost(streak);
+      setDifficultyBoost(boost);
       setUserLevel(lvl);
       setExperienceLevel(exp);
       setQuizCount(qc);
-      setCurrentStreak(profile?.current_streak || 0);
+      setCurrentStreak(streak);
       setTotalSentences(profile?.total_sentences || 0);
-      const baseQuiz = getDailyQuizSet(qc, lvl, exp);
+      // 효과적 레벨 = 실제 레벨 + boost (베테랑 보정은 getDailyQuizSet 내부에서 처리)
+      const baseQuiz = getDailyQuizSet(qc, lvl + boost, exp);
       // Will personalize after holdings load
       setQuizQuestions(baseQuiz);
 
@@ -268,7 +285,18 @@ export default function DailyLessonPage() {
     }
   }, [inSentenceStep, holdings.length, completed]);
 
-  const currentStep = inSentenceStep ? quizCount + 1 : currentQuizIndex + 1;
+  // 진행도: 워밍업(1) + 본질퀴즈(quizCount) + 원칙재확인(1)
+  const totalSteps = 1 + quizCount + 1;
+  const currentStep =
+    phase === "warmup" ? 1
+      : phase === "sentence" ? 1 + quizCount + 1
+      : 1 + currentQuizIndex + 1;
+
+  const handleWarmupComplete = useCallback((correct: boolean) => {
+    // 워밍업 결과도 적응형 난이도에 반영
+    recordQuizResult(correct);
+    setPhase("quiz");
+  }, []);
 
   const handleQuizAnswer = useCallback(
     (userAnswer: boolean | number | string) => {
@@ -280,6 +308,8 @@ export default function DailyLessonPage() {
       else if (q.format === "fill_blank") {
         correct = isAnswerCorrect(String(userAnswer), q.answer, q.hints);
       }
+      // 동적 난이도 학습 — 다음 세션에 반영
+      recordQuizResult(correct);
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
       setCurrentInsight((q as any).insight || null);
@@ -301,8 +331,10 @@ export default function DailyLessonPage() {
     if (currentQuizIndex + 1 < quizCount) {
       setCurrentQuizIndex(currentQuizIndex + 1);
     } else {
-      if (holdings.length > 0) setInSentenceStep(true);
-      else handleComplete();
+      if (holdings.length > 0) {
+        setInSentenceStep(true);
+        setPhase("sentence");
+      } else handleComplete();
     }
   };
 
@@ -484,14 +516,34 @@ export default function DailyLessonPage() {
   }
 
 
+  // 난이도 라벨 (3단 루틴 상단에 노출)
+  const difficultyMeta = getDifficultyLabel(difficultyBoost);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
-      <LessonProgressBar current={currentStep} total={(quizCount + 1)} streak={quizStreak} onClose={() => navigate("/")} />
+      <LessonProgressBar current={currentStep} total={totalSteps} streak={quizStreak} onClose={() => navigate("/")} />
+
+      {/* Phase 0 — 워밍업 (30초): 본질 퀴즈 전 가벼운 위기 시나리오로 멘탈 시동 */}
+      {phase === "warmup" && (
+        <div className="flex-1 flex flex-col">
+          <div className="px-4 max-w-lg mx-auto w-full">
+            <div className="flex items-center justify-center gap-2 mt-1">
+              <span
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: difficultyMeta.color + "20", color: difficultyMeta.color }}
+              >
+                {difficultyMeta.label}
+              </span>
+            </div>
+          </div>
+          <WarmupPrompt question={warmupQuestion} onComplete={handleWarmupComplete} />
+        </div>
+      )}
 
       <div className="flex-1 flex flex-col px-4 max-w-lg mx-auto w-full relative">
         {/* Motivation message before quiz starts */}
-        {!inSentenceStep && currentQuizIndex === 0 && !showFeedback && (
+        {phase === "quiz" && !inSentenceStep && currentQuizIndex === 0 && !showFeedback && (
           <div className="bg-accent/30 rounded-xl px-4 py-3 mb-2 flex items-center gap-2 animate-fade-in">
             <span className="text-sm">💡</span>
             <p className="text-xs text-muted-foreground">{getLessonMotivation(totalSentences, currentStreak)}</p>
@@ -499,8 +551,16 @@ export default function DailyLessonPage() {
         )}
 
         {/* Quiz Phase */}
-        {!inSentenceStep && quizQuestions[currentQuizIndex] && (
+        {phase === "quiz" && !inSentenceStep && quizQuestions[currentQuizIndex] && (
           <>
+            {/* Phase 1 라벨 — 본질 퀴즈 */}
+            {!showFeedback && currentQuizIndex === 0 && (
+              <div className="flex items-center justify-center gap-2 mt-1 mb-2 animate-fade-in">
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#3B82F6]/15 text-[#3B82F6]">
+                  📚 본질 퀴즈 ({quizCount}문제)
+                </span>
+              </div>
+            )}
             {/* Category badge */}
             {!showFeedback && (() => {
               const q = quizQuestions[currentQuizIndex];
@@ -526,9 +586,15 @@ export default function DailyLessonPage() {
           </>
         )}
 
-        {/* Sentence Writing Phase */}
+        {/* Phase 2 — 본인 원칙 재확인 (Sentence Writing) */}
         {inSentenceStep && selectedHolding && (
           <div className="flex-1 flex flex-col animate-slide-up">
+            {/* 원칙 재확인 라벨 — 3단 루틴의 마지막 단계 */}
+            <div className="flex items-center justify-center gap-2 mt-1 mb-2">
+              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-primary/15 text-primary">
+                🌱 본인 원칙 재확인
+              </span>
+            </div>
             {/* Holdings Context - real-time personalization */}
             {user && holdings.length > 0 && (
               <HoldingsContext userId={user.id} holdings={holdings} currentHolding={selectedHolding} />
