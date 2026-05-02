@@ -308,6 +308,7 @@ export default function DailyLessonPage() {
   const handleComplete = async () => {
     if (!user) return;
     if (!selectedHolding) {
+      setShowRewardPeak(true);
       setCompleted(true);
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 8000);
@@ -341,6 +342,8 @@ export default function DailyLessonPage() {
       }
     }
 
+    // PX: 감정 피크 → 결과 화면 순서로 노출
+    setShowRewardPeak(true);
     setShowConfetti(true);
     setSaving(false);
     setCompleted(true);
