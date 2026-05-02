@@ -1,4 +1,4 @@
-import { Crosshair, Brain, Shield, Scale, type LucideIcon } from "lucide-react";
+import { Crosshair, Brain, Shield, Scale, TrendingUp, Sparkles, type LucideIcon } from "lucide-react";
 import type { QuizCategory } from "@/data/quizQuestions";
 
 const iconMap: Record<QuizCategory, LucideIcon> = {
@@ -6,6 +6,8 @@ const iconMap: Record<QuizCategory, LucideIcon> = {
   psychology: Brain,
   crisis: Shield,
   judgment: Scale,
+  us_market: TrendingUp,
+  legend_wisdom: Sparkles,
 };
 
 interface CategoryIconProps {
