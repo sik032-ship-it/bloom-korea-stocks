@@ -9,6 +9,7 @@ import { LevelBadge } from "@/components/LevelBadge";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { TimeMachinePreview } from "@/components/TimeMachinePreview";
+import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
@@ -26,6 +27,7 @@ export default function HomePage() {
   const [showStreakBroken, setShowStreakBroken] = useState(false);
   const [previousStreak, setPreviousStreak] = useState(0);
   const [showFreezeUsed, setShowFreezeUsed] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     if (!user) return;
