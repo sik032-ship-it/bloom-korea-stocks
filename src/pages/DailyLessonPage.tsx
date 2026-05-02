@@ -285,7 +285,18 @@ export default function DailyLessonPage() {
     }
   }, [inSentenceStep, holdings.length, completed]);
 
-  const currentStep = inSentenceStep ? quizCount + 1 : currentQuizIndex + 1;
+  // 진행도: 워밍업(1) + 본질퀴즈(quizCount) + 원칙재확인(1)
+  const totalSteps = 1 + quizCount + 1;
+  const currentStep =
+    phase === "warmup" ? 1
+      : phase === "sentence" ? 1 + quizCount + 1
+      : 1 + currentQuizIndex + 1;
+
+  const handleWarmupComplete = useCallback((correct: boolean) => {
+    // 워밍업 결과도 적응형 난이도에 반영
+    recordQuizResult(correct);
+    setPhase("quiz");
+  }, []);
 
   const handleQuizAnswer = useCallback(
     (userAnswer: boolean | number | string) => {
@@ -297,6 +308,8 @@ export default function DailyLessonPage() {
       else if (q.format === "fill_blank") {
         correct = isAnswerCorrect(String(userAnswer), q.answer, q.hints);
       }
+      // 동적 난이도 학습 — 다음 세션에 반영
+      recordQuizResult(correct);
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
       setCurrentInsight((q as any).insight || null);
@@ -318,8 +331,10 @@ export default function DailyLessonPage() {
     if (currentQuizIndex + 1 < quizCount) {
       setCurrentQuizIndex(currentQuizIndex + 1);
     } else {
-      if (holdings.length > 0) setInSentenceStep(true);
-      else handleComplete();
+      if (holdings.length > 0) {
+        setInSentenceStep(true);
+        setPhase("sentence");
+      } else handleComplete();
     }
   };
 
