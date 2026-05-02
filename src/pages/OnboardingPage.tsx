@@ -1,10 +1,16 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { allQuestions, categoryLabels, type OXQuestion } from "@/data/quizQuestions";
+import {
+  validateOnboardingPayload,
+  retryAsync,
+  isRetryablePostgrestError,
+} from "@/utils/onboardingValidation";
 
 // 온보딩용: 초보자 친화적인 OX 문제만 풀에서 랜덤 선택
 function pickRandomPreviewQuestion(): OXQuestion {
