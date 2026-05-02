@@ -128,6 +128,23 @@
   100% { transform: scale(1); }
 }
 
+/* PX: 핵심 CTA가 살짝 호흡 — 내일도 돌아오게 만드는 기대감 */
+@keyframes cta-breathe {
+  0%, 100% { transform: translateY(0); box-shadow: 0 4px 12px rgba(88, 204, 2, 0.25); }
+  50% { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(88, 204, 2, 0.32); }
+}
+.animate-cta-breathe {
+  animation: cta-breathe 2.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-cta-breathe,
+  .animate-streak-pulse,
+  .animate-float,
+  .stagger-children > * {
+    animation: none !important;
+  }
+}
+
 .animate-bounce-in {
   animation: bounce-in 0.4s ease-out;
 }
