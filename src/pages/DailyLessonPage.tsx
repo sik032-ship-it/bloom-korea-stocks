@@ -578,9 +578,15 @@ export default function DailyLessonPage() {
           </>
         )}
 
-        {/* Sentence Writing Phase */}
+        {/* Phase 2 — 본인 원칙 재확인 (Sentence Writing) */}
         {inSentenceStep && selectedHolding && (
           <div className="flex-1 flex flex-col animate-slide-up">
+            {/* 원칙 재확인 라벨 — 3단 루틴의 마지막 단계 */}
+            <div className="flex items-center justify-center gap-2 mt-1 mb-2">
+              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-primary/15 text-primary">
+                🌱 본인 원칙 재확인
+              </span>
+            </div>
             {/* Holdings Context - real-time personalization */}
             {user && holdings.length > 0 && (
               <HoldingsContext userId={user.id} holdings={holdings} currentHolding={selectedHolding} />
