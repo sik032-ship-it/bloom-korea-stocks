@@ -553,6 +553,14 @@ export default function DailyLessonPage() {
         {/* Quiz Phase */}
         {phase === "quiz" && !inSentenceStep && quizQuestions[currentQuizIndex] && (
           <>
+            {/* Phase 1 라벨 — 본질 퀴즈 */}
+            {!showFeedback && currentQuizIndex === 0 && (
+              <div className="flex items-center justify-center gap-2 mt-1 mb-2 animate-fade-in">
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#3B82F6]/15 text-[#3B82F6]">
+                  📚 본질 퀴즈 ({quizCount}문제)
+                </span>
+              </div>
+            )}
             {/* Category badge */}
             {!showFeedback && (() => {
               const q = quizQuestions[currentQuizIndex];
