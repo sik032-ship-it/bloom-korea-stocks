@@ -1,10 +1,16 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { allQuestions, categoryLabels, type OXQuestion } from "@/data/quizQuestions";
+import {
+  validateOnboardingPayload,
+  retryAsync,
+  isRetryablePostgrestError,
+} from "@/utils/onboardingValidation";
 
 // 온보딩용: 초보자 친화적인 OX 문제만 풀에서 랜덤 선택
 function pickRandomPreviewQuestion(): OXQuestion {
@@ -122,35 +128,77 @@ export default function OnboardingPage() {
   };
 
   const handleFinish = async () => {
-    if (!user) return;
+    if (!user) {
+      toast.error("로그인 정보를 찾을 수 없어요. 다시 로그인해 주세요.");
+      return;
+    }
     setSaving(true);
     try {
+      // 1) Holdings (best-effort, retryable)
       const holdingsData = holdings.map((h) => ({
         user_id: user.id,
         ticker: h.ticker,
         company_name_kr: h.company_name_kr,
       }));
       if (holdingsData.length > 0) {
-        await supabase.from("holdings").insert(holdingsData);
+        try {
+          await retryAsync(
+            async () => {
+              const { error } = await supabase.from("holdings").insert(holdingsData);
+              if (error) throw error;
+            },
+            { retries: 2, shouldRetry: isRetryablePostgrestError }
+          );
+        } catch (err) {
+          console.error("[onboarding] holdings insert failed", err);
+          toast.warning("보유 종목 저장에 실패했어요. 나중에 다시 추가할 수 있어요.");
+        }
       }
+
+      // 2) Profile update (critical — must succeed for personalization)
       const displayName = user.user_metadata?.display_name;
-      // 일일 목표 라벨 → 숫자 (1/3/5)
       const dailyGoalNum = dailyGoal.includes("5") ? 5 : dailyGoal.includes("3") ? 3 : 1;
-      await supabase
-        .from("profiles")
-        .update({
-          experience_level: experience || null,
-          investment_goal: investGoal || null,
-          daily_goal: dailyGoalNum,
-          onboarded_at: new Date().toISOString(),
-          ...(displayName ? { display_name: displayName } : {}),
-        })
-        .eq("id", user.id);
+      const payload = {
+        experience_level: experience || null,
+        investment_goal: investGoal || null,
+        daily_goal: dailyGoalNum,
+        onboarded_at: new Date().toISOString(),
+        ...(displayName ? { display_name: displayName } : {}),
+      };
+
+      // Runtime sanity check — warns in console if labels drift from quiz mappings
+      validateOnboardingPayload({
+        experience_level: payload.experience_level,
+        investment_goal: payload.investment_goal,
+        daily_goal: payload.daily_goal,
+      });
+
+      await retryAsync(
+        async () => {
+          const { error } = await supabase
+            .from("profiles")
+            .update(payload)
+            .eq("id", user.id);
+          if (error) throw error;
+        },
+        { retries: 2, shouldRetry: isRetryablePostgrestError }
+      );
+
+      toast.success("프로필이 저장됐어요! 🌱");
       navigate("/");
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string };
+      console.error("[onboarding] profile save failed", err);
+      if (e?.code === "42501") {
+        toast.error("권한 문제로 저장하지 못했어요. 다시 로그인해 주세요.");
+      } else if (e?.message?.toLowerCase().includes("network") || e?.message?.toLowerCase().includes("fetch")) {
+        toast.error("네트워크 오류로 저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
+      } else {
+        toast.error("저장 중 문제가 발생했어요. 다시 시도해 주세요.");
+      }
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   return (
