@@ -10,6 +10,7 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { QuestionBadge } from "@/components/QuestionBadge";
 import { LevelUpModal } from "@/components/LevelUpModal";
 import { RewardPeakSequence } from "@/components/RewardPeakSequence";
+import { WarmupPrompt, getTodayWarmup, type WarmupQuestion } from "@/components/WarmupPrompt";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
 import { getDailyQuizSet, personalizeQuiz, type QuizQuestion } from "@/data/quizQuestions";
 import {
@@ -23,6 +24,11 @@ import {
 import { categoryLabels } from "@/data/quizQuestions";
 import { isAnswerCorrect } from "@/utils/quizMatch";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import {
+  recordQuizResult,
+  getDifficultyBoost,
+  getDifficultyLabel,
+} from "@/utils/difficultyAdaptation";
 import Confetti from "react-confetti";
 import type { Database } from "@/integrations/supabase/types";
 import type { QuestionType } from "@/styles/colors";
