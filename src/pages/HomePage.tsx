@@ -72,6 +72,15 @@ export default function HomePage() {
         setProfile(profileData);
         setTodayDone(profileData.last_sentence_date === today);
 
+        // PX: 첫 방문 30초 환영 — 신규 유저(문장 0, 마지막 기록 없음)에게 1회만
+        const isBrandNew =
+          (profileData.total_sentences ?? 0) === 0 &&
+          !profileData.last_sentence_date;
+        const seenWelcomeKey = `ppuri:welcome-seen:${user.id}`;
+        if (isBrandNew && !localStorage.getItem(seenWelcomeKey)) {
+          setShowWelcome(true);
+        }
+
         if (profileData.last_sentence_date && profileData.last_sentence_date !== today) {
           if (profileData.last_sentence_date < yesterday && profileData.longest_streak > 0 && profileData.current_streak === 0) {
             setPreviousStreak(profileData.longest_streak);
