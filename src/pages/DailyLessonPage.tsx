@@ -29,12 +29,13 @@ import type { QuestionType } from "@/styles/colors";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
-const DEFAULT_QUIZ_COUNT = 3;
-// daily_goal(문장 목표 1/3/5)에 맞춰 퀴즈 수도 동적으로 조정
+const DEFAULT_QUIZ_COUNT = 5;
+// daily_goal(문장 목표 1/3/5)에 맞춰 퀴즈 수 동적 조정
+// 듀오링고식 "매일 조금씩 쌓는" 복리 효과 강화 — 5문제를 기본으로
 function quizCountForGoal(goal: number): number {
-  if (goal >= 5) return 5;
-  if (goal >= 3) return 3;
-  return 2; // 가벼운 시작 — 부담↓, 완주율↑
+  if (goal >= 5) return 7; // 진심 모드 — 더 깊은 훈련
+  if (goal >= 3) return 5; // 표준 — 6개 카테고리 거의 다 노출
+  return 3;                // 가벼운 시작 — 그래도 매일 3문제
 }
 
 function LessonProgressBar({ current, total, streak, onClose }: { current: number; total: number; streak: number; onClose: () => void }) {
