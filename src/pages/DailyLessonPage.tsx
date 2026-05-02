@@ -220,6 +220,12 @@ export default function DailyLessonPage() {
   const [quizCount, setQuizCount] = useState(DEFAULT_QUIZ_COUNT);
   const [experienceLevel, setExperienceLevel] = useState<string | null>(null);
 
+  // PX Layer 2 — 3단 루틴
+  // phase: "warmup" → "quiz" → "sentence"
+  const [phase, setPhase] = useState<"warmup" | "quiz" | "sentence">("warmup");
+  const [warmupQuestion] = useState<WarmupQuestion>(() => getTodayWarmup());
+  const [difficultyBoost, setDifficultyBoost] = useState(0);
+
   useEffect(() => {
     if (!user) return;
     const load = async () => {
@@ -236,12 +242,17 @@ export default function DailyLessonPage() {
       const exp = profile?.experience_level ?? null;
       const goal = profile?.daily_goal ?? 1;
       const qc = quizCountForGoal(goal);
+      const streak = profile?.current_streak || 0;
+      // 동적 난이도: 정답률 + 스트릭 → boost
+      const boost = getDifficultyBoost(streak);
+      setDifficultyBoost(boost);
       setUserLevel(lvl);
       setExperienceLevel(exp);
       setQuizCount(qc);
-      setCurrentStreak(profile?.current_streak || 0);
+      setCurrentStreak(streak);
       setTotalSentences(profile?.total_sentences || 0);
-      const baseQuiz = getDailyQuizSet(qc, lvl, exp);
+      // 효과적 레벨 = 실제 레벨 + boost (베테랑 보정은 getDailyQuizSet 내부에서 처리)
+      const baseQuiz = getDailyQuizSet(qc, lvl + boost, exp);
       // Will personalize after holdings load
       setQuizQuestions(baseQuiz);
 
