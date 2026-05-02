@@ -383,10 +383,17 @@ export default function DailyLessonPage() {
 
     return (
       <div className="min-h-screen bg-background flex flex-col items-center px-6 pt-8 pb-6">
+        {showRewardPeak && (
+          <RewardPeakSequence
+            message={isRepeat ? "복습으로 더 단단해졌어요" : "오늘의 한 걸음을 심었어요"}
+            subMessage={isRepeat ? "반복은 실력의 뿌리예요 🌱" : "내일도 함께 도토리를 모아봐요 🌰"}
+            onDone={() => setShowRewardPeak(false)}
+          />
+        )}
         {showConfetti && <Confetti recycle={false} numberOfPieces={400} />}
         {showLevelUp && <LevelUpModal oldLevel={oldTotal} newLevel={newTotal} onClose={() => setShowLevelUp(false)} />}
 
-        <Mascot mood="celebrate" size="xl" className="mb-3" />
+        <Mascot mood="celebrate" size="xl" className="mb-3 animate-float" />
         <h1 className="text-display text-foreground mb-1">{isRepeat ? "복습 완료! 📚" : "레슨 완료! 🌟"}</h1>
         <p className="text-small text-muted-foreground mb-6">
           {isRepeat ? "복습은 실력을 단단하게 해줘요" : "오늘도 한 걸음 성장했어요"}
