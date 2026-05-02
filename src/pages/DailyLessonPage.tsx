@@ -516,14 +516,34 @@ export default function DailyLessonPage() {
   }
 
 
+  // 난이도 라벨 (3단 루틴 상단에 노출)
+  const difficultyMeta = getDifficultyLabel(difficultyBoost);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
-      <LessonProgressBar current={currentStep} total={(quizCount + 1)} streak={quizStreak} onClose={() => navigate("/")} />
+      <LessonProgressBar current={currentStep} total={totalSteps} streak={quizStreak} onClose={() => navigate("/")} />
+
+      {/* Phase 0 — 워밍업 (30초): 본질 퀴즈 전 가벼운 위기 시나리오로 멘탈 시동 */}
+      {phase === "warmup" && (
+        <div className="flex-1 flex flex-col">
+          <div className="px-4 max-w-lg mx-auto w-full">
+            <div className="flex items-center justify-center gap-2 mt-1">
+              <span
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: difficultyMeta.color + "20", color: difficultyMeta.color }}
+              >
+                {difficultyMeta.label}
+              </span>
+            </div>
+          </div>
+          <WarmupPrompt question={warmupQuestion} onComplete={handleWarmupComplete} />
+        </div>
+      )}
 
       <div className="flex-1 flex flex-col px-4 max-w-lg mx-auto w-full relative">
         {/* Motivation message before quiz starts */}
-        {!inSentenceStep && currentQuizIndex === 0 && !showFeedback && (
+        {phase === "quiz" && !inSentenceStep && currentQuizIndex === 0 && !showFeedback && (
           <div className="bg-accent/30 rounded-xl px-4 py-3 mb-2 flex items-center gap-2 animate-fade-in">
             <span className="text-sm">💡</span>
             <p className="text-xs text-muted-foreground">{getLessonMotivation(totalSentences, currentStreak)}</p>
@@ -531,7 +551,7 @@ export default function DailyLessonPage() {
         )}
 
         {/* Quiz Phase */}
-        {!inSentenceStep && quizQuestions[currentQuizIndex] && (
+        {phase === "quiz" && !inSentenceStep && quizQuestions[currentQuizIndex] && (
           <>
             {/* Category badge */}
             {!showFeedback && (() => {
