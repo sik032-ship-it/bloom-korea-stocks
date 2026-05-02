@@ -9,6 +9,7 @@ import { Mascot } from "@/components/Mascot";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { QuestionBadge } from "@/components/QuestionBadge";
 import { LevelUpModal } from "@/components/LevelUpModal";
+import { RewardPeakSequence } from "@/components/RewardPeakSequence";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
 import { getDailyQuizSet, personalizeQuiz, type QuizQuestion } from "@/data/quizQuestions";
 import {
@@ -203,6 +204,7 @@ export default function DailyLessonPage() {
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [oldTotal, setOldTotal] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showRewardPeak, setShowRewardPeak] = useState(false);
   const [alreadyDone, setAlreadyDone] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentStreak, setCurrentStreak] = useState(0);
@@ -306,6 +308,7 @@ export default function DailyLessonPage() {
   const handleComplete = async () => {
     if (!user) return;
     if (!selectedHolding) {
+      setShowRewardPeak(true);
       setCompleted(true);
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 8000);
@@ -339,6 +342,8 @@ export default function DailyLessonPage() {
       }
     }
 
+    // PX: 감정 피크 → 결과 화면 순서로 노출
+    setShowRewardPeak(true);
     setShowConfetti(true);
     setSaving(false);
     setCompleted(true);
@@ -378,10 +383,17 @@ export default function DailyLessonPage() {
 
     return (
       <div className="min-h-screen bg-background flex flex-col items-center px-6 pt-8 pb-6">
+        {showRewardPeak && (
+          <RewardPeakSequence
+            message={isRepeat ? "복습으로 더 단단해졌어요" : "오늘의 한 걸음을 심었어요"}
+            subMessage={isRepeat ? "반복은 실력의 뿌리예요 🌱" : "내일도 함께 도토리를 모아봐요 🌰"}
+            onDone={() => setShowRewardPeak(false)}
+          />
+        )}
         {showConfetti && <Confetti recycle={false} numberOfPieces={400} />}
         {showLevelUp && <LevelUpModal oldLevel={oldTotal} newLevel={newTotal} onClose={() => setShowLevelUp(false)} />}
 
-        <Mascot mood="celebrate" size="xl" className="mb-3" />
+        <Mascot mood="celebrate" size="xl" className="mb-3 animate-float" />
         <h1 className="text-display text-foreground mb-1">{isRepeat ? "복습 완료! 📚" : "레슨 완료! 🌟"}</h1>
         <p className="text-small text-muted-foreground mb-6">
           {isRepeat ? "복습은 실력을 단단하게 해줘요" : "오늘도 한 걸음 성장했어요"}
@@ -445,8 +457,26 @@ export default function DailyLessonPage() {
           <BehavioralNudge userId={user.id} holdings={holdings} triggerAfterLesson={true} />
         )}
 
-        <button onClick={() => navigate("/")} className="w-full max-w-sm py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all">
-          홈으로 돌아가기
+        {/* PX: 다음 행동을 자연스럽게 — 내일에 대한 기대 + 즉시 실행 가능한 CTA */}
+        <div className="w-full max-w-sm bg-card border border-border rounded-2xl p-4 mb-3 flex items-center gap-3">
+          <span className="text-2xl">🌙</span>
+          <div className="flex-1">
+            <p className="text-small font-semibold text-foreground">내일도 같은 시간에 만나요</p>
+            <p className="text-xs text-muted-foreground">하루 3분, 도토리가 모여 숲이 됩니다</p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => navigate("/")}
+          className="w-full max-w-sm py-4 rounded-2xl bg-primary text-primary-foreground font-bold shadow-button hover:opacity-95 transition-all press-effect animate-cta-breathe"
+        >
+          🏠 홈에서 성장 보기
+        </button>
+        <button
+          onClick={() => navigate("/holdings")}
+          className="w-full max-w-sm py-3 mt-2 rounded-xl text-muted-foreground font-medium text-small hover:text-foreground transition-colors"
+        >
+          내 종목 둘러보기 →
         </button>
       </div>
     );

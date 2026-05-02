@@ -9,6 +9,7 @@ import { LevelBadge } from "@/components/LevelBadge";
 import { SpeechBubble } from "@/components/SpeechBubble";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { TimeMachinePreview } from "@/components/TimeMachinePreview";
+import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
@@ -26,6 +27,7 @@ export default function HomePage() {
   const [showStreakBroken, setShowStreakBroken] = useState(false);
   const [previousStreak, setPreviousStreak] = useState(0);
   const [showFreezeUsed, setShowFreezeUsed] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -69,6 +71,15 @@ export default function HomePage() {
 
         setProfile(profileData);
         setTodayDone(profileData.last_sentence_date === today);
+
+        // PX: 첫 방문 30초 환영 — 신규 유저(문장 0, 마지막 기록 없음)에게 1회만
+        const isBrandNew =
+          (profileData.total_sentences ?? 0) === 0 &&
+          !profileData.last_sentence_date;
+        const seenWelcomeKey = `ppuri:welcome-seen:${user.id}`;
+        if (isBrandNew && !localStorage.getItem(seenWelcomeKey)) {
+          setShowWelcome(true);
+        }
 
         if (profileData.last_sentence_date && profileData.last_sentence_date !== today) {
           if (profileData.last_sentence_date < yesterday && profileData.longest_streak > 0 && profileData.current_streak === 0) {
@@ -121,8 +132,21 @@ export default function HomePage() {
   const streakBrokenMsg = showStreakBroken ? getStreakBrokenMessage(previousStreak) : null;
   const progress = getProgressToNextLevel(profile?.total_sentences || 0);
 
+  const dismissWelcome = (start: boolean) => {
+    if (user) localStorage.setItem(`ppuri:welcome-seen:${user.id}`, "1");
+    setShowWelcome(false);
+    if (start) navigate("/lesson");
+  };
+
   return (
     <Layout currentStreak={streak} longestStreak={profile?.longest_streak || 0}>
+      {showWelcome && (
+        <WelcomeOverlay
+          displayName={displayName}
+          onStart={() => dismissWelcome(true)}
+          onSkip={() => dismissWelcome(false)}
+        />
+      )}
       <div className="stagger-children">
         {/* 스트릭 깨짐 위로 배너 */}
         {streakBrokenMsg && (
