@@ -132,8 +132,21 @@ export default function HomePage() {
   const streakBrokenMsg = showStreakBroken ? getStreakBrokenMessage(previousStreak) : null;
   const progress = getProgressToNextLevel(profile?.total_sentences || 0);
 
+  const dismissWelcome = (start: boolean) => {
+    if (user) localStorage.setItem(`ppuri:welcome-seen:${user.id}`, "1");
+    setShowWelcome(false);
+    if (start) navigate("/lesson");
+  };
+
   return (
     <Layout currentStreak={streak} longestStreak={profile?.longest_streak || 0}>
+      {showWelcome && (
+        <WelcomeOverlay
+          displayName={displayName}
+          onStart={() => dismissWelcome(true)}
+          onSkip={() => dismissWelcome(false)}
+        />
+      )}
       <div className="stagger-children">
         {/* 스트릭 깨짐 위로 배너 */}
         {streakBrokenMsg && (
