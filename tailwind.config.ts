@@ -60,6 +60,16 @@ export default {
           blue: "hsl(var(--ppuri-blue))",
           purple: "hsl(var(--ppuri-purple))",
         },
+        tone: {
+          "growth-fg": "hsl(var(--tone-growth-fg))",
+          "growth-bg": "hsl(var(--tone-growth-bg))",
+          "wisdom-fg": "hsl(var(--tone-wisdom-fg))",
+          "wisdom-bg": "hsl(var(--tone-wisdom-bg))",
+          "caution-fg": "hsl(var(--tone-caution-fg))",
+          "caution-bg": "hsl(var(--tone-caution-bg))",
+          "truth-fg": "hsl(var(--tone-truth-fg))",
+          "truth-bg": "hsl(var(--tone-truth-bg))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

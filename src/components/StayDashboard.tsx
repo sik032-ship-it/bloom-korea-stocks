@@ -4,6 +4,7 @@
 
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { Sprout } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
@@ -18,13 +19,13 @@ function daysHeld(addedAt: string): number {
   return Math.max(1, Math.floor((Date.now() - new Date(addedAt).getTime()) / DAY_MS));
 }
 
-function tierFor(days: number): { label: string; emoji: string; tone: string } {
-  if (days >= 365 * 5) return { label: "5년+ 머묾", emoji: "🌳", tone: "text-primary" };
-  if (days >= 365 * 3) return { label: "3년+ 머묾", emoji: "🌲", tone: "text-primary" };
-  if (days >= 365) return { label: "1년+ 머묾", emoji: "🌿", tone: "text-primary" };
-  if (days >= 90) return { label: "분기+ 머묾", emoji: "🌱", tone: "text-foreground" };
-  if (days >= 30) return { label: "한 달+", emoji: "🌰", tone: "text-foreground" };
-  return { label: "막 시작", emoji: "✨", tone: "text-muted-foreground" };
+function tierFor(days: number): { label: string; tone: string; barTone: string } {
+  if (days >= 365 * 5) return { label: "5년+ 머묾",   tone: "text-tone-growth-fg",  barTone: "bg-tone-growth-fg" };
+  if (days >= 365 * 3) return { label: "3년+ 머묾",   tone: "text-tone-growth-fg",  barTone: "bg-tone-growth-fg" };
+  if (days >= 365)     return { label: "1년+ 머묾",   tone: "text-tone-growth-fg",  barTone: "bg-tone-growth-fg/80" };
+  if (days >= 90)      return { label: "분기+ 머묾",  tone: "text-foreground",      barTone: "bg-tone-growth-fg/60" };
+  if (days >= 30)      return { label: "한 달+",      tone: "text-foreground",      barTone: "bg-tone-growth-fg/45" };
+  return                      { label: "막 시작",     tone: "text-muted-foreground",barTone: "bg-tone-growth-fg/30" };
 }
 
 function formatStay(days: number): string {
@@ -54,7 +55,9 @@ export function StayDashboard({ holdings }: Props) {
         aria-label="머무름 대시보드"
         className="rounded-2xl border border-border bg-card p-4 text-center"
       >
-        <p className="text-2xl mb-2">🌳</p>
+        <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-tone-growth-bg text-tone-growth-fg mb-2">
+          <Sprout className="w-5 h-5" strokeWidth={2} />
+        </span>
         <p className="text-small font-bold text-foreground mb-1">머무름은 아직 0일</p>
         <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
           좋은 회사를 골라 오래 머무르는 것이 우리의 전략이에요.
@@ -71,18 +74,15 @@ export function StayDashboard({ holdings }: Props) {
 
   const maxDays = items[0].days;
   const totalDays = items.reduce((s, x) => s + x.days, 0);
-  const longestTier = tierFor(maxDays);
 
   return (
     <section
       aria-label="머무름 대시보드"
       className="rounded-2xl border border-border bg-card p-4 animate-fade-in"
     >
-      <div className="flex items-center justify-between mb-1">
-        <h2 className="text-small font-bold text-foreground">
-          🌳 머무름 대시보드
-        </h2>
-        <span className="text-[11px] text-muted-foreground">When이 아니라 Where</span>
+      <div className="flex items-end justify-between mb-1">
+        <h2 className="text-small font-bold text-foreground">머무름 대시보드</h2>
+        <span className="text-[10px] text-muted-foreground tracking-widest uppercase">Where, not When</span>
       </div>
       <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
         매수일이 아니라 <strong className="text-foreground">얼마나 머물렀는지</strong>가 중요해요.
@@ -91,9 +91,9 @@ export function StayDashboard({ holdings }: Props) {
 
       {/* Summary */}
       <div className="grid grid-cols-3 gap-2 mb-4">
-        <Stat label="가장 오래" value={formatStay(maxDays)} accent={longestTier.emoji} />
-        <Stat label="총 머무름" value={formatStay(totalDays)} accent="∑" />
-        <Stat label="종목 수" value={`${items.length}개`} accent="🧺" />
+        <Stat label="가장 오래" value={formatStay(maxDays)} />
+        <Stat label="총 머무름" value={formatStay(totalDays)} />
+        <Stat label="종목 수" value={`${items.length}개`} />
       </div>
 
       {/* Bars */}
@@ -105,8 +105,7 @@ export function StayDashboard({ holdings }: Props) {
             <li key={h.id}>
               <div className="flex items-baseline justify-between mb-1">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-base">{tier.emoji}</span>
-                  <span className="text-xs font-bold text-primary tabular-nums shrink-0">
+                  <span className="text-xs font-bold text-foreground tabular-nums shrink-0">
                     {h.ticker}
                   </span>
                   <span className="text-xs text-muted-foreground truncate">
@@ -126,7 +125,7 @@ export function StayDashboard({ holdings }: Props) {
                 aria-label={`${h.ticker} 보유 기간`}
               >
                 <div
-                  className="h-full bg-primary rounded-full transition-all duration-700"
+                  className={`h-full rounded-full transition-all duration-700 ${tier.barTone}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -144,12 +143,11 @@ export function StayDashboard({ holdings }: Props) {
   );
 }
 
-function Stat({ label, value, accent }: { label: string; value: string; accent: string }) {
+function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-primary/5 border border-primary/15 p-2 text-center">
-      <p className="text-base leading-none mb-1">{accent}</p>
-      <p className="text-small font-bold text-foreground tabular-nums leading-tight">{value}</p>
-      <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
+    <div className="rounded-xl bg-tone-growth-bg border border-tone-growth-fg/15 p-2.5 text-center">
+      <p className="text-small font-bold text-tone-growth-fg tabular-nums leading-tight">{value}</p>
+      <p className="text-[10px] text-muted-foreground mt-1">{label}</p>
     </div>
   );
 }

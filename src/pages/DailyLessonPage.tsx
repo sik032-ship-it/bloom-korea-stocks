@@ -21,7 +21,7 @@ import {
   getLoadingMessage,
   getQuizWhyItMatters,
 } from "@/utils/mascotDialogue";
-import { categoryLabels } from "@/data/quizQuestions";
+import { categoryLabels, toneClasses } from "@/data/quizQuestions";
 import { isAnswerCorrect } from "@/utils/quizMatch";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import {
@@ -561,17 +561,21 @@ export default function DailyLessonPage() {
                 </span>
               </div>
             )}
-            {/* Category badge */}
+            {/* Category badge — 4톤 시맨틱 (hardcoded color 제거) */}
             {!showFeedback && (() => {
               const q = quizQuestions[currentQuizIndex];
               const cat = categoryLabels[q.category];
-              return cat ? (
+              if (!cat) return null;
+              const t = toneClasses[cat.tone];
+              return (
                 <div className="flex items-center justify-center gap-2 mb-2 animate-fade-in">
-                  <CategoryIcon category={q.category} size={13} color={cat.color} />
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: cat.color + "15", color: cat.color }}>{cat.name}</span>
+                  <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${t.bg} ${t.fg}`}>
+                    <CategoryIcon category={q.category} size={12} />
+                    {cat.name}
+                  </span>
                   <span className="text-[10px] text-muted-foreground">| {getQuizWhyItMatters(q.category)}</span>
                 </div>
-              ) : null;
+              );
             })()}
 
             {quizQuestions[currentQuizIndex].format === "ox" && (

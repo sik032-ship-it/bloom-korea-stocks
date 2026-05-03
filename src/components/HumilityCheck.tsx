@@ -62,17 +62,17 @@ export function HumilityCheckModal({ holdingId, ticker, companyName, onClose }: 
       <div className="bg-card rounded-t-2xl sm:rounded-2xl p-5 w-full max-w-md max-h-[90vh] overflow-y-auto animate-slide-up">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <p className="text-xs text-primary font-bold mb-1">🪞 겸손 체크 · 능력의 원</p>
+            <p className="text-[10px] text-tone-wisdom-fg font-bold tracking-wider uppercase mb-1">겸손 체크 · 능력의 원</p>
             <h2 className="text-title text-foreground">{ticker} · {companyName}</h2>
           </div>
           <button onClick={onClose} className="text-muted-foreground text-2xl leading-none px-2">×</button>
         </div>
 
-        <div className="mb-5 p-3 rounded-xl bg-accent/40 border border-border">
+        <div className="mb-5 p-3 rounded-xl bg-tone-wisdom-bg border border-tone-wisdom-fg/15">
           <p className="text-xs text-foreground leading-relaxed">
-            🎩 버핏: <em>"내가 모르는 회사에는 투자하지 않는다."</em>
+            <em>"내가 모르는 회사에는 투자하지 않는다."</em> — 워렌 버핏
             <br />
-            👓 린치: <em>"크레용으로 그릴 수 없으면 사지 마라."</em>
+            <em>"크레용으로 그릴 수 없으면 사지 마라."</em> — 피터 린치
           </p>
         </div>
 

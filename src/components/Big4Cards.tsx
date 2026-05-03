@@ -1,26 +1,26 @@
 // Big 4 앵커 종목 학습 카드 — MSFT/GOOGL/AMZN/AAPL
-// "왜 이 회사인가"를 10계명 관점(브랜드/해자/일상소비/FCF/머무름)으로 매일 상기.
-// 홈 가로 스크롤. 카드 탭 시 상세 모달.
+// 카드 시각: 티커 모노그램(텍스트) + Lucide 섹션 아이콘. 이모지 제거.
 
 import React, { useState } from "react";
-import { X } from "lucide-react";
+import {
+  X, Target, Coffee, Castle, Droplets, Quote,
+  type LucideIcon,
+} from "lucide-react";
 
 type Big4 = {
   ticker: "MSFT" | "GOOGL" | "AMZN" | "AAPL";
-  emoji: string;
   nameKr: string;
-  oneLiner: string;        // 한 줄 정체성
-  why: string[];           // "왜 이 회사인가" 3-5개 근거 (10계명 매핑)
-  daily: string;           // 일상에서 매일 마주치는 접점
-  moat: string;            // 해자
-  fcf: string;             // 잉여현금흐름 관점
-  mantra: string;          // 핵심 한 줄 만트라
+  oneLiner: string;
+  why: string[];
+  daily: string;
+  moat: string;
+  fcf: string;
+  mantra: string;
 };
 
 const BIG4: Big4[] = [
   {
     ticker: "MSFT",
-    emoji: "🪟",
     nameKr: "마이크로소프트",
     oneLiner: "전 세계 사무실의 운영체제 + 클라우드의 한 축",
     why: [
@@ -36,7 +36,6 @@ const BIG4: Big4[] = [
   },
   {
     ticker: "GOOGL",
-    emoji: "🔎",
     nameKr: "구글(알파벳)",
     oneLiner: "인류가 무언가를 궁금해할 때 가장 먼저 켜는 창",
     why: [
@@ -52,7 +51,6 @@ const BIG4: Big4[] = [
   },
   {
     ticker: "AMZN",
-    emoji: "📦",
     nameKr: "아마존",
     oneLiner: "지구상 가장 큰 매장 + 가장 큰 클라우드",
     why: [
@@ -68,7 +66,6 @@ const BIG4: Big4[] = [
   },
   {
     ticker: "AAPL",
-    emoji: "🍎",
     nameKr: "애플",
     oneLiner: "전 세계에서 가장 강력한 브랜드 + 충성 고객 생태계",
     why: [
@@ -84,31 +81,41 @@ const BIG4: Big4[] = [
   },
 ];
 
+// 티커별 브랜드 색상 (잘 알려진 1차 정체성 색)
+const TICKER_TONE: Record<Big4["ticker"], string> = {
+  MSFT:  "bg-[hsl(var(--tone-truth-bg))] text-[hsl(var(--tone-truth-fg))]",
+  GOOGL: "bg-tone-wisdom-bg text-tone-wisdom-fg",
+  AMZN:  "bg-tone-caution-bg text-tone-caution-fg",
+  AAPL:  "bg-tone-growth-bg text-tone-growth-fg",
+};
+
 export function Big4Cards() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const open = openIdx !== null ? BIG4[openIdx] : null;
 
   return (
     <section aria-label="Big 4 앵커 종목" className="animate-fade-in">
-      <div className="flex items-center justify-between mb-2 px-1">
-        <h2 className="text-small font-bold text-foreground">
-          🌳 우리의 4그루 나무
-        </h2>
-        <span className="text-[11px] text-muted-foreground">탭해서 보기</span>
+      <div className="flex items-end justify-between mb-2 px-1">
+        <div>
+          <h2 className="text-small font-bold text-foreground">우리의 4그루 나무</h2>
+          <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+            10년 뒤에도 사람들이 쓸 회사. 우리는 이 4개에 머문다.
+          </p>
+        </div>
+        <span className="text-[10px] text-muted-foreground tracking-widest uppercase">tap</span>
       </div>
-      <p className="text-[11px] text-muted-foreground mb-3 px-1 leading-relaxed">
-        10년 뒤에도 사람들이 쓸 회사. 우리는 이 4개에 머문다.
-      </p>
       <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory">
         {BIG4.map((c, i) => (
           <button
             key={c.ticker}
             onClick={() => setOpenIdx(i)}
-            className="snap-start shrink-0 w-[140px] h-[150px] rounded-2xl border border-border bg-card p-3 text-left hover:border-primary/40 hover:shadow-sm transition-all press-effect flex flex-col"
+            className="snap-start shrink-0 w-[148px] h-[160px] rounded-2xl border border-border bg-card p-3 text-left hover:border-primary/40 hover:shadow-card-hover transition-all press-effect flex flex-col"
           >
-            <div className="text-2xl mb-1">{c.emoji}</div>
-            <div className="text-xs font-bold text-primary tabular-nums mb-0.5">
-              {c.ticker}
+            <div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-[12px] tabular-nums tracking-tight mb-2 ${TICKER_TONE[c.ticker]}`}
+              aria-hidden
+            >
+              {c.ticker.slice(0, 4)}
             </div>
             <div className="text-small font-bold text-foreground mb-1">{c.nameKr}</div>
             <p className="text-[11px] text-muted-foreground leading-snug line-clamp-3 mt-auto">
@@ -127,12 +134,17 @@ export function Big4Cards() {
             className="bg-card rounded-t-2xl sm:rounded-2xl p-5 w-full max-w-md max-h-[85vh] overflow-y-auto animate-slide-up"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-3xl">{open.emoji}</span>
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm tabular-nums tracking-tight ${TICKER_TONE[open.ticker]}`}
+                  aria-hidden
+                >
+                  {open.ticker.slice(0, 4)}
+                </div>
                 <div>
-                  <p className="text-xs font-bold text-primary tabular-nums">{open.ticker}</p>
-                  <h3 className="text-title font-bold text-foreground">{open.nameKr}</h3>
+                  <p className="text-[10px] font-bold text-muted-foreground tabular-nums tracking-wider">{open.ticker}</p>
+                  <h3 className="text-title font-bold text-foreground leading-tight">{open.nameKr}</h3>
                 </div>
               </div>
               <button
@@ -144,36 +156,39 @@ export function Big4Cards() {
               </button>
             </div>
 
-            <p className="text-small text-foreground leading-relaxed mb-4 italic">
-              "{open.oneLiner}"
+            <p className="text-small text-foreground leading-relaxed mb-4 italic border-l-2 border-primary/40 pl-3">
+              {open.oneLiner}
             </p>
 
-            <Section label="왜 이 회사인가" emoji="🎯">
+            <Section label="왜 이 회사인가" Icon={Target}>
               <ul className="space-y-1.5">
                 {open.why.map((w, i) => (
                   <li key={i} className="text-small text-foreground leading-relaxed flex gap-2">
-                    <span className="text-primary shrink-0">•</span>
+                    <span className="text-primary shrink-0 mt-1.5 w-1 h-1 rounded-full bg-primary" />
                     <span>{w}</span>
                   </li>
                 ))}
               </ul>
             </Section>
 
-            <Section label="일상 접점" emoji="☕">
+            <Section label="일상 접점" Icon={Coffee}>
               <p className="text-small text-foreground leading-relaxed">{open.daily}</p>
             </Section>
 
-            <Section label="해자(Moat)" emoji="🏰">
+            <Section label="해자 (Moat)" Icon={Castle}>
               <p className="text-small text-foreground leading-relaxed">{open.moat}</p>
             </Section>
 
-            <Section label="잉여현금흐름(FCF)" emoji="💧">
+            <Section label="잉여현금흐름 (FCF)" Icon={Droplets}>
               <p className="text-small text-foreground leading-relaxed">{open.fcf}</p>
             </Section>
 
-            <div className="mt-4 rounded-xl bg-primary/5 border border-primary/20 p-3">
-              <p className="text-[11px] font-bold text-primary tracking-wide mb-1">오늘의 만트라</p>
-              <p className="text-small font-bold text-foreground leading-snug">{open.mantra}</p>
+            <div className="mt-5 rounded-xl bg-primary/5 border border-primary/20 p-3 flex gap-2.5">
+              <Quote className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={2.5} />
+              <div>
+                <p className="text-[10px] font-bold text-primary tracking-wider uppercase mb-1">오늘의 만트라</p>
+                <p className="text-small font-bold text-foreground leading-snug">{open.mantra}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -182,12 +197,15 @@ export function Big4Cards() {
   );
 }
 
-function Section({ label, emoji, children }: { label: string; emoji: string; children: React.ReactNode }) {
+function Section({ label, Icon, children }: { label: string; Icon: LucideIcon; children: React.ReactNode }) {
   return (
-    <div className="mb-3">
-      <p className="text-[11px] font-bold text-muted-foreground tracking-wide mb-1">
-        {emoji} {label}
-      </p>
+    <div className="mb-4">
+      <div className="flex items-center gap-1.5 mb-1.5">
+        <Icon className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
+        <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
+          {label}
+        </p>
+      </div>
       {children}
     </div>
   );
