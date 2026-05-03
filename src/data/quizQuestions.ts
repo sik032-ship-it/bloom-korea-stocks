@@ -10,7 +10,10 @@ export type QuizCategory =
   | "us_market"
   | "legend_wisdom"
   | "humility"
-  | "no_bottom_fishing";
+  | "no_bottom_fishing"
+  | "cash_flow"
+  | "brand_moat"
+  | "where_not_when";
 
 export interface OXQuestion {
   format: "ox";
@@ -56,6 +59,9 @@ export const categoryLabels: Record<QuizCategory, { name: string; icon: string; 
   legend_wisdom: { name: "레전드의 지혜", icon: "sparkles", color: "#D97706" },
   humility: { name: "겸손·능력의 원", icon: "scan-eye", color: "#0EA5E9" },
   no_bottom_fishing: { name: "바닥 예측 금지", icon: "target", color: "#F97316" },
+  cash_flow: { name: "현금흐름이 진실", icon: "droplets", color: "#06B6D4" },
+  brand_moat: { name: "브랜드 해자", icon: "castle", color: "#A855F7" },
+  where_not_when: { name: "어디에 머무를지", icon: "map-pin", color: "#16A34A" },
 };
 
 // ===== 위험 이해 (Risk) =====
