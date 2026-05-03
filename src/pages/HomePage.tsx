@@ -11,6 +11,8 @@ import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { TimeMachinePreview } from "@/components/TimeMachinePreview";
 import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { RichMindsetCard } from "@/components/RichMindsetCard";
+import { Big4Cards } from "@/components/Big4Cards";
+import { StayDashboard } from "@/components/StayDashboard";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
