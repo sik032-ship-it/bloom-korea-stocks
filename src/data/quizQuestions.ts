@@ -340,6 +340,8 @@ export const allQuestions: QuizQuestion[] = [
   ...whereNotWhenQuestions,
 ];
 
+export type ExperienceLevel = "완전 초보" | "조금 해봤어요" | "1년 이상 투자 중" | "베테랑 투자자";
+
 // 경험 수준을 레벨 보정값으로 변환 (온보딩 답변 → 가상 레벨 부스트)
 export function getExperienceBoost(experience?: string | null): number {
   switch (experience) {
