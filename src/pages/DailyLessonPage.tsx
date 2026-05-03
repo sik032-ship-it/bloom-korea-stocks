@@ -21,7 +21,7 @@ import {
   getLoadingMessage,
   getQuizWhyItMatters,
 } from "@/utils/mascotDialogue";
-import { categoryLabels } from "@/data/quizQuestions";
+import { categoryLabels, toneClasses } from "@/data/quizQuestions";
 import { isAnswerCorrect } from "@/utils/quizMatch";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import {
