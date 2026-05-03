@@ -49,19 +49,31 @@ export interface FillBlankQuestion {
 
 export type QuizQuestion = OXQuestion | MultipleChoiceQuestion | FillBlankQuestion;
 
-// 카테고리 메타 (icon은 Lucide icon name)
-export const categoryLabels: Record<QuizCategory, { name: string; icon: string; color: string }> = {
-  risk: { name: "위험 이해", icon: "crosshair", color: "#EF4444" },
-  psychology: { name: "심리 조절", icon: "brain", color: "#8B5CF6" },
-  crisis: { name: "위기 대처", icon: "shield", color: "#F59E0B" },
-  judgment: { name: "판단력", icon: "scale", color: "#3B82F6" },
-  us_market: { name: "미국주식·매크로", icon: "trending-up", color: "#10B981" },
-  legend_wisdom: { name: "레전드의 지혜", icon: "sparkles", color: "#D97706" },
-  humility: { name: "겸손·능력의 원", icon: "scan-eye", color: "#0EA5E9" },
-  no_bottom_fishing: { name: "바닥 예측 금지", icon: "target", color: "#F97316" },
-  cash_flow: { name: "현금흐름이 진실", icon: "droplets", color: "#06B6D4" },
-  brand_moat: { name: "브랜드 해자", icon: "castle", color: "#A855F7" },
-  where_not_when: { name: "어디에 머무를지", icon: "map-pin", color: "#16A34A" },
+// 카테고리 메타 — 4톤 시맨틱 시스템
+// 11개 색 대신 4가지 의미만 색으로 구분: growth(성장)·wisdom(철학)·caution(경계)·truth(실전)
+// 차이는 아이콘과 라벨이 담당.
+export type CategoryTone = "growth" | "wisdom" | "caution" | "truth";
+
+export const categoryLabels: Record<QuizCategory, { name: string; icon: string; tone: CategoryTone }> = {
+  risk:              { name: "위험 이해",        icon: "crosshair",    tone: "caution" },
+  psychology:        { name: "심리 조절",        icon: "brain",        tone: "caution" },
+  crisis:            { name: "위기 대처",        icon: "shield",       tone: "caution" },
+  judgment:          { name: "판단력",           icon: "scale",        tone: "wisdom"  },
+  us_market:         { name: "미국주식·매크로",  icon: "trending-up",  tone: "truth"   },
+  legend_wisdom:     { name: "레전드의 지혜",    icon: "sparkles",     tone: "wisdom"  },
+  humility:          { name: "겸손·능력의 원",   icon: "scan-eye",     tone: "wisdom"  },
+  no_bottom_fishing: { name: "바닥 예측 금지",   icon: "target",       tone: "caution" },
+  cash_flow:         { name: "현금흐름이 진실",  icon: "droplets",     tone: "truth"   },
+  brand_moat:        { name: "브랜드 해자",      icon: "castle",       tone: "growth"  },
+  where_not_when:    { name: "어디에 머무를지",  icon: "map-pin",      tone: "growth"  },
+};
+
+// 톤 → tailwind class (한 곳에서만 정의)
+export const toneClasses: Record<CategoryTone, { fg: string; bg: string; border: string }> = {
+  growth:  { fg: "text-tone-growth-fg",  bg: "bg-tone-growth-bg",  border: "border-tone-growth-fg/20"  },
+  wisdom:  { fg: "text-tone-wisdom-fg",  bg: "bg-tone-wisdom-bg",  border: "border-tone-wisdom-fg/20"  },
+  caution: { fg: "text-tone-caution-fg", bg: "bg-tone-caution-bg", border: "border-tone-caution-fg/20" },
+  truth:   { fg: "text-tone-truth-fg",   bg: "bg-tone-truth-bg",   border: "border-tone-truth-fg/20"   },
 };
 
 // ===== 위험 이해 (Risk) =====
