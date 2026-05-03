@@ -43,6 +43,18 @@
     --ppuri-blue: 217 91% 60%;
     --ppuri-purple: 258 90% 66%;
 
+    /* === Semantic category tones (4-tone system) ===
+       철학: 11개의 휘황찬란한 색 대신, 4가지 의미만 색으로 구분.
+       나머지 차이는 아이콘과 라벨이 담당한다. */
+    --tone-growth-fg: 105 97% 32%;     /* primary 계열 — 장기·성장·머무름 */
+    --tone-growth-bg: 105 60% 95%;
+    --tone-wisdom-fg: 217 33% 30%;     /* slate-blue — 철학·겸손·판단·머리 */
+    --tone-wisdom-bg: 220 20% 95%;
+    --tone-caution-fg: 24 90% 42%;     /* warm orange — 위기·심리·바닥금지 */
+    --tone-caution-bg: 32 90% 95%;
+    --tone-truth-fg: 199 90% 32%;      /* deep cyan — 현금·시장·실전 데이터 */
+    --tone-truth-bg: 199 80% 95%;
+
     --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
     --shadow-card-hover: 0 4px 12px -2px rgb(0 0 0 / 0.08);
     --shadow-button: 0 4px 12px rgba(88, 204, 2, 0.25);
