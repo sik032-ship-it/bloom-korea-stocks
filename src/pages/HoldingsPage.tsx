@@ -149,7 +149,7 @@ export default function HoldingsPage() {
                   <div>
                     <p className="text-body font-medium text-foreground">{h.company_name_kr}</p>
                     <p className="text-xs text-muted-foreground">
-                      ✍️ {h.sentence_count}개 문장 · 추가됨: {new Date(h.added_at).toLocaleDateString("ko-KR")}
+                      🌳 머무른 지 <strong className="text-foreground">{Math.max(1, Math.floor((Date.now() - new Date(h.added_at).getTime()) / 86_400_000))}</strong>일 · ✍️ {h.sentence_count}개 문장
                     </p>
                   </div>
                 </div>

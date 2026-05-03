@@ -11,6 +11,8 @@ import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { TimeMachinePreview } from "@/components/TimeMachinePreview";
 import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { RichMindsetCard } from "@/components/RichMindsetCard";
+import { Big4Cards } from "@/components/Big4Cards";
+import { StayDashboard } from "@/components/StayDashboard";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
@@ -248,6 +250,12 @@ export default function HomePage() {
 
         {/* 부자처럼 생각하기 — 매일 30초 마인드셋 카드 (복리식 누적) */}
         <RichMindsetCard />
+
+        {/* Big 4 앵커 종목 — 우리의 4그루 나무 (10계명 매일 상기) */}
+        <Big4Cards />
+
+        {/* 머무름 대시보드 — When이 아니라 Where (10계명 #10) */}
+        <StayDashboard holdings={holdings} />
 
         {/* Time Machine — daily companion */}
         <TimeMachinePreview holdingsTickers={holdings.map((h) => h.ticker)} />
