@@ -282,6 +282,48 @@ const noBottomFishingQuestions: QuizQuestion[] = [
   { format: "ox", difficulty: "advanced", category: "no_bottom_fishing", statement: "분할매수의 핵심 가치는 \"바닥에 사는 것\"이 아니라 \"감정이 결정하지 못하게 하는 것\"이다", answer: true, explanation: "미리 정한 계획은 위기 때 패닉을 차단해줘요. 바닥보다 평정심이 훨씬 비쌉니다.", insight: "계획은 위기 전에 세우고, 위기 중엔 그 계획만 실행해요. 즉흥은 거의 항상 손실이에요." },
 ];
 
+// ===== 현금흐름이 진실 (Cash Flow) — 10계명 #9 =====
+const cashFlowQuestions: QuizQuestion[] = [
+  { format: "ox", difficulty: "beginner", category: "cash_flow", statement: "장부상 이익(순이익)보다 실제 통장에 꽂히는 잉여현금흐름(FCF)이 더 진실에 가깝다", answer: true, explanation: "회계 이익은 감가상각·재고·미수금 등으로 부풀려질 수 있어요. FCF는 실제로 회사가 만들어낸 현금이에요.", insight: "현금이 진실이에요. 진실은 가려지지 않아요." },
+  { format: "ox", difficulty: "beginner", category: "cash_flow", statement: "이익은 많이 나는데 현금흐름은 마이너스인 회사는 좋은 회사다", answer: false, explanation: "이익과 현금이 따로 노는 회사는 위험해요. 결국 빚이나 유상증자로 버티게 돼요.", insight: "이익만 보지 말고 현금이 어디로 흐르는지 봐야 해요." },
+  { format: "ox", difficulty: "intermediate", category: "cash_flow", statement: "FCF가 매년 안정적으로 증가하는 회사는 위기에 더 강하다", answer: true, explanation: "FCF가 풍부하면 위기에도 배당·자사주매입·재투자가 끊기지 않아요. MSFT, AAPL이 대표적이에요.", insight: "현금이 두꺼운 회사는 위기를 기회로 바꿔요." },
+  { format: "multiple_choice", difficulty: "beginner", category: "cash_flow", question: "잉여현금흐름(FCF)이란?", options: ["영업으로 번 현금에서 설비투자(CapEx)를 뺀 나머지", "매출에서 매출원가를 뺀 것", "주가에서 배당을 뺀 것", "총자산에서 총부채를 뺀 것"], correctIndex: 0, explanation: "FCF = 영업현금흐름 − 자본적 지출. 회사가 자유롭게 쓸 수 있는 진짜 돈이에요.", insight: "이 돈으로 배당·자사주매입·M&A를 해요. 주주의 진짜 몫이에요." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "cash_flow", question: "두 회사 중 더 좋은 회사는? A: 순이익 ↑·FCF ↓ / B: 순이익 보통·FCF ↑↑", options: ["B (현금이 진실)", "A (이익이 더 중요)", "둘 다 비슷", "A — 이익이 결국 현금이 되니까"], correctIndex: 0, explanation: "B처럼 현금이 두꺼운 회사가 위기에 살아남고 주주에게 환원해요.", insight: "장부의 이익은 가공될 수 있지만, 통장의 현금은 거짓말 못 해요." },
+  { format: "multiple_choice", difficulty: "advanced", category: "cash_flow", question: "ROIC(투하자본이익률)가 높다는 의미는?", options: ["적은 자본으로 큰 이익을 낸다 — \"마법의 회사\"의 특징", "부채가 많다", "PER이 낮다", "배당수익률이 높다"], correctIndex: 0, explanation: "10계명 #3. 적은 돈으로 큰 이익을 내는 기업이 곧 복리 머신이에요. MSFT/AAPL/V/MA가 대표적.", insight: "ROIC가 곧 복리율이에요. 시간 × 높은 ROIC = 부." },
+  { format: "fill_blank", difficulty: "beginner", category: "cash_flow", sentence: "장부상 이익보다 통장에 실제로 꽂히는 ___이 진실이다.", answer: "현금", hints: ["현금", "잉여현금흐름", "FCF"], explanation: "10계명 #9. 진실을 가리는 가장 좋은 방법은 회계 분식이지만, 현금흐름은 가리기 어려워요.", insight: "현금이 진실이에요." },
+  { format: "fill_blank", difficulty: "intermediate", category: "cash_flow", sentence: "적은 자본으로 큰 이익을 내는 \"___의 회사\"가 진짜 좋은 회사다.", answer: "마법", hints: ["마법", "복리"], explanation: "ROIC가 압도적으로 높은 회사들 — 소프트웨어·플랫폼·강력한 브랜드가 그 비결이에요.", insight: "공장이 많이 필요한 사업보다, 적은 자본으로 도는 사업이 복리에 유리해요." },
+  { format: "ox", difficulty: "advanced", category: "cash_flow", statement: "PER이 낮으면 무조건 저평가된 좋은 주식이다", answer: false, explanation: "10계명 #7. 싸 보이는 데는 이유가 있어요. 사양 산업·구조적 적자 회사도 PER이 낮아 보일 수 있어요.", insight: "싸다고 다 보물이 아니에요. 싸 보이는 쓰레기가 더 많아요." },
+  { format: "ox", difficulty: "intermediate", category: "cash_flow", statement: "부채가 적고 FCF가 두꺼운 회사는 위기에서도 흔들리지 않는다", answer: true, explanation: "10계명 #6. 레버리지 없이 높은 수익을 내는 회사는 위기에 오히려 점유율을 늘려요.", insight: "부채는 평소엔 보이지 않다가 위기에 회사를 삼켜요." },
+];
+
+// ===== 브랜드 해자 (Brand Moat) — 10계명 #4, #5 =====
+const brandMoatQuestions: QuizQuestion[] = [
+  { format: "ox", difficulty: "beginner", category: "brand_moat", statement: "공장과 기계는 누구나 살 수 있지만, 강력한 브랜드와 고객 충성도는 돈으로 살 수 없다", answer: true, explanation: "10계명 #4. 이게 진짜 해자예요. 애플, 코카콜라, 비자가 좋은 예.", insight: "복제할 수 없는 자산을 가진 회사 — 그게 부자가 사는 회사예요." },
+  { format: "ox", difficulty: "beginner", category: "brand_moat", statement: "사람들이 매일 반복해서 소비하는 제품을 만드는 회사는 경기 변동에 강하다", answer: true, explanation: "10계명 #5. 경기가 나빠도 비누 사고 면도하고 콜라 마셔요. 일상에 박힌 제품이 안전해요.", insight: "사람의 습관에 박힌 제품은 가장 강한 해자예요." },
+  { format: "ox", difficulty: "intermediate", category: "brand_moat", statement: "버핏이 애플을 최대 보유 종목으로 삼은 핵심 이유는 \"브랜드 해자\"였다", answer: true, explanation: "버핏: \"애플은 IT 회사가 아니라 소비재 회사다. 브랜드 충성도가 비할 데 없다.\"", insight: "겉모습은 IT지만 본질은 소비재 — 이 통찰이 핵심이에요." },
+  { format: "multiple_choice", difficulty: "beginner", category: "brand_moat", question: "다음 중 \"브랜드 해자\"가 가장 강한 회사는?", options: ["충성 고객이 \"이것 아니면 안 사\"라고 말하는 회사", "광고비를 가장 많이 쓰는 회사", "신제품을 가장 자주 출시하는 회사", "가격이 가장 싼 회사"], correctIndex: 0, explanation: "가격이 비싸도 사는 고객 — 그게 진짜 해자예요. 애플, 코카콜라, 코스트코.", insight: "충성도는 가격 결정력으로 이어져요. 가격 결정력 = 마진 = FCF." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "brand_moat", question: "다음 중 \"매일 반복 소비\" 모델에 가장 가까운 회사는?", options: ["P&G(비누·세제) / KO(음료) / V(결제)", "테슬라(자동차)", "보잉(항공기)", "신생 바이오 회사"], correctIndex: 0, explanation: "10계명 #5. 매일·매주 반복되는 소비는 매출의 가장 안정적인 기반이에요.", insight: "한 번에 큰 거래보다, 매일 작은 거래가 훨씬 안정적이에요." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "brand_moat", question: "\"교체비용(Switching Cost)\" 해자의 예는?", options: ["회사 전체가 MS 오피스에 익숙해 다른 SW로 못 옮기는 상황", "신제품이 자주 나오는 것", "광고를 많이 하는 것", "직원이 많은 것"], correctIndex: 0, explanation: "한 번 익숙해지면 못 떠나는 락인이 가장 강한 해자 중 하나예요. MSFT의 핵심 무기.", insight: "익숙함이 곧 돈이에요. 사람의 학습 비용이 회사의 수익이 됩니다." },
+  { format: "multiple_choice", difficulty: "advanced", category: "brand_moat", question: "다음 중 가장 약한 해자는?", options: ["가격이 싸다는 이유 하나", "강력한 브랜드", "네트워크 효과(쓰는 사람이 많을수록 가치 ↑)", "독점적 데이터"], correctIndex: 0, explanation: "가격 경쟁력만으로는 누군가 더 싸게 만들면 끝이에요. 진짜 해자는 가격으로 못 깨져요.", insight: "가격 경쟁은 바닥을 향한 경주예요. 브랜드 경쟁이 진짜 게임이에요." },
+  { format: "fill_blank", difficulty: "beginner", category: "brand_moat", sentence: "공장은 누구나 살 수 있지만, ___와 고객 충성도는 살 수 없다.", answer: "브랜드", hints: ["브랜드"], explanation: "10계명 #4. 이게 워런 버핏이 코카콜라·애플에 평생 머무르는 이유예요.", insight: "복제 불가능한 자산이 진짜 자산이에요." },
+  { format: "fill_blank", difficulty: "intermediate", category: "brand_moat", sentence: "경기가 나빠져도 사람들은 비누를 사고 ___을 마신다.", answer: "음료수", hints: ["음료수", "콜라", "음료"], explanation: "10계명 #5. 일상 소비재의 힘이에요.", insight: "사람의 일상에 박힌 제품이 가장 안전해요." },
+  { format: "ox", difficulty: "advanced", category: "brand_moat", statement: "강력한 브랜드는 \"가격 결정력(pricing power)\"으로 이어지고, 결국 더 두꺼운 마진과 FCF를 만든다", answer: true, explanation: "브랜드 → 가격 결정력 → 높은 마진 → 두꺼운 FCF → 자사주매입·배당·재투자. 복리의 출발점.", insight: "브랜드는 \"감성\"이 아니라 \"수익률\"이에요." },
+];
+
+// ===== 어디에 머무를지 (Where, Not When) — 10계명 #1, #10 =====
+const whereNotWhenQuestions: QuizQuestion[] = [
+  { format: "ox", difficulty: "beginner", category: "where_not_when", statement: "투자에서 가장 중요한 결정은 \"언제\" 사느냐가 아니라 \"어디에\" 머무르느냐다", answer: true, explanation: "10계명 #10. 시장 타이밍은 못 맞춰요. 좋은 회사에 오래 머무는 것이 답이에요.", insight: "When을 버리고 Where에 집중하는 순간, 마음이 편해져요." },
+  { format: "ox", difficulty: "beginner", category: "where_not_when", statement: "좋은 회사를 사고 그냥 가만히 있는 것이, 자주 사고파는 것보다 거의 항상 더 나은 결과를 낸다", answer: true, explanation: "10계명 #1. 매수 후 \"아무것도 하지 않는 것\"이 가장 어렵고 가장 강력한 전략이에요.", insight: "행동하지 않는 용기가 진짜 용기예요." },
+  { format: "ox", difficulty: "intermediate", category: "where_not_when", statement: "주가 차트가 매일 궁금하다면, 보유 회사를 충분히 신뢰하지 않는다는 신호일 수 있다", answer: true, explanation: "정말 좋은 회사를 가지고 있다면 매일 시세창을 켤 필요가 없어요. 그게 \"마음 편한 투자\"예요.", insight: "잠을 푹 잘 수 있는 포트폴리오 — 그게 진짜 부의 척도예요." },
+  { format: "multiple_choice", difficulty: "beginner", category: "where_not_when", question: "버핏이 말한 \"이상적인 보유 기간\"은?", options: ["영원히(forever)", "3개월", "1년", "실적 발표 직전까지"], correctIndex: 0, explanation: "버핏: \"우리의 이상적인 보유 기간은 영원히다.\" 좋은 회사라면 시간이 친구예요.", insight: "팔 이유를 찾기보다, 계속 보유할 이유를 찾는 게 더 어려워요." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "where_not_when", question: "\"미래의 승자\"를 예측하는 것보다 더 안전한 전략은?", options: ["이미 검증된 승자(우량 빅테크)와 함께 머무는 것", "신생 테마주에 분산 투자", "유튜브에서 추천하는 종목 따라가기", "AI가 예측한 종목 사기"], correctIndex: 0, explanation: "10계명 #2. 미래 승자 예측은 도박, 검증된 승자와 함께하는 건 사업.", insight: "검증된 승자와 함께하는 게 마음 편하고, 결과도 좋아요." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "where_not_when", question: "\"마음이 편안한 투자\"의 실제 모습은?", options: ["매일 시세창을 안 켜도 불안하지 않은 상태", "매일 차트를 분석하는 것", "단기 매매로 수익을 자주 실현하는 것", "뉴스를 24시간 모니터링하는 것"], correctIndex: 0, explanation: "정말 좋은 회사를 보유한 사람은 시장이 휴장이어도 평온해요.", insight: "시장이 닫혀 있어도 평온한 포트폴리오가 진짜 좋은 포트폴리오예요." },
+  { format: "multiple_choice", difficulty: "advanced", category: "where_not_when", question: "조금 비싸게 산 좋은 회사 vs 싸게 산 평범한 회사 — 10년 후 결과는?", options: ["좋은 회사가 거의 항상 이긴다 — 시간이 비용을 헐값으로 만들어줌", "싸게 산 평범한 회사가 이긴다", "차이 없다", "케이스에 따라 다르다"], correctIndex: 0, explanation: "10계명 #8. 시간은 위대한 기업의 편이에요. 평범한 회사는 시간이 적이에요.", insight: "사는 가격보다 \"무엇을 사는가\"가 100배 더 중요해요." },
+  { format: "fill_blank", difficulty: "beginner", category: "where_not_when", sentence: "우리가 결정해야 할 것은 \"언제\"가 아니라 \"___\"다.", answer: "어디에", hints: ["어디에", "어디"], explanation: "10계명 #10. 타이밍은 못 맞춰도 좋은 회사를 고를 수는 있어요.", insight: "Where, not When." },
+  { format: "fill_blank", difficulty: "intermediate", category: "where_not_when", sentence: "버핏의 이상적인 보유 기간은 ___이다.", answer: "영원", hints: ["영원", "영원히", "forever"], explanation: "좋은 회사를 골랐다면 팔 이유를 찾기 어려워요.", insight: "사는 것보다 \"안 파는 것\"이 100배 어려워요." },
+  { format: "ox", difficulty: "advanced", category: "where_not_when", statement: "시간은 좋은 기업의 편이고, 평범한 기업의 적이다", answer: true, explanation: "10계명 #8. 좋은 기업은 시간이 갈수록 가치가 누적, 평범한 기업은 경쟁에 깎여요.", insight: "시간을 누구의 편으로 만들지 — 그게 종목 선택의 본질이에요." },
+];
+
 // Combine all questions
 export const allQuestions: QuizQuestion[] = [
   ...riskQuestions,
@@ -293,9 +335,10 @@ export const allQuestions: QuizQuestion[] = [
   ...legendWisdomQuestions,
   ...humilityQuestions,
   ...noBottomFishingQuestions,
+  ...cashFlowQuestions,
+  ...brandMoatQuestions,
+  ...whereNotWhenQuestions,
 ];
-
-export type ExperienceLevel = "완전 초보" | "조금 해봤어요" | "1년 이상 투자 중" | "베테랑 투자자";
 
 // 경험 수준을 레벨 보정값으로 변환 (온보딩 답변 → 가상 레벨 부스트)
 export function getExperienceBoost(experience?: string | null): number {
@@ -329,16 +372,19 @@ export function getDailyQuizSet(
   experience?: string | null,
 ): QuizQuestion[] {
   const difficulties = getDifficultyForLevel(userLevel, experience);
-  // 6개 카테고리 균형 출제 — 매일 다양한 멘탈 자극
+  // 카테고리 균형 출제 — 매일 다양한 멘탈 자극 (10계명 우선)
   const categories: QuizCategory[] = [
-    "no_bottom_fishing", // 부자의 행동 패턴 (최우선 — 매일 상기)
-    "humility",          // 겸손·능력의 원 (최우선 — 매일 상기)
-    "us_market",         // 미국주식·매크로 (실전 리터러시)
-    "legend_wisdom",     // 레전드의 지혜 (멘탈 코어)
-    "crisis",            // 위기 대처 (생존 훈련)
-    "psychology",        // 심리 조절 (감정 통제)
-    "risk",              // 위험 이해 (수비)
-    "judgment",          // 판단력 (사고 훈련)
+    "where_not_when",    // 10계명 #10 (어디에 머무를지)
+    "no_bottom_fishing", // 부자의 행동 패턴
+    "brand_moat",        // 10계명 #4·#5 (브랜드 해자)
+    "humility",          // 겸손·능력의 원
+    "cash_flow",         // 10계명 #9 (현금이 진실)
+    "legend_wisdom",     // 레전드의 지혜
+    "us_market",         // 미국주식·매크로
+    "crisis",            // 위기 대처
+    "psychology",        // 심리 조절
+    "risk",              // 위험 이해
+    "judgment",          // 판단력
   ];
 
   const result: QuizQuestion[] = [];
