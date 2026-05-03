@@ -325,12 +325,14 @@ export function getDailyQuizSet(
   const difficulties = getDifficultyForLevel(userLevel, experience);
   // 6개 카테고리 균형 출제 — 매일 다양한 멘탈 자극
   const categories: QuizCategory[] = [
-    "us_market",      // 미국주식·매크로 (실전 리터러시)
-    "legend_wisdom",  // 레전드의 지혜 (멘탈 코어)
-    "crisis",         // 위기 대처 (생존 훈련)
-    "psychology",     // 심리 조절 (감정 통제)
-    "risk",           // 위험 이해 (수비)
-    "judgment",       // 판단력 (사고 훈련)
+    "no_bottom_fishing", // 부자의 행동 패턴 (최우선 — 매일 상기)
+    "humility",          // 겸손·능력의 원 (최우선 — 매일 상기)
+    "us_market",         // 미국주식·매크로 (실전 리터러시)
+    "legend_wisdom",     // 레전드의 지혜 (멘탈 코어)
+    "crisis",            // 위기 대처 (생존 훈련)
+    "psychology",        // 심리 조절 (감정 통제)
+    "risk",              // 위험 이해 (수비)
+    "judgment",          // 판단력 (사고 훈련)
   ];
 
   const result: QuizQuestion[] = [];
