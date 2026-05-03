@@ -93,9 +93,9 @@ export function DropPlanModal({ holdingId, ticker, companyName, onClose }: Props
         </div>
 
         {/* 철학 안내 */}
-        <div className="mb-5 p-3 rounded-xl bg-accent/40 border border-border">
+        <div className="mb-5 p-3 rounded-xl bg-tone-caution-bg border border-tone-caution-fg/15">
           <p className="text-xs text-foreground leading-relaxed">
-            🎯 <strong>바닥은 신만 알아요.</strong> 우리는 구간만 정할 수 있어요.
+            <strong className="text-tone-caution-fg">바닥은 신만 알아요.</strong> 우리는 구간만 정할 수 있어요.
             <br />
             미리 정해두면, 위기 때 감정이 아닌 계획으로 행동할 수 있어요.
           </p>

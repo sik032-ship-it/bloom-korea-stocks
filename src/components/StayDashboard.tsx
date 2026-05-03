@@ -78,11 +78,9 @@ export function StayDashboard({ holdings }: Props) {
       aria-label="머무름 대시보드"
       className="rounded-2xl border border-border bg-card p-4 animate-fade-in"
     >
-      <div className="flex items-center justify-between mb-1">
-        <h2 className="text-small font-bold text-foreground">
-          🌳 머무름 대시보드
-        </h2>
-        <span className="text-[11px] text-muted-foreground">When이 아니라 Where</span>
+      <div className="flex items-end justify-between mb-1">
+        <h2 className="text-small font-bold text-foreground">머무름 대시보드</h2>
+        <span className="text-[10px] text-muted-foreground tracking-widest uppercase">Where, not When</span>
       </div>
       <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
         매수일이 아니라 <strong className="text-foreground">얼마나 머물렀는지</strong>가 중요해요.
@@ -91,9 +89,9 @@ export function StayDashboard({ holdings }: Props) {
 
       {/* Summary */}
       <div className="grid grid-cols-3 gap-2 mb-4">
-        <Stat label="가장 오래" value={formatStay(maxDays)} accent={longestTier.emoji} />
-        <Stat label="총 머무름" value={formatStay(totalDays)} accent="∑" />
-        <Stat label="종목 수" value={`${items.length}개`} accent="🧺" />
+        <Stat label="가장 오래" value={formatStay(maxDays)} />
+        <Stat label="총 머무름" value={formatStay(totalDays)} />
+        <Stat label="종목 수" value={`${items.length}개`} />
       </div>
 
       {/* Bars */}
@@ -144,12 +142,11 @@ export function StayDashboard({ holdings }: Props) {
   );
 }
 
-function Stat({ label, value, accent }: { label: string; value: string; accent: string }) {
+function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-primary/5 border border-primary/15 p-2 text-center">
-      <p className="text-base leading-none mb-1">{accent}</p>
-      <p className="text-small font-bold text-foreground tabular-nums leading-tight">{value}</p>
-      <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
+    <div className="rounded-xl bg-tone-growth-bg border border-tone-growth-fg/15 p-2.5 text-center">
+      <p className="text-small font-bold text-tone-growth-fg tabular-nums leading-tight">{value}</p>
+      <p className="text-[10px] text-muted-foreground mt-1">{label}</p>
     </div>
   );
 }
