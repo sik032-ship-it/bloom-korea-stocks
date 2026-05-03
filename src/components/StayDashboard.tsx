@@ -55,7 +55,9 @@ export function StayDashboard({ holdings }: Props) {
         aria-label="머무름 대시보드"
         className="rounded-2xl border border-border bg-card p-4 text-center"
       >
-        <p className="text-2xl mb-2">🌳</p>
+        <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-tone-growth-bg text-tone-growth-fg mb-2">
+          <Sprout className="w-5 h-5" strokeWidth={2} />
+        </span>
         <p className="text-small font-bold text-foreground mb-1">머무름은 아직 0일</p>
         <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
           좋은 회사를 골라 오래 머무르는 것이 우리의 전략이에요.
@@ -72,7 +74,6 @@ export function StayDashboard({ holdings }: Props) {
 
   const maxDays = items[0].days;
   const totalDays = items.reduce((s, x) => s + x.days, 0);
-  const longestTier = tierFor(maxDays);
 
   return (
     <section
