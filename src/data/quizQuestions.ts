@@ -8,7 +8,9 @@ export type QuizCategory =
   | "crisis"
   | "judgment"
   | "us_market"
-  | "legend_wisdom";
+  | "legend_wisdom"
+  | "humility"
+  | "no_bottom_fishing";
 
 export interface OXQuestion {
   format: "ox";
@@ -52,6 +54,8 @@ export const categoryLabels: Record<QuizCategory, { name: string; icon: string; 
   judgment: { name: "판단력", icon: "scale", color: "#3B82F6" },
   us_market: { name: "미국주식·매크로", icon: "trending-up", color: "#10B981" },
   legend_wisdom: { name: "레전드의 지혜", icon: "sparkles", color: "#D97706" },
+  humility: { name: "겸손·능력의 원", icon: "scan-eye", color: "#0EA5E9" },
+  no_bottom_fishing: { name: "바닥 예측 금지", icon: "target", color: "#F97316" },
 };
 
 // ===== 위험 이해 (Risk) =====
@@ -244,6 +248,34 @@ const legendWisdomQuestions: QuizQuestion[] = [
   { format: "ox", difficulty: "intermediate", category: "legend_wisdom", statement: "역사상 우량주의 -40% 하락 후 5년 보유한 투자자는 대부분 회복 + 추가 수익을 얻었다", answer: true, explanation: "마이크로소프트(2000), 애플(2008), 아마존(2008), 메타(2022) 모두 큰 폭락 후 5년 안에 큰 폭으로 회복했어요.", insight: "팔아버린 사람들은 '3배 오르는 것'을 그저 뉴스로만 봐야 했어요. 매일의 멘탈 훈련이 그 차이를 만들어요." },
 ];
 
+// ===== 겸손 · 능력의 원 (Humility) =====
+const humilityQuestions: QuizQuestion[] = [
+  { format: "ox", difficulty: "beginner", category: "humility", statement: "내가 그 회사가 무엇으로 돈을 버는지 한 문장으로 설명할 수 없다면, 그 종목은 일단 보류하는 것이 좋다", answer: true, explanation: "린치: '크레용으로 그릴 수 없으면 사지 마라.' 설명하지 못하는 회사는 위기 때 가장 먼저 손절하게 돼요.", insight: "이해는 가장 강력한 멘탈 방어막이에요. 모르면 흔들립니다." },
+  { format: "ox", difficulty: "beginner", category: "humility", statement: "버핏은 평생 어렵고 복잡한 산업의 종목들로 큰돈을 벌었다", answer: false, explanation: "정반대예요. 코카콜라, 애플, 코스트코, 비자 — 초등학생도 아는 회사들이 그의 핵심 포지션이었어요.", insight: "단순함이 천재의 비밀이에요. 어려운 걸 잘하는 게 아니라, 어려운 걸 피하는 게 실력이에요." },
+  { format: "ox", difficulty: "intermediate", category: "humility", statement: "잘 모르는 핫한 테마주에 베팅하지 않는 것은 실력이 아니라 단순한 보수성이다", answer: false, explanation: "버핏의 'Too Hard 박스'는 실력의 핵심이에요. 모르는 것을 패스하는 능력이 곧 알파입니다.", insight: "패스할 줄 아는 것이 가장 어려운 능력이에요." },
+  { format: "multiple_choice", difficulty: "beginner", category: "humility", question: "능력의 원(Circle of Competence)이란 무엇일까요?", options: ["내가 정말로 깊이 이해하는 사업/산업의 범위", "내가 가장 많이 들어본 종목 리스트", "전문가들이 추천하는 종목 모음", "최근 1년간 가장 많이 오른 종목들"], correctIndex: 0, explanation: "원의 크기보다 '경계를 정확히 아는 것'이 훨씬 중요하다고 버핏은 강조해요.", insight: "내가 모른다는 사실을 아는 것 — 그게 진짜 지혜예요." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "humility", question: "친구가 \"이 종목 100% 오를 거야, 정보 들어왔어\"라며 추천합니다. 가장 겸손한 반응은?", options: ["내가 그 회사를 한 문장으로 설명할 수 있는지 먼저 묻는다", "친구를 믿고 일단 산다", "친구를 무시하고 화낸다", "더 많은 추천을 받기 위해 다른 단톡방도 찾아본다"], correctIndex: 0, explanation: "확신에 찬 추천일수록 위험해요. 내 능력의 원 안인지가 유일한 기준이에요.", insight: "남의 확신은 절대 내 안전을 보장해주지 않아요." },
+  { format: "multiple_choice", difficulty: "advanced", category: "humility", question: "워런 버핏이 말한 'Too Hard' 박스의 의미는?", options: ["판단하기 어려운 종목은 그냥 패스한다", "어려운 종목일수록 더 깊이 공부한다", "어려운 종목을 모아 분산투자한다", "전문가에게 물어본 뒤 결정한다"], correctIndex: 0, explanation: "버핏: \"투자에서 어려운 문제를 풀 필요는 없다. 쉬운 문제만 골라 풀면 된다.\"", insight: "패스하는 능력 = 가장 저평가된 투자 실력이에요." },
+  { format: "fill_blank", difficulty: "beginner", category: "humility", sentence: "피터 린치: \"이 회사를 ___으로 그릴 수 없다면 사지 마라.\"", answer: "크레용", hints: ["크레용", "crayon"], explanation: "초등학생도 이해할 수 있을 만큼 단순한 사업만 사라는 뜻이에요.", insight: "단순함은 안전이에요. 복잡함은 거의 항상 위험이에요." },
+  { format: "fill_blank", difficulty: "intermediate", category: "humility", sentence: "찰리 멍거: \"나는 평생 ___ 짓을 피하려고 노력했고, 그게 천재가 되려는 것보다 더 효과적이었다.\"", answer: "멍청한", hints: ["멍청한", "어리석은", "바보같은"], explanation: "큰 손실 회피 = 큰 수익보다 더 강력한 전략이에요.", insight: "겸손은 약함이 아니라, 가장 강력한 자산 보호 장치예요." },
+  { format: "ox", difficulty: "advanced", category: "humility", statement: "장기적으로 보면, 내 능력의 원을 넓히는 것보다 원의 경계를 정확히 아는 것이 더 중요하다", answer: true, explanation: "버핏: \"중요한 것은 원의 크기가 아니라 경계를 정확히 아는 것이다.\"", insight: "확신과 무지의 차이를 구분하는 능력 — 그게 곧 생존이에요." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "humility", question: "다음 중 '능력의 원 안'에 가장 가까운 결정은?", options: ["내가 매주 사용하는 서비스의 모회사를 보유한다", "유튜버가 추천한 신생 바이오 종목을 산다", "이름은 들어봤지만 사업은 모르는 회사를 산다", "이름이 멋있어서 끌리는 회사를 산다"], correctIndex: 0, explanation: "린치의 \"내가 매일 보는 것에서 시작하라\"의 정수예요.", insight: "당신의 일상이 가장 강력한 리서치 도구예요." },
+];
+
+// ===== 바닥 예측 금지 (No Bottom Fishing) =====
+const noBottomFishingQuestions: QuizQuestion[] = [
+  { format: "ox", difficulty: "beginner", category: "no_bottom_fishing", statement: "워런 버핏조차 \"나는 바닥이 어딘지 모른다\"고 말한 적이 있다", answer: true, explanation: "버핏은 여러 인터뷰에서 자신은 마켓 타이밍을 모른다고 분명히 밝혔어요. 그는 가격 구간으로만 결정합니다.", insight: "세계 최고도 모르는 걸 우리가 안다고 믿는 순간 — 그게 가장 위험한 순간이에요." },
+  { format: "ox", difficulty: "beginner", category: "no_bottom_fishing", statement: "주가의 정확한 바닥을 잡으려는 시도는 일반 투자자에게 거의 항상 손실로 끝난다", answer: true, explanation: "더 떨어질까 봐 못 사고, 회복기엔 비싸게 따라 사는 패턴이 반복돼요.", insight: "바닥은 \"잡는 것\"이 아니라 \"지나간 후에 보이는 것\"이에요." },
+  { format: "ox", difficulty: "intermediate", category: "no_bottom_fishing", statement: "전설적 투자자들은 우량주가 큰 폭으로 떨어지면 미리 정한 비중대로 분할매수를 시작한다", answer: true, explanation: "버핏의 GS(2008), 웰스파고(1990), 아멕스(1964) 모두 패닉 구간에서 분할매수한 사례예요.", insight: "예측이 아니라 \"구간 대응\"이 부자의 행동 패턴이에요." },
+  { format: "multiple_choice", difficulty: "beginner", category: "no_bottom_fishing", question: "내가 산 우량주가 -20% 떨어졌어요. 부자처럼 생각한다면?", options: ["미리 정한 분할매수 계획대로 일부 추가 매수한다", "더 떨어질 때까지 기다리며 절대 사지 않는다", "전부 손절하고 다른 종목으로 갈아탄다", "친구들에게 의견을 물어본다"], correctIndex: 0, explanation: "부자는 -15% 이상 빠지면 \"좋은 가격\"이라 보고 분할매수합니다. 정확한 바닥을 노리지 않아요.", insight: "구간 도달 = 행동 시작. 바닥 예측 = 행동 마비." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "no_bottom_fishing", question: "\"조금만 더 떨어지면 사야지\"라는 생각의 가장 큰 위험은?", options: ["바닥을 영원히 못 잡고 회복 후 비싸게 따라 사게 된다", "수수료가 늘어난다", "세금이 더 나온다", "친구들에게 자랑할 거리가 없어진다"], correctIndex: 0, explanation: "역사적으로 가장 흔한 손실 패턴이에요. \"완벽한 가격\"을 노리다가 모든 기회를 놓쳐요.", insight: "완벽주의는 투자의 가장 큰 적이에요. 70점 매수가 100점 예측보다 늘 이깁니다." },
+  { format: "multiple_choice", difficulty: "intermediate", category: "no_bottom_fishing", question: "다음 중 바닥 예측이 아닌 \"구간 대응\" 전략은?", options: ["-15% 시 1/3, -25% 시 1/3, -40% 시 마지막 1/3 매수", "가장 낮은 가격이 올 때까지 100% 현금 보유", "전 재산을 한 번에 투입", "차트의 지지선을 그어 정확한 바닥에 베팅"], correctIndex: 0, explanation: "구간별 분할매수는 바닥을 못 잡아도 평균 매수단가를 충분히 낮춰줘요.", insight: "분할매수는 겸손한 사람의 무기예요. \"내가 바닥을 모른다\"는 인정에서 출발합니다." },
+  { format: "multiple_choice", difficulty: "advanced", category: "no_bottom_fishing", question: "버핏이 2008년 금융위기 때 골드만삭스에 투자한 방식의 핵심은?", options: ["바닥 예측 대신 \"좋은 가격 구간\"에서 즉시 행동", "정확한 바닥을 잡아 한 번에 100% 매수", "다른 투자자들이 매도할 때까지 기다림", "차트 분석을 통한 정확한 타이밍"], correctIndex: 0, explanation: "버핏은 \"바닥을 잡으려 하지 않았다. 그저 좋은 가격이라 판단했고, 행동했다\"고 말했어요.", insight: "행동의 트리거는 \"바닥\"이 아니라 \"내 기준의 좋은 가격\"이에요." },
+  { format: "fill_blank", difficulty: "beginner", category: "no_bottom_fishing", sentence: "바닥은 신만 안다. 우리는 ___만 정할 수 있다.", answer: "구간", hints: ["구간", "범위"], explanation: "분할매수의 철학이에요. -15%/-25%/-40% 같은 구간에 도달하면 행동 시작.", insight: "예측을 포기하는 순간, 진짜 투자가 시작돼요." },
+  { format: "fill_blank", difficulty: "intermediate", category: "no_bottom_fishing", sentence: "내가 버핏보다 바닥을 잘 잡을 수 있다는 ___은 가장 큰 손실의 시작이다.", answer: "착각", hints: ["착각", "오만"], explanation: "오만은 가장 비싼 감정이에요. 겸손은 가장 저평가된 투자 자산이고요.", insight: "내가 모른다는 사실을 인정한 순간, 손실의 절반은 사라져요." },
+  { format: "ox", difficulty: "advanced", category: "no_bottom_fishing", statement: "분할매수의 핵심 가치는 \"바닥에 사는 것\"이 아니라 \"감정이 결정하지 못하게 하는 것\"이다", answer: true, explanation: "미리 정한 계획은 위기 때 패닉을 차단해줘요. 바닥보다 평정심이 훨씬 비쌉니다.", insight: "계획은 위기 전에 세우고, 위기 중엔 그 계획만 실행해요. 즉흥은 거의 항상 손실이에요." },
+];
+
 // Combine all questions
 export const allQuestions: QuizQuestion[] = [
   ...riskQuestions,
@@ -253,6 +285,8 @@ export const allQuestions: QuizQuestion[] = [
   ...philosophyQuestions,
   ...usMarketQuestions,
   ...legendWisdomQuestions,
+  ...humilityQuestions,
+  ...noBottomFishingQuestions,
 ];
 
 export type ExperienceLevel = "완전 초보" | "조금 해봤어요" | "1년 이상 투자 중" | "베테랑 투자자";
