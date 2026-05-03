@@ -1,26 +1,26 @@
 // Big 4 앵커 종목 학습 카드 — MSFT/GOOGL/AMZN/AAPL
-// "왜 이 회사인가"를 10계명 관점(브랜드/해자/일상소비/FCF/머무름)으로 매일 상기.
-// 홈 가로 스크롤. 카드 탭 시 상세 모달.
+// 카드 시각: 티커 모노그램(텍스트) + Lucide 섹션 아이콘. 이모지 제거.
 
 import React, { useState } from "react";
-import { X } from "lucide-react";
+import {
+  X, Target, Coffee, Castle, Droplets, Quote,
+  type LucideIcon,
+} from "lucide-react";
 
 type Big4 = {
   ticker: "MSFT" | "GOOGL" | "AMZN" | "AAPL";
-  emoji: string;
   nameKr: string;
-  oneLiner: string;        // 한 줄 정체성
-  why: string[];           // "왜 이 회사인가" 3-5개 근거 (10계명 매핑)
-  daily: string;           // 일상에서 매일 마주치는 접점
-  moat: string;            // 해자
-  fcf: string;             // 잉여현금흐름 관점
-  mantra: string;          // 핵심 한 줄 만트라
+  oneLiner: string;
+  why: string[];
+  daily: string;
+  moat: string;
+  fcf: string;
+  mantra: string;
 };
 
 const BIG4: Big4[] = [
   {
     ticker: "MSFT",
-    emoji: "🪟",
     nameKr: "마이크로소프트",
     oneLiner: "전 세계 사무실의 운영체제 + 클라우드의 한 축",
     why: [
@@ -36,7 +36,6 @@ const BIG4: Big4[] = [
   },
   {
     ticker: "GOOGL",
-    emoji: "🔎",
     nameKr: "구글(알파벳)",
     oneLiner: "인류가 무언가를 궁금해할 때 가장 먼저 켜는 창",
     why: [
@@ -52,7 +51,6 @@ const BIG4: Big4[] = [
   },
   {
     ticker: "AMZN",
-    emoji: "📦",
     nameKr: "아마존",
     oneLiner: "지구상 가장 큰 매장 + 가장 큰 클라우드",
     why: [
@@ -68,7 +66,6 @@ const BIG4: Big4[] = [
   },
   {
     ticker: "AAPL",
-    emoji: "🍎",
     nameKr: "애플",
     oneLiner: "전 세계에서 가장 강력한 브랜드 + 충성 고객 생태계",
     why: [
@@ -83,6 +80,14 @@ const BIG4: Big4[] = [
     mantra: "공장은 누구나 짓지만, 애플의 충성도는 누구도 못 산다.",
   },
 ];
+
+// 티커별 브랜드 색상 (잘 알려진 1차 정체성 색)
+const TICKER_TONE: Record<Big4["ticker"], string> = {
+  MSFT:  "bg-[hsl(var(--tone-truth-bg))] text-[hsl(var(--tone-truth-fg))]",
+  GOOGL: "bg-tone-wisdom-bg text-tone-wisdom-fg",
+  AMZN:  "bg-tone-caution-bg text-tone-caution-fg",
+  AAPL:  "bg-tone-growth-bg text-tone-growth-fg",
+};
 
 export function Big4Cards() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
