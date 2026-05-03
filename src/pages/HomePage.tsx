@@ -10,6 +10,7 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { TimeMachinePreview } from "@/components/TimeMachinePreview";
 import { WelcomeOverlay } from "@/components/WelcomeOverlay";
+import { RichMindsetCard } from "@/components/RichMindsetCard";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
@@ -244,6 +245,9 @@ export default function HomePage() {
             <span>🏆 <strong className="text-foreground tabular-nums">{profile?.longest_streak || 0}</strong> 최장</span>
           </div>
         </PpuriCard>
+
+        {/* 부자처럼 생각하기 — 매일 30초 마인드셋 카드 (복리식 누적) */}
+        <RichMindsetCard />
 
         {/* Time Machine — daily companion */}
         <TimeMachinePreview holdingsTickers={holdings.map((h) => h.ticker)} />

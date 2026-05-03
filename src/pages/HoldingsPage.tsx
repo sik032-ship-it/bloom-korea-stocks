@@ -7,9 +7,11 @@ import { PpuriButton } from "@/components/PpuriButton";
 import { Mascot } from "@/components/Mascot";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
-import { Trash2, Sparkles, TrendingUp } from "lucide-react";
+import { Trash2, Sparkles, TrendingUp, Shield, ScanEye } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 import { FutureValueSimulator } from "@/components/FutureValueSimulator";
+import { DropPlanModal, hasDropPlan } from "@/components/DropPlanModal";
+import { HumilityCheckModal, getHumilityCheck } from "@/components/HumilityCheck";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
@@ -51,6 +53,8 @@ export default function HoldingsPage() {
   const [customName, setCustomName] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [simHolding, setSimHolding] = useState<Holding | null>(null);
+  const [planHolding, setPlanHolding] = useState<Holding | null>(null);
+  const [humilityHolding, setHumilityHolding] = useState<Holding | null>(null);
   const [profile, setProfile] = useState<{ current_streak: number; longest_streak: number } | null>(null);
 
   const fetchData = async () => {
@@ -157,13 +161,37 @@ export default function HoldingsPage() {
                   ×
                 </button>
               </div>
-              <button
-                onClick={() => setSimHolding(h)}
-                className="mt-3 w-full flex items-center justify-center gap-1.5 h-9 rounded-md bg-primary/8 text-primary text-small font-semibold hover:bg-primary/15 transition-all press-effect"
-              >
-                <TrendingUp className="w-4 h-4" />
-                2040년의 내가 본다면?
-              </button>
+              <div className="mt-3 grid grid-cols-3 gap-1.5">
+                <button
+                  onClick={() => setSimHolding(h)}
+                  className="flex flex-col items-center justify-center gap-0.5 h-14 rounded-md bg-primary/8 text-primary text-[11px] font-semibold hover:bg-primary/15 transition-all press-effect"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span>2040년 시점</span>
+                </button>
+                <button
+                  onClick={() => setPlanHolding(h)}
+                  className={`flex flex-col items-center justify-center gap-0.5 h-14 rounded-md text-[11px] font-semibold transition-all press-effect ${
+                    hasDropPlan(h.id)
+                      ? "bg-[#F59E0B]/15 text-[#D97706] hover:bg-[#F59E0B]/25"
+                      : "bg-muted text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  <Shield className="w-4 h-4" />
+                  <span>{hasDropPlan(h.id) ? "분할매수 ✓" : "분할매수 계획"}</span>
+                </button>
+                <button
+                  onClick={() => setHumilityHolding(h)}
+                  className={`flex flex-col items-center justify-center gap-0.5 h-14 rounded-md text-[11px] font-semibold transition-all press-effect ${
+                    getHumilityCheck(h.id)
+                      ? "bg-primary/10 text-primary hover:bg-primary/20"
+                      : "bg-muted text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  <ScanEye className="w-4 h-4" />
+                  <span>{getHumilityCheck(h.id) ? "겸손체크 ✓" : "겸손 체크"}</span>
+                </button>
+              </div>
             </PpuriCard>
           ))}
         </div>
@@ -258,6 +286,24 @@ export default function HoldingsPage() {
           ticker={simHolding.ticker}
           companyName={simHolding.company_name_kr}
           onClose={() => setSimHolding(null)}
+        />
+      )}
+
+      {planHolding && (
+        <DropPlanModal
+          holdingId={planHolding.id}
+          ticker={planHolding.ticker}
+          companyName={planHolding.company_name_kr}
+          onClose={() => setPlanHolding(null)}
+        />
+      )}
+
+      {humilityHolding && (
+        <HumilityCheckModal
+          holdingId={humilityHolding.id}
+          ticker={humilityHolding.ticker}
+          companyName={humilityHolding.company_name_kr}
+          onClose={() => setHumilityHolding(null)}
         />
       )}
     </Layout>
