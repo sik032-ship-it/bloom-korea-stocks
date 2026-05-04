@@ -34,13 +34,15 @@ export function useMentorExperiment(
       // fire-and-forget; 실패는 콘솔에만
       void supabase
         .from("mentor_card_events")
-        .insert({
-          user_id: user.id,
-          placement,
-          variant_id: variant.id,
-          event_type,
-          context: { ...(context ?? {}), ...(extra ?? {}) },
-        })
+        .insert([
+          {
+            user_id: user.id,
+            placement,
+            variant_id: variant.id,
+            event_type,
+            context: { ...(context ?? {}), ...(extra ?? {}) },
+          },
+        ])
         .then(({ error }) => {
           if (error) console.warn("[mentor-exp] log failed", error.message);
         });
