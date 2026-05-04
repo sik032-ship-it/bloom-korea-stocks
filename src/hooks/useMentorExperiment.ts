@@ -40,7 +40,7 @@ export function useMentorExperiment(
             placement,
             variant_id: variant.id,
             event_type,
-            context: { ...(context ?? {}), ...(extra ?? {}) },
+            context: { ...(context ?? {}), ...(extra ?? {}) } as never,
           },
         ])
         .then(({ error }) => {
