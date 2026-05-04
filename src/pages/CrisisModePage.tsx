@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
+import { MentorCard } from "@/components/MentorCard";
 import { PpuriButton } from "@/components/PpuriButton";
 import { ShareCard } from "@/components/ShareCard";
 import { GrowthComparison } from "@/components/GrowthComparison";
@@ -619,6 +620,17 @@ export default function CrisisModePage() {
               실제 역사 속 투자 위기를 시뮬레이션해요.
               <br />감정을 다스리고 올바른 판단을 연습하세요.
             </p>
+          </div>
+
+          {/* 멘토 카드 — 위기 진입 시점에 감정 앵커링 (전환의 첫 순간) */}
+          <div className="mb-6 animate-fade-in">
+            <MentorCard
+              mentor="buffett"
+              quote="진짜 큰 피해는 항상 우리가 예상치 못한 곳에서 발생합니다. 걱정한다고 상황이 달라지지 않아요. 인식하는 것은 좋지만, 걱정에 빠지는 건 정말 좋지 않습니다."
+              commandment={10}
+              commandmentLabel="어디에 머무를지"
+              footnote="그래서 우리는 미리 연습합니다 — 실제 위기가 왔을 때 감정이 아닌 계획으로 행동하기 위해서."
+            />
           </div>
 
           {/* 첫 방문 툴팁 — 1회성 안내 (위기 훈련 미경험자만) */}

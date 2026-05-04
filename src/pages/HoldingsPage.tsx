@@ -8,6 +8,7 @@ import { Mascot } from "@/components/Mascot";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { Trash2, Sparkles, TrendingUp, Shield, ScanEye } from "lucide-react";
+import { MentorCard } from "@/components/MentorCard";
 import type { Database } from "@/integrations/supabase/types";
 import { FutureValueSimulator } from "@/components/FutureValueSimulator";
 import { DropPlanModal, hasDropPlan } from "@/components/DropPlanModal";
@@ -260,23 +261,27 @@ export default function HoldingsPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal — 매도/이탈 차단의 핵심 모먼트 */}
       {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm">
-          <div className="bg-card rounded-lg p-6 mx-6 max-w-sm w-full text-center animate-bounce-in">
-            <p className="text-title text-foreground mb-4">정말 삭제하시겠습니까?</p>
-            <p className="text-small text-muted-foreground mb-6">
-              {holdings.find((h) => h.id === deleteId)?.ticker} — 이 작업은 되돌릴 수 없어요
-            </p>
-            <div className="flex gap-3">
-              <PpuriButton variant="ghost" fullWidth onClick={() => setDeleteId(null)}>취소</PpuriButton>
-              <button
-                onClick={confirmDelete}
-                className="flex-1 h-11 rounded-md bg-destructive text-destructive-foreground font-semibold text-body"
-              >
-                삭제
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm">
+          <div className="w-full max-w-md mx-auto sm:mx-4 max-h-[90vh] overflow-y-auto animate-slide-up">
+            <MentorCard
+              mentor="lynch"
+              quote="대부분의 투자자가 손해를 보는 이유는 시장이 폭락해서가 아니라, 폭락할 때 팔아버리기 때문입니다."
+              commandment={1}
+              commandmentLabel="산 다음 아무것도 하지 마라"
+              footnote={
+                <>
+                  <strong className="text-foreground">{holdings.find((h) => h.ticker === holdings.find(x => x.id === deleteId)?.ticker)?.ticker}</strong>를 정말 보내시겠어요?
+                  지금 보유한 지 <strong className="text-foreground">{Math.max(1, Math.floor((Date.now() - new Date(holdings.find(x => x.id === deleteId)?.added_at || Date.now()).getTime()) / 86_400_000))}일</strong>째예요.
+                  10년 뒤에도 사람들이 이 회사 제품을 쓸까요?
+                </>
+              }
+              ctaLabel="알겠어요, 머무를게요"
+              onCta={() => setDeleteId(null)}
+              secondaryLabel="그래도 휴지통으로 보내기 (30일 내 복구 가능)"
+              onSecondary={confirmDelete}
+            />
           </div>
         </div>
       )}
