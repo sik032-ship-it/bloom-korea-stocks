@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { Trash2, Sparkles, TrendingUp, Shield, ScanEye } from "lucide-react";
 import { MentorCard } from "@/components/MentorCard";
+import { useMentorExperiment } from "@/hooks/useMentorExperiment";
 import type { Database } from "@/integrations/supabase/types";
 import { FutureValueSimulator } from "@/components/FutureValueSimulator";
 import { DropPlanModal, hasDropPlan } from "@/components/DropPlanModal";
@@ -261,30 +262,19 @@ export default function HoldingsPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal — 매도/이탈 차단의 핵심 모먼트 */}
-      {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm">
-          <div className="w-full max-w-md mx-auto sm:mx-4 max-h-[90vh] overflow-y-auto animate-slide-up">
-            <MentorCard
-              mentor="lynch"
-              quote="대부분의 투자자가 손해를 보는 이유는 시장이 폭락해서가 아니라, 폭락할 때 팔아버리기 때문입니다."
-              commandment={1}
-              commandmentLabel="산 다음 아무것도 하지 마라"
-              footnote={
-                <>
-                  <strong className="text-foreground">{holdings.find((h) => h.ticker === holdings.find(x => x.id === deleteId)?.ticker)?.ticker}</strong>를 정말 보내시겠어요?
-                  지금 보유한 지 <strong className="text-foreground">{Math.max(1, Math.floor((Date.now() - new Date(holdings.find(x => x.id === deleteId)?.added_at || Date.now()).getTime()) / 86_400_000))}일</strong>째예요.
-                  10년 뒤에도 사람들이 이 회사 제품을 쓸까요?
-                </>
-              }
-              ctaLabel="알겠어요, 머무를게요"
-              onCta={() => setDeleteId(null)}
-              secondaryLabel="그래도 휴지통으로 보내기 (30일 내 복구 가능)"
-              onSecondary={confirmDelete}
-            />
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation Modal — 매도/이탈 차단의 핵심 모먼트 (A/B variant 자동 노출) */}
+      {deleteId && (() => {
+        const target = holdings.find((h) => h.id === deleteId);
+        if (!target) return null;
+        return (
+          <SellBlockModal
+            ticker={target.ticker}
+            daysHeld={Math.max(1, Math.floor((Date.now() - new Date(target.added_at).getTime()) / 86_400_000))}
+            onStay={() => setDeleteId(null)}
+            onSell={confirmDelete}
+          />
+        );
+      })()}
 
       {simHolding && (
         <FutureValueSimulator
