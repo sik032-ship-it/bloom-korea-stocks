@@ -304,3 +304,47 @@ export default function HoldingsPage() {
     </Layout>
   );
 }
+
+// 매도 차단 모달 — 별도 컴포넌트로 분리해 deleteId 변경 시마다 impression이 정확히 1회 기록되게 함
+function SellBlockModal({
+  ticker,
+  daysHeld,
+  onStay,
+  onSell,
+}: {
+  ticker: string;
+  daysHeld: number;
+  onStay: () => void;
+  onSell: () => void;
+}) {
+  const { variant, log } = useMentorExperiment("sell_block", true, { ticker, days_held: daysHeld });
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm animate-fade-in">
+      <div className="w-full max-w-md mx-auto sm:mx-4 max-h-[90vh] overflow-y-auto animate-slide-up p-4 sm:p-0">
+        <MentorCard
+          mentor={variant.mentor}
+          quote={variant.quote}
+          commandment={variant.commandment}
+          commandmentLabel={variant.commandmentLabel}
+          ctaLabel={variant.ctaLabel}
+          onCta={() => {
+            log("cta_click");
+            onStay();
+          }}
+          secondaryLabel={variant.secondaryLabel}
+          onSecondary={() => {
+            log("secondary_click");
+            onSell();
+          }}
+          footnote={
+            <>
+              <strong className="text-foreground">{ticker}</strong>를 정말 보내시겠어요?
+              지금 보유한 지 <strong className="text-foreground tabular-nums">{daysHeld}일</strong>째예요.
+              10년 뒤에도 사람들이 이 회사 제품을 쓸까요?
+            </>
+          }
+        />
+      </div>
+    </div>
+  );
+}
