@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
+import { MentorCard } from "@/components/MentorCard";
 import { PpuriButton } from "@/components/PpuriButton";
 import { ShareCard } from "@/components/ShareCard";
 import { GrowthComparison } from "@/components/GrowthComparison";
