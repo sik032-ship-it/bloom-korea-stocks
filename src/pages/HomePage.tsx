@@ -261,6 +261,9 @@ export default function HomePage() {
         {/* Time Machine — daily companion */}
         <TimeMachinePreview holdingsTickers={holdings.map((h) => h.ticker)} />
       </div>
+
+      {/* 위기 자동 트리거 — 보유 종목 -10% 이상 하락 시 멘토 카드 자동 노출 */}
+      <CrisisTriggerModal tickers={holdings.map((h) => h.ticker)} />
     </Layout>
   );
 }
