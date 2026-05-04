@@ -91,6 +91,36 @@ export type Database = {
           },
         ]
       }
+      mentor_card_events: {
+        Row: {
+          context: Json | null
+          created_at: string
+          event_type: string
+          id: string
+          placement: string
+          user_id: string
+          variant_id: string
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          event_type: string
+          id?: string
+          placement: string
+          user_id: string
+          variant_id: string
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          placement?: string
+          user_id?: string
+          variant_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           consent_privacy_version: string | null
