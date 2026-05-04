@@ -61,14 +61,14 @@ export function MentorCard({
     >
       {/* 인물 일러스트 (우측 상단, 카드 분위기 압도하지 않도록) */}
       <div className="flex items-start gap-4">
-        <div className="shrink-0 w-20 h-20 rounded-full bg-tone-growth-bg flex items-center justify-center overflow-hidden ring-1 ring-tone-growth-fg/15">
+        <div className="shrink-0 w-24 h-24 rounded-full bg-white flex items-center justify-center overflow-hidden ring-2 ring-tone-growth-fg/20 shadow-card">
           <img
             src={m.image}
-            alt={`${m.name} 일러스트`}
-            width={160}
-            height={160}
+            alt={`${m.name} 초상`}
+            width={192}
+            height={192}
             loading="lazy"
-            className="w-full h-full object-cover scale-110"
+            className="w-full h-full object-cover object-top scale-105"
           />
         </div>
         <div className="flex-1 min-w-0 pt-0.5">
