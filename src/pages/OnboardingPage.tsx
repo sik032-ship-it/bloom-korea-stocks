@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +11,7 @@ import {
   retryAsync,
   isRetryablePostgrestError,
 } from "@/utils/onboardingValidation";
+
 
 // 온보딩용: 초보자 친화적인 OX 문제만 풀에서 랜덤 선택
 function pickRandomPreviewQuestion(): OXQuestion {
@@ -118,6 +119,47 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
   const totalSteps = 7; // 0:WHY, 1:goal, 2:exp, 3:daily, 4:holdings, 5:preview, 6:done
 
+  // 📊 Track step reach events (once per step per session)
+  const trackedSteps = useRef<Set<number>>(new Set());
+  const stepStartTime = useRef<number>(Date.now());
+  useEffect(() => {
+    if (!user) return;
+    if (trackedSteps.current.has(step)) return;
+    trackedSteps.current.add(step);
+    const elapsedMs = Date.now() - stepStartTime.current;
+    stepStartTime.current = Date.now();
+    supabase
+      .from("onboarding_events")
+      .insert({
+        user_id: user.id,
+        step,
+        event_type: "step_reached",
+        metadata: { elapsed_ms_from_prev: elapsedMs, total_steps: totalSteps },
+      })
+      .then(({ error }) => {
+        if (error) console.warn("[onboarding_events] step_reached failed", error);
+      });
+  }, [step, user]);
+
+  // 📊 Track abandonment when user leaves before completion
+  useEffect(() => {
+    if (!user) return;
+    const handleBeforeUnload = () => {
+      if (step < 6) {
+        // fire-and-forget; may not always deliver, best-effort
+        supabase.from("onboarding_events").insert({
+          user_id: user.id,
+          step,
+          event_type: "onboarding_abandoned",
+          metadata: { last_step: step },
+        });
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [step, user]);
+
+
   const addHolding = (ticker: string, name: string) => {
     if (holdings.length >= 10 || holdings.find((h) => h.ticker === ticker)) return;
     setHoldings([...holdings, { ticker, company_name_kr: name }]);
@@ -185,7 +227,25 @@ export default function OnboardingPage() {
       );
 
       toast.success("프로필이 저장됐어요! 🌱");
+      // 📊 Completion event
+      supabase
+        .from("onboarding_events")
+        .insert({
+          user_id: user.id,
+          step: 6,
+          event_type: "onboarding_completed",
+          metadata: {
+            experience_level: payload.experience_level,
+            investment_goal: payload.investment_goal,
+            daily_goal: payload.daily_goal,
+            holdings_count: holdings.length,
+          },
+        })
+        .then(({ error }) => {
+          if (error) console.warn("[onboarding_events] completed failed", error);
+        });
       navigate("/");
+
     } catch (err: unknown) {
       const e = err as { code?: string; message?: string };
       console.error("[onboarding] profile save failed", err);

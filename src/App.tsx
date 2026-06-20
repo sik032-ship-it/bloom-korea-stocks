@@ -22,6 +22,8 @@ const CrisisModePage = lazy(() => import("./pages/CrisisModePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 
 const TimeMachinePage = lazy(() => import("./pages/TimeMachinePage"));
+const SecurityCheckPage = lazy(() => import("./pages/admin/SecurityCheckPage"));
+const OnboardingStatsPage = lazy(() => import("./pages/admin/OnboardingStatsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -72,6 +74,8 @@ const App = () => (
                 <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                 
                 <Route path="/timemachine" element={<ProtectedRoute><TimeMachinePage /></ProtectedRoute>} />
+                <Route path="/admin/security-check" element={<ProtectedRoute><SecurityCheckPage /></ProtectedRoute>} />
+                <Route path="/admin/onboarding-stats" element={<ProtectedRoute><OnboardingStatsPage /></ProtectedRoute>} />
                 <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
