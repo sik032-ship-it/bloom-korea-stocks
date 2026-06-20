@@ -121,6 +121,33 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          step: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          step: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          step?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           consent_privacy_version: string | null
@@ -299,6 +326,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_onboarding_funnel: { Args: never; Returns: Json }
+      get_rls_audit: { Args: never; Returns: Json }
       purge_old_soft_deleted: { Args: never; Returns: undefined }
     }
     Enums: {
