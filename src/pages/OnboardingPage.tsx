@@ -141,22 +141,39 @@ export default function OnboardingPage() {
       });
   }, [step, user]);
 
-  // 📊 Track abandonment when user leaves before completion
+  // 📊 Track abandonment when user leaves before completion.
+  // beforeunload는 모바일/PWA에서 거의 발화하지 않으므로 pagehide + visibilitychange도 사용.
+  const abandonedSentRef = useRef(false);
+  useEffect(() => { abandonedSentRef.current = false; }, [step]);
   useEffect(() => {
     if (!user) return;
-    const handleBeforeUnload = () => {
-      if (step < 6) {
-        // fire-and-forget; may not always deliver, best-effort
-        supabase.from("onboarding_events").insert({
-          user_id: user.id,
-          step,
-          event_type: "onboarding_abandoned",
-          metadata: { last_step: step },
-        });
-      }
+    const fireAbandon = (reason: string) => {
+      if (step >= 6) return;
+      if (abandonedSentRef.current) return;
+      abandonedSentRef.current = true;
+      // fire-and-forget; best-effort
+      supabase.from("onboarding_events").insert({
+        user_id: user.id,
+        step,
+        event_type: "onboarding_abandoned",
+        metadata: { last_step: step, reason },
+      }).then(({ error }) => {
+        if (error) console.warn("[onboarding_events] abandoned failed", error);
+      });
     };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    const onBeforeUnload = () => fireAbandon("beforeunload");
+    const onPageHide = () => fireAbandon("pagehide");
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") fireAbandon("visibilitychange");
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    window.addEventListener("pagehide", onPageHide);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      window.removeEventListener("pagehide", onPageHide);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [step, user]);
 
 
