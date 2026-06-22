@@ -24,6 +24,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const TimeMachinePage = lazy(() => import("./pages/TimeMachinePage"));
 const SecurityCheckPage = lazy(() => import("./pages/admin/SecurityCheckPage"));
 const OnboardingStatsPage = lazy(() => import("./pages/admin/OnboardingStatsPage"));
+const OnboardingEventCheckPage = lazy(() => import("./pages/admin/OnboardingEventCheckPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
