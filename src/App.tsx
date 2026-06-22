@@ -77,6 +77,7 @@ const App = () => (
                 <Route path="/timemachine" element={<ProtectedRoute><TimeMachinePage /></ProtectedRoute>} />
                 <Route path="/admin/security-check" element={<ProtectedRoute><SecurityCheckPage /></ProtectedRoute>} />
                 <Route path="/admin/onboarding-stats" element={<ProtectedRoute><OnboardingStatsPage /></ProtectedRoute>} />
+                <Route path="/admin/onboarding-events" element={<ProtectedRoute><OnboardingEventCheckPage /></ProtectedRoute>} />
                 <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
