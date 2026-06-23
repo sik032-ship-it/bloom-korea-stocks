@@ -252,23 +252,18 @@ export default function OnboardingPage() {
       );
 
       toast.success("프로필이 저장됐어요! 🌱");
-      // 📊 Completion event
-      supabase
-        .from("onboarding_events")
-        .insert({
-          user_id: user.id,
-          step: 6,
-          event_type: "onboarding_completed",
-          metadata: {
-            experience_level: payload.experience_level,
-            investment_goal: payload.investment_goal,
-            daily_goal: payload.daily_goal,
-            holdings_count: holdings.length,
-          },
-        })
-        .then(({ error }) => {
-          if (error) console.warn("[onboarding_events] completed failed", error);
-        });
+      // 📊 Completion event — queued + retried on failure
+      void sendEventNow({
+        user_id: user.id,
+        step: 6,
+        event_type: "onboarding_completed",
+        metadata: {
+          experience_level: payload.experience_level,
+          investment_goal: payload.investment_goal,
+          daily_goal: payload.daily_goal,
+          holdings_count: holdings.length,
+        },
+      });
       navigate("/");
 
     } catch (err: unknown) {
