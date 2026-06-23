@@ -173,7 +173,7 @@ export function sendEventBeacon(e: OnboardingEventPayload): void {
 /** Normal in-app send. On failure, the event is queued for later retry. */
 export async function sendEventNow(e: OnboardingEventPayload): Promise<void> {
   try {
-    const { error } = await supabase.from("onboarding_events").insert(e);
+    const { error } = await supabase.from("onboarding_events").insert([e]);
     if (error) {
       console.warn("[onboarding_events] insert failed, queued for retry", error);
       enqueue(e);
