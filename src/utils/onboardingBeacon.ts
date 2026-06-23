@@ -206,7 +206,7 @@ export async function flushQueue(): Promise<{ sent: number; remaining: number; d
     }
     const { _qid, _attempts, _ts, ...payload } = item;
     try {
-      const { error } = await supabase.from("onboarding_events").insert(payload);
+      const { error } = await supabase.from("onboarding_events").insert([payload]);
       if (error) {
         keep.push({ ...item, _attempts: item._attempts + 1 });
       } else {
