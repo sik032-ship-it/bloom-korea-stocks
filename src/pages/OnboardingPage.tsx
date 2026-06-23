@@ -11,6 +11,11 @@ import {
   retryAsync,
   isRetryablePostgrestError,
 } from "@/utils/onboardingValidation";
+import {
+  sendEventNow,
+  sendEventBeacon,
+  flushQueue,
+} from "@/utils/onboardingBeacon";
 
 
 // 온보딩용: 초보자 친화적인 OX 문제만 풀에서 랜덤 선택
@@ -119,7 +124,7 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
   const totalSteps = 7; // 0:WHY, 1:goal, 2:exp, 3:daily, 4:holdings, 5:preview, 6:done
 
-  // 📊 Track step reach events (once per step per session)
+  // 📊 Track step reach events (once per step per session) — queued + retried on failure
   const trackedSteps = useRef<Set<number>>(new Set());
   const stepStartTime = useRef<number>(Date.now());
   useEffect(() => {
@@ -128,21 +133,27 @@ export default function OnboardingPage() {
     trackedSteps.current.add(step);
     const elapsedMs = Date.now() - stepStartTime.current;
     stepStartTime.current = Date.now();
-    supabase
-      .from("onboarding_events")
-      .insert({
-        user_id: user.id,
-        step,
-        event_type: "step_reached",
-        metadata: { elapsed_ms_from_prev: elapsedMs, total_steps: totalSteps },
-      })
-      .then(({ error }) => {
-        if (error) console.warn("[onboarding_events] step_reached failed", error);
-      });
+    void sendEventNow({
+      user_id: user.id,
+      step,
+      event_type: "step_reached",
+      metadata: { elapsed_ms_from_prev: elapsedMs, total_steps: totalSteps },
+    });
   }, [step, user]);
+
+  // 🔁 Drain any abandonment/step events that didn't make it last session
+  useEffect(() => {
+    if (!user) return;
+    void flushQueue().then((res) => {
+      if (res.sent > 0 || res.dropped > 0) {
+        console.info("[onboarding_events] flushed queue", res);
+      }
+    });
+  }, [user]);
 
   // 📊 Track abandonment when user leaves before completion.
   // beforeunload는 모바일/PWA에서 거의 발화하지 않으므로 pagehide + visibilitychange도 사용.
+  // sendBeacon/fetch keepalive + localStorage 큐로 탭 닫기 시에도 유실되지 않게 처리.
   const abandonedSentRef = useRef(false);
   useEffect(() => { abandonedSentRef.current = false; }, [step]);
   useEffect(() => {
@@ -151,14 +162,11 @@ export default function OnboardingPage() {
       if (step >= 6) return;
       if (abandonedSentRef.current) return;
       abandonedSentRef.current = true;
-      // fire-and-forget; best-effort
-      supabase.from("onboarding_events").insert({
+      sendEventBeacon({
         user_id: user.id,
         step,
         event_type: "onboarding_abandoned",
         metadata: { last_step: step, reason },
-      }).then(({ error }) => {
-        if (error) console.warn("[onboarding_events] abandoned failed", error);
       });
     };
     const onBeforeUnload = () => fireAbandon("beforeunload");
@@ -244,23 +252,18 @@ export default function OnboardingPage() {
       );
 
       toast.success("프로필이 저장됐어요! 🌱");
-      // 📊 Completion event
-      supabase
-        .from("onboarding_events")
-        .insert({
-          user_id: user.id,
-          step: 6,
-          event_type: "onboarding_completed",
-          metadata: {
-            experience_level: payload.experience_level,
-            investment_goal: payload.investment_goal,
-            daily_goal: payload.daily_goal,
-            holdings_count: holdings.length,
-          },
-        })
-        .then(({ error }) => {
-          if (error) console.warn("[onboarding_events] completed failed", error);
-        });
+      // 📊 Completion event — queued + retried on failure
+      void sendEventNow({
+        user_id: user.id,
+        step: 6,
+        event_type: "onboarding_completed",
+        metadata: {
+          experience_level: payload.experience_level,
+          investment_goal: payload.investment_goal,
+          daily_goal: payload.daily_goal,
+          holdings_count: holdings.length,
+        },
+      });
       navigate("/");
 
     } catch (err: unknown) {
