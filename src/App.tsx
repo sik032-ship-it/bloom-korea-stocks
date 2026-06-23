@@ -25,6 +25,7 @@ const TimeMachinePage = lazy(() => import("./pages/TimeMachinePage"));
 const SecurityCheckPage = lazy(() => import("./pages/admin/SecurityCheckPage"));
 const OnboardingStatsPage = lazy(() => import("./pages/admin/OnboardingStatsPage"));
 const OnboardingEventCheckPage = lazy(() => import("./pages/admin/OnboardingEventCheckPage"));
+const BeaconTestPage = lazy(() => import("./pages/admin/BeaconTestPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -78,6 +79,7 @@ const App = () => (
                 <Route path="/admin/security-check" element={<ProtectedRoute><SecurityCheckPage /></ProtectedRoute>} />
                 <Route path="/admin/onboarding-stats" element={<ProtectedRoute><OnboardingStatsPage /></ProtectedRoute>} />
                 <Route path="/admin/onboarding-events" element={<ProtectedRoute><OnboardingEventCheckPage /></ProtectedRoute>} />
+                <Route path="/admin/beacon-test" element={<ProtectedRoute><BeaconTestPage /></ProtectedRoute>} />
                 <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
