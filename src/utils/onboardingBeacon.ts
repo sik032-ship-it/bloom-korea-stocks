@@ -31,11 +31,13 @@ export type OnboardingEventType =
   | "onboarding_completed"
   | "onboarding_abandoned";
 
+type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
+
 export interface OnboardingEventPayload {
   user_id: string;
   step: number;
   event_type: OnboardingEventType;
-  metadata?: Record<string, unknown> | null;
+  metadata?: Json | null;
 }
 
 interface QueuedEvent extends OnboardingEventPayload {
