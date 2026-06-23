@@ -11,6 +11,11 @@ import {
   retryAsync,
   isRetryablePostgrestError,
 } from "@/utils/onboardingValidation";
+import {
+  sendEventNow,
+  sendEventBeacon,
+  flushQueue,
+} from "@/utils/onboardingBeacon";
 
 
 // 온보딩용: 초보자 친화적인 OX 문제만 풀에서 랜덤 선택
