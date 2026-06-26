@@ -355,25 +355,28 @@ export default function DailyLessonPage() {
     }
   };
 
-  const handleComplete = async () => {
-    if (!user) return;
-    if (!selectedHolding) {
-      setShowRewardPeak(true);
-      setCompleted(true);
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 8000);
-      return;
-    }
+  const persistLesson = async (): Promise<void> => {
+    if (!user || !selectedHolding) return;
 
-    setSaving(true);
-    await supabase.from("sentences").insert({
-      user_id: user.id, holding_id: selectedHolding.id,
-      question_type: questionType, question_text: questionText, answer_text: answer,
+    const { error: insertErr } = await supabase.from("sentences").insert({
+      user_id: user.id,
+      holding_id: selectedHolding.id,
+      question_type: questionType,
+      question_text: questionText,
+      answer_text: answer,
     });
-    await supabase.from("holdings").update({ sentence_count: selectedHolding.sentence_count + 1 }).eq("id", selectedHolding.id);
+    if (insertErr) throw insertErr;
+
+    const { error: holdingErr } = await supabase
+      .from("holdings")
+      .update({ sentence_count: selectedHolding.sentence_count + 1 })
+      .eq("id", selectedHolding.id);
+    if (holdingErr) throw holdingErr;
 
     if (!alreadyDone) {
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      const { data: profile, error: profileErr } = await supabase
+        .from("profiles").select("*").eq("id", user.id).single();
+      if (profileErr) throw profileErr;
       if (profile) {
         const today = new Date().toISOString().split("T")[0];
         const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
@@ -385,11 +388,38 @@ export default function DailyLessonPage() {
         setNewTotal(total);
         if (isLevelUp(profile.total_sentences, total)) setShowLevelUp(true);
         const newLevel = getLevelForCount(total);
-        await supabase.from("profiles").update({
+        const { error: updErr } = await supabase.from("profiles").update({
           total_sentences: total, current_streak: newStreak, longest_streak: newLongest,
           last_sentence_date: today, current_level: newLevel.level,
         }).eq("id", user.id);
+        if (updErr) throw updErr;
       }
+    }
+  };
+
+  const handleComplete = async () => {
+    if (!user) return;
+    if (!selectedHolding) {
+      setShowRewardPeak(true);
+      setCompleted(true);
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 8000);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await persistLesson();
+    } catch (err) {
+      // 🛟 저장 실패 안전망: silent failure 금지 — 사용자에게 알리고 재시도 가능하게
+      console.error("[lesson] save failed", err);
+      setSaving(false);
+      toast({
+        variant: "destructive",
+        title: "저장에 실패했어요",
+        description: "네트워크를 확인하고 다시 시도해 주세요. 작성한 문장은 그대로 남아있어요.",
+      });
+      return;
     }
 
     // PX: 감정 피크 → 결과 화면 순서로 노출
