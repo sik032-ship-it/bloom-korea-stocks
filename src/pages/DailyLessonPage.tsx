@@ -30,6 +30,17 @@ import {
   getDifficultyLabel,
 } from "@/utils/difficultyAdaptation";
 import Confetti from "react-confetti";
+import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Database } from "@/integrations/supabase/types";
 import type { QuestionType } from "@/styles/colors";
 
@@ -48,7 +59,13 @@ function LessonProgressBar({ current, total, streak, onClose }: { current: numbe
   const percent = (current / total) * 100;
   return (
     <div className="flex items-center gap-3 px-4 py-3">
-      <button onClick={onClose} className="text-muted-foreground text-xl hover:text-foreground transition-colors">✕</button>
+      <button
+        onClick={onClose}
+        aria-label="레슨 닫기"
+        className="text-muted-foreground text-xl hover:text-foreground transition-colors"
+      >
+        ✕
+      </button>
       <div className="flex-1 h-4 bg-muted rounded-full overflow-hidden relative">
         <div
           className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
@@ -226,6 +243,22 @@ export default function DailyLessonPage() {
   const [warmupQuestion] = useState<WarmupQuestion>(() => getTodayWarmup());
   const [difficultyBoost, setDifficultyBoost] = useState(0);
 
+  // 🛟 진행 손실 방지: 답을 하나라도 한 시점부터 닫기 시 확인
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const hasProgress =
+    phase !== "warmup" ||
+    currentQuizIndex > 0 ||
+    correctCount > 0 ||
+    answer.trim().length > 0;
+
+  const requestClose = () => {
+    if (completed || !hasProgress) {
+      navigate("/");
+      return;
+    }
+    setShowCloseConfirm(true);
+  };
+
   useEffect(() => {
     if (!user) return;
     const load = async () => {
@@ -338,25 +371,28 @@ export default function DailyLessonPage() {
     }
   };
 
-  const handleComplete = async () => {
-    if (!user) return;
-    if (!selectedHolding) {
-      setShowRewardPeak(true);
-      setCompleted(true);
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 8000);
-      return;
-    }
+  const persistLesson = async (): Promise<void> => {
+    if (!user || !selectedHolding) return;
 
-    setSaving(true);
-    await supabase.from("sentences").insert({
-      user_id: user.id, holding_id: selectedHolding.id,
-      question_type: questionType, question_text: questionText, answer_text: answer,
+    const { error: insertErr } = await supabase.from("sentences").insert({
+      user_id: user.id,
+      holding_id: selectedHolding.id,
+      question_type: questionType,
+      question_text: questionText,
+      answer_text: answer,
     });
-    await supabase.from("holdings").update({ sentence_count: selectedHolding.sentence_count + 1 }).eq("id", selectedHolding.id);
+    if (insertErr) throw insertErr;
+
+    const { error: holdingErr } = await supabase
+      .from("holdings")
+      .update({ sentence_count: selectedHolding.sentence_count + 1 })
+      .eq("id", selectedHolding.id);
+    if (holdingErr) throw holdingErr;
 
     if (!alreadyDone) {
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      const { data: profile, error: profileErr } = await supabase
+        .from("profiles").select("*").eq("id", user.id).single();
+      if (profileErr) throw profileErr;
       if (profile) {
         const today = new Date().toISOString().split("T")[0];
         const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
@@ -368,11 +404,38 @@ export default function DailyLessonPage() {
         setNewTotal(total);
         if (isLevelUp(profile.total_sentences, total)) setShowLevelUp(true);
         const newLevel = getLevelForCount(total);
-        await supabase.from("profiles").update({
+        const { error: updErr } = await supabase.from("profiles").update({
           total_sentences: total, current_streak: newStreak, longest_streak: newLongest,
           last_sentence_date: today, current_level: newLevel.level,
         }).eq("id", user.id);
+        if (updErr) throw updErr;
       }
+    }
+  };
+
+  const handleComplete = async () => {
+    if (!user) return;
+    if (!selectedHolding) {
+      setShowRewardPeak(true);
+      setCompleted(true);
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 8000);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await persistLesson();
+    } catch (err) {
+      // 🛟 저장 실패 안전망: silent failure 금지 — 사용자에게 알리고 재시도 가능하게
+      console.error("[lesson] save failed", err);
+      setSaving(false);
+      toast({
+        variant: "destructive",
+        title: "저장에 실패했어요",
+        description: "네트워크를 확인하고 다시 시도해 주세요. 작성한 문장은 그대로 남아있어요.",
+      });
+      return;
     }
 
     // PX: 감정 피크 → 결과 화면 순서로 노출
@@ -522,7 +585,30 @@ export default function DailyLessonPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
-      <LessonProgressBar current={currentStep} total={totalSteps} streak={quizStreak} onClose={() => navigate("/")} />
+      <LessonProgressBar current={currentStep} total={totalSteps} streak={quizStreak} onClose={requestClose} />
+
+      <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>레슨을 그만둘까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              지금 나가면 오늘의 진행이 저장되지 않아요. 한 문장만 더 심으면 도토리가 모여요 🌰
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>계속하기</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowCloseConfirm(false);
+                navigate("/");
+              }}
+            >
+              나가기
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       {/* Phase 0 — 워밍업 (30초): 본질 퀴즈 전 가벼운 위기 시나리오로 멘탈 시동 */}
       {phase === "warmup" && (
