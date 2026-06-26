@@ -59,7 +59,13 @@ function LessonProgressBar({ current, total, streak, onClose }: { current: numbe
   const percent = (current / total) * 100;
   return (
     <div className="flex items-center gap-3 px-4 py-3">
-      <button onClick={onClose} className="text-muted-foreground text-xl hover:text-foreground transition-colors">✕</button>
+      <button
+        onClick={onClose}
+        aria-label="레슨 닫기"
+        className="text-muted-foreground text-xl hover:text-foreground transition-colors"
+      >
+        ✕
+      </button>
       <div className="flex-1 h-4 bg-muted rounded-full overflow-hidden relative">
         <div
           className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
