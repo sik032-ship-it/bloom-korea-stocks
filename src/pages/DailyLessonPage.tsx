@@ -585,7 +585,30 @@ export default function DailyLessonPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
-      <LessonProgressBar current={currentStep} total={totalSteps} streak={quizStreak} onClose={() => navigate("/")} />
+      <LessonProgressBar current={currentStep} total={totalSteps} streak={quizStreak} onClose={requestClose} />
+
+      <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>레슨을 그만둘까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              지금 나가면 오늘의 진행이 저장되지 않아요. 한 문장만 더 심으면 도토리가 모여요 🌰
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>계속하기</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowCloseConfirm(false);
+                navigate("/");
+              }}
+            >
+              나가기
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       {/* Phase 0 — 워밍업 (30초): 본질 퀴즈 전 가벼운 위기 시나리오로 멘탈 시동 */}
       {phase === "warmup" && (
