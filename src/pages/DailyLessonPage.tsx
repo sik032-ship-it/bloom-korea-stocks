@@ -243,6 +243,22 @@ export default function DailyLessonPage() {
   const [warmupQuestion] = useState<WarmupQuestion>(() => getTodayWarmup());
   const [difficultyBoost, setDifficultyBoost] = useState(0);
 
+  // 🛟 진행 손실 방지: 답을 하나라도 한 시점부터 닫기 시 확인
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const hasProgress =
+    phase !== "warmup" ||
+    currentQuizIndex > 0 ||
+    correctCount > 0 ||
+    answer.trim().length > 0;
+
+  const requestClose = () => {
+    if (completed || !hasProgress) {
+      navigate("/");
+      return;
+    }
+    setShowCloseConfirm(true);
+  };
+
   useEffect(() => {
     if (!user) return;
     const load = async () => {
