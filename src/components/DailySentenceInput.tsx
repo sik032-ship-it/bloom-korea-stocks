@@ -72,6 +72,11 @@ export const DailySentenceInput = ({
   // 디바운스 자동 저장 — 입력이 멈춘 뒤 ~600ms 지나면 localStorage 에 저장
   useEffect(() => {
     if (!selectedTicker) return;
+    if (sentence.trim().length > 0) {
+      setSaveStatus('saving');
+    } else {
+      setSaveStatus('idle');
+    }
     if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
     saveTimerRef.current = window.setTimeout(() => {
       const drafts = readDrafts();
@@ -80,8 +85,13 @@ export const DailySentenceInput = ({
       } else {
         drafts[selectedTicker] = sentence;
       }
-      writeDrafts(drafts);
-      setSavedAt(Date.now());
+      const ok = writeDrafts(drafts);
+      if (ok) {
+        setSaveStatus('saved');
+        setSavedAt(Date.now());
+      } else {
+        setSaveStatus('failed');
+      }
     }, 600);
     return () => {
       if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
