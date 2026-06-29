@@ -12,6 +12,28 @@ interface DailySentenceInputProps {
 const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
 const shortcutLabel = isMac ? "⌘ + Enter" : "Ctrl + Enter";
 
+// 작성 중 문장 임시 보관용 — 종목별로 분리해 페이지를 떠나도 복원
+const DRAFT_KEY = "ppuri:daily-sentence-draft";
+type DraftMap = Record<string, string>;
+
+const readDrafts = (): DraftMap => {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    return raw ? (JSON.parse(raw) as DraftMap) : {};
+  } catch {
+    return {};
+  }
+};
+
+const writeDrafts = (drafts: DraftMap) => {
+  try {
+    window.localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+  } catch {
+    // quota/permission 문제는 무시 — 사용자 입력은 화면에 그대로 남음
+  }
+};
+
 export const DailySentenceInput = ({
   holdings,
   onSubmit,
@@ -19,8 +41,13 @@ export const DailySentenceInput = ({
   autoFocus = false,
 }: DailySentenceInputProps) => {
   const [selectedTicker, setSelectedTicker] = useState(holdings[0]?.ticker || "");
-  const [sentence, setSentence] = useState("");
+  const [sentence, setSentence] = useState(() => {
+    const first = holdings[0]?.ticker;
+    return first ? readDrafts()[first] ?? "" : "";
+  });
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const saveTimerRef = useRef<number | null>(null);
 
   // 최초 mount 시 autoFocus 프롭이 true일 때만 focus — 스크롤 점프 방지
   useEffect(() => {
@@ -30,12 +57,67 @@ export const DailySentenceInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 종목을 바꾸면 해당 종목의 드래프트로 복원
+  useEffect(() => {
+    if (!selectedTicker) return;
+    setSentence(readDrafts()[selectedTicker] ?? "");
+    setSavedAt(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTicker]);
+
+  // 디바운스 자동 저장 — 입력이 멈춘 뒤 ~600ms 지나면 localStorage 에 저장
+  useEffect(() => {
+    if (!selectedTicker) return;
+    if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = window.setTimeout(() => {
+      const drafts = readDrafts();
+      if (sentence.trim().length === 0) {
+        delete drafts[selectedTicker];
+      } else {
+        drafts[selectedTicker] = sentence;
+      }
+      writeDrafts(drafts);
+      setSavedAt(Date.now());
+    }, 600);
+    return () => {
+      if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
+    };
+  }, [sentence, selectedTicker]);
+
+  // 탭 닫기/이동 직전, 디바운스가 아직 안 끝났어도 즉시 보관
+  useEffect(() => {
+    const flush = () => {
+      if (!selectedTicker) return;
+      const drafts = readDrafts();
+      if (sentence.trim().length === 0) {
+        delete drafts[selectedTicker];
+      } else {
+        drafts[selectedTicker] = sentence;
+      }
+      writeDrafts(drafts);
+    };
+    window.addEventListener("beforeunload", flush);
+    window.addEventListener("pagehide", flush);
+    return () => {
+      window.removeEventListener("beforeunload", flush);
+      window.removeEventListener("pagehide", flush);
+    };
+  }, [sentence, selectedTicker]);
+
   const canSubmit = !!sentence.trim() && !!selectedTicker && !disabled;
+
+  const clearDraft = (ticker: string) => {
+    const drafts = readDrafts();
+    delete drafts[ticker];
+    writeDrafts(drafts);
+  };
 
   const handleSubmit = () => {
     if (!canSubmit) return;
     onSubmit(selectedTicker, sentence.trim());
+    clearDraft(selectedTicker);
     setSentence("");
+    setSavedAt(null);
   };
 
   // 종목을 바꿔 고르면 자연스럽게 입력으로 포커스 이동 — 한 손 흐름 유지
@@ -100,11 +182,17 @@ export const DailySentenceInput = ({
           />
 
           <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-            <span>
-              빠른 저장: <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]">{shortcutLabel}</kbd>
+            <span className="flex items-center gap-2">
+              <span>
+                빠른 저장: <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]">{shortcutLabel}</kbd>
+              </span>
+              {savedAt && sentence.length > 0 && (
+                <span className="text-primary/80" aria-live="polite">· 임시 저장됨</span>
+              )}
             </span>
             <span className="tabular-nums">{sentence.length}자</span>
           </div>
+
 
           <button
             onClick={handleSubmit}
