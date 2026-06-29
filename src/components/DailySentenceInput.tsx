@@ -48,6 +48,7 @@ export const DailySentenceInput = ({
     return first ? readDrafts()[first] ?? "" : "";
   });
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<number | null>(null);
 
