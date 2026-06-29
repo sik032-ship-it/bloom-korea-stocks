@@ -26,11 +26,13 @@ const readDrafts = (): DraftMap => {
   }
 };
 
-const writeDrafts = (drafts: DraftMap) => {
+const writeDrafts = (drafts: DraftMap): boolean => {
   try {
     window.localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+    return true;
   } catch {
     // quota/permission 문제는 무시 — 사용자 입력은 화면에 그대로 남음
+    return false;
   }
 };
 
@@ -46,6 +48,7 @@ export const DailySentenceInput = ({
     return first ? readDrafts()[first] ?? "" : "";
   });
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<number | null>(null);
 
@@ -62,12 +65,18 @@ export const DailySentenceInput = ({
     if (!selectedTicker) return;
     setSentence(readDrafts()[selectedTicker] ?? "");
     setSavedAt(null);
+    setSaveStatus('idle');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTicker]);
 
   // 디바운스 자동 저장 — 입력이 멈춘 뒤 ~600ms 지나면 localStorage 에 저장
   useEffect(() => {
     if (!selectedTicker) return;
+    if (sentence.trim().length > 0) {
+      setSaveStatus('saving');
+    } else {
+      setSaveStatus('idle');
+    }
     if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
     saveTimerRef.current = window.setTimeout(() => {
       const drafts = readDrafts();
@@ -76,8 +85,13 @@ export const DailySentenceInput = ({
       } else {
         drafts[selectedTicker] = sentence;
       }
-      writeDrafts(drafts);
-      setSavedAt(Date.now());
+      const ok = writeDrafts(drafts);
+      if (ok) {
+        setSaveStatus('saved');
+        setSavedAt(Date.now());
+      } else {
+        setSaveStatus('failed');
+      }
     }, 600);
     return () => {
       if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
@@ -186,9 +200,28 @@ export const DailySentenceInput = ({
               <span>
                 빠른 저장: <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]">{shortcutLabel}</kbd>
               </span>
-              {savedAt && sentence.length > 0 && (
-                <span className="text-primary/80" aria-live="polite">· 임시 저장됨</span>
-              )}
+              <span className="flex items-center gap-1.5" aria-live="polite">
+                {saveStatus === 'saving' && (
+                  <>
+                    <span className="inline-block w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                    <span>저장 중...</span>
+                  </>
+                )}
+                {saveStatus === 'saved' && savedAt && (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-green-500" />
+                    <span className="text-primary/80">
+                      {new Date(savedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })} 저장됨
+                    </span>
+                  </>
+                )}
+                {saveStatus === 'failed' && (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-red-500" />
+                    <span className="text-red-500">저장 실패</span>
+                  </>
+                )}
+              </span>
             </span>
             <span className="tabular-nums">{sentence.length}자</span>
           </div>
