@@ -65,6 +65,7 @@ export const DailySentenceInput = ({
     if (!selectedTicker) return;
     setSentence(readDrafts()[selectedTicker] ?? "");
     setSavedAt(null);
+    setSaveStatus('idle');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTicker]);
 
