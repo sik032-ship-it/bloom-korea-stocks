@@ -182,11 +182,17 @@ export const DailySentenceInput = ({
           />
 
           <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-            <span>
-              빠른 저장: <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]">{shortcutLabel}</kbd>
+            <span className="flex items-center gap-2">
+              <span>
+                빠른 저장: <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]">{shortcutLabel}</kbd>
+              </span>
+              {savedAt && sentence.length > 0 && (
+                <span className="text-primary/80" aria-live="polite">· 임시 저장됨</span>
+              )}
             </span>
             <span className="tabular-nums">{sentence.length}자</span>
           </div>
+
 
           <button
             onClick={handleSubmit}
