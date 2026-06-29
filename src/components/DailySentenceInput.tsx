@@ -26,11 +26,13 @@ const readDrafts = (): DraftMap => {
   }
 };
 
-const writeDrafts = (drafts: DraftMap) => {
+const writeDrafts = (drafts: DraftMap): boolean => {
   try {
     window.localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+    return true;
   } catch {
     // quota/permission 문제는 무시 — 사용자 입력은 화면에 그대로 남음
+    return false;
   }
 };
 
