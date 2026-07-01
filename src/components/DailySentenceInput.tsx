@@ -45,6 +45,7 @@ export const DailySentenceInput = ({
   autoFocus = false,
 }: DailySentenceInputProps) => {
   const [selectedTicker, setSelectedTicker] = useState(holdings[0]?.ticker || "");
+  const [drafts, setDrafts] = useState<DraftMap>(() => readDrafts());
   const [sentence, setSentence] = useState(() => {
     const first = holdings[0]?.ticker;
     return first ? readDrafts()[first] ?? "" : "";
@@ -53,6 +54,7 @@ export const DailySentenceInput = ({
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<number | null>(null);
+
 
   // 최초 mount 시 autoFocus 프롭이 true일 때만 focus — 스크롤 점프 방지
   useEffect(() => {
