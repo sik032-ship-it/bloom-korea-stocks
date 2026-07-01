@@ -152,8 +152,8 @@ export default function HomePage() {
         />
       )}
       <div className="stagger-children">
-        {/* 스트릭 깨짐 위로 배너 */}
-        {streakBrokenMsg && (
+        {/* 스트릭 깨짐 배너 — Freeze 알림이 뜬 경우엔 겹치지 않게 숨김 */}
+        {streakBrokenMsg && !showFreezeUsed && (
           <div className="bg-accent border border-border rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
             <Mascot mood={streakBrokenMsg.mood} size="sm" />
             <div className="flex-1">
@@ -167,6 +167,7 @@ export default function HomePage() {
             </div>
           </div>
         )}
+
 
         {/* 🛡️ Streak Freeze 사용 알림 */}
         {showFreezeUsed && (
