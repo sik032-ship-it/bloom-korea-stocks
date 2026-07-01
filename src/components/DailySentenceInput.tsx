@@ -127,18 +127,40 @@ export const DailySentenceInput = ({
   const canSubmit = !!sentence.trim() && !!selectedTicker && !disabled;
 
   const clearDraft = (ticker: string) => {
-    const drafts = readDrafts();
-    delete drafts[ticker];
-    writeDrafts(drafts);
+    const next = { ...readDrafts() };
+    delete next[ticker];
+    writeDrafts(next);
+    setDrafts(next);
   };
 
   const handleSubmit = () => {
     if (!canSubmit) return;
-    onSubmit(selectedTicker, sentence.trim());
-    clearDraft(selectedTicker);
+    const submittedTicker = selectedTicker;
+    const submittedText = sentence.trim();
+    onSubmit(submittedTicker, submittedText);
+    clearDraft(submittedTicker);
     setSentence("");
     setSavedAt(null);
+    setSaveStatus('idle');
+
+    // 되돌리기 토스트 — 실수로 제출했거나 다시 다듬고 싶을 때 5초 안에 복원
+    toast.success("🌱 문장을 심었어요!", {
+      description: submittedText.length > 40 ? `${submittedText.slice(0, 40)}…` : submittedText,
+      duration: 5000,
+      action: {
+        label: "되돌리기",
+        onClick: () => {
+          setSelectedTicker(submittedTicker);
+          setSentence(submittedText);
+          const next = { ...readDrafts(), [submittedTicker]: submittedText };
+          writeDrafts(next);
+          setDrafts(next);
+          textareaRef.current?.focus({ preventScroll: true });
+        },
+      },
+    });
   };
+
 
   // 종목을 바꿔 고르면 자연스럽게 입력으로 포커스 이동 — 한 손 흐름 유지
   const handleSelectTicker = (ticker: string) => {
