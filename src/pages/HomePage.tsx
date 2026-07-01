@@ -46,6 +46,17 @@ export default function HomePage() {
   const [previousStreak, setPreviousStreak] = useState(0);
   const [showFreezeUsed, setShowFreezeUsed] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [timeUntilTomorrow, setTimeUntilTomorrow] = useState(() => formatTimeUntilTomorrow());
+
+  // 완료 후 "다음 레슨까지 X시간 Y분" 카운트다운 — 1분마다 갱신
+  useEffect(() => {
+    if (!todayDone) return;
+    const tick = () => setTimeUntilTomorrow(formatTimeUntilTomorrow());
+    tick();
+    const id = window.setInterval(tick, 60_000);
+    return () => window.clearInterval(id);
+  }, [todayDone]);
+
 
   useEffect(() => {
     if (!user) return;
