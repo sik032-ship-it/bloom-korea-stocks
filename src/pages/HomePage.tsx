@@ -21,6 +21,20 @@ import type { Database } from "@/integrations/supabase/types";
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
+// 자정까지 남은 시간을 사람이 읽는 형태로 — "다음 레슨까지"에 사용
+const formatTimeUntilTomorrow = (now: Date = new Date()): string => {
+  const tomorrow = new Date(now);
+  tomorrow.setHours(24, 0, 0, 0);
+  const diffMs = tomorrow.getTime() - now.getTime();
+  const totalMinutes = Math.max(0, Math.floor(diffMs / 60000));
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  if (h === 0) return `${m}분`;
+  if (m === 0) return `${h}시간`;
+  return `${h}시간 ${m}분`;
+};
+
+
 export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
