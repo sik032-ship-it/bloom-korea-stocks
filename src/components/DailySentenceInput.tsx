@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+
 
 interface DailySentenceInputProps {
   holdings: { ticker: string; company_name_kr: string }[];
@@ -43,6 +45,7 @@ export const DailySentenceInput = ({
   autoFocus = false,
 }: DailySentenceInputProps) => {
   const [selectedTicker, setSelectedTicker] = useState(holdings[0]?.ticker || "");
+  const [drafts, setDrafts] = useState<DraftMap>(() => readDrafts());
   const [sentence, setSentence] = useState(() => {
     const first = holdings[0]?.ticker;
     return first ? readDrafts()[first] ?? "" : "";
@@ -51,6 +54,7 @@ export const DailySentenceInput = ({
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<number | null>(null);
+
 
   // 최초 mount 시 autoFocus 프롭이 true일 때만 focus — 스크롤 점프 방지
   useEffect(() => {
@@ -79,13 +83,14 @@ export const DailySentenceInput = ({
     }
     if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
     saveTimerRef.current = window.setTimeout(() => {
-      const drafts = readDrafts();
+      const next = { ...readDrafts() };
       if (sentence.trim().length === 0) {
-        delete drafts[selectedTicker];
+        delete next[selectedTicker];
       } else {
-        drafts[selectedTicker] = sentence;
+        next[selectedTicker] = sentence;
       }
-      const ok = writeDrafts(drafts);
+      const ok = writeDrafts(next);
+      setDrafts(next);
       if (ok) {
         setSaveStatus('saved');
         setSavedAt(Date.now());
@@ -97,6 +102,7 @@ export const DailySentenceInput = ({
       if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
     };
   }, [sentence, selectedTicker]);
+
 
   // 탭 닫기/이동 직전, 디바운스가 아직 안 끝났어도 즉시 보관
   useEffect(() => {
@@ -121,18 +127,40 @@ export const DailySentenceInput = ({
   const canSubmit = !!sentence.trim() && !!selectedTicker && !disabled;
 
   const clearDraft = (ticker: string) => {
-    const drafts = readDrafts();
-    delete drafts[ticker];
-    writeDrafts(drafts);
+    const next = { ...readDrafts() };
+    delete next[ticker];
+    writeDrafts(next);
+    setDrafts(next);
   };
 
   const handleSubmit = () => {
     if (!canSubmit) return;
-    onSubmit(selectedTicker, sentence.trim());
-    clearDraft(selectedTicker);
+    const submittedTicker = selectedTicker;
+    const submittedText = sentence.trim();
+    onSubmit(submittedTicker, submittedText);
+    clearDraft(submittedTicker);
     setSentence("");
     setSavedAt(null);
+    setSaveStatus('idle');
+
+    // 되돌리기 토스트 — 실수로 제출했거나 다시 다듬고 싶을 때 5초 안에 복원
+    toast.success("🌱 문장을 심었어요!", {
+      description: submittedText.length > 40 ? `${submittedText.slice(0, 40)}…` : submittedText,
+      duration: 5000,
+      action: {
+        label: "되돌리기",
+        onClick: () => {
+          setSelectedTicker(submittedTicker);
+          setSentence(submittedText);
+          const next = { ...readDrafts(), [submittedTicker]: submittedText };
+          writeDrafts(next);
+          setDrafts(next);
+          textareaRef.current?.focus({ preventScroll: true });
+        },
+      },
+    });
   };
+
 
   // 종목을 바꿔 고르면 자연스럽게 입력으로 포커스 이동 — 한 손 흐름 유지
   const handleSelectTicker = (ticker: string) => {
@@ -163,20 +191,33 @@ export const DailySentenceInput = ({
       {holdings.length > 0 ? (
         <>
           <div className="flex gap-2 mb-3 flex-wrap">
-            {holdings.map((h) => (
-              <button
-                key={h.ticker}
-                onClick={() => handleSelectTicker(h.ticker)}
-                className={`px-3 py-1.5 rounded-md text-small font-medium transition-all ${
-                  selectedTicker === h.ticker
-                    ? "bg-primary text-primary-foreground shadow-button"
-                    : "bg-muted text-muted-foreground hover:bg-accent"
-                }`}
-              >
-                {h.ticker}
-              </button>
-            ))}
+            {holdings.map((h) => {
+              const hasDraft =
+                h.ticker !== selectedTicker && !!drafts[h.ticker]?.trim();
+              return (
+                <button
+                  key={h.ticker}
+                  onClick={() => handleSelectTicker(h.ticker)}
+                  aria-label={hasDraft ? `${h.ticker} — 작성 중인 문장 있음` : h.ticker}
+                  className={`relative px-3 py-1.5 rounded-md text-small font-medium transition-all ${
+                    selectedTicker === h.ticker
+                      ? "bg-primary text-primary-foreground shadow-button"
+                      : "bg-muted text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  {h.ticker}
+                  {hasDraft && (
+                    <span
+                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-primary border-2 border-card"
+                      title="작성 중인 문장이 있어요"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
+
 
           {selectedHolding && (
             <p className="text-xs text-muted-foreground mb-2">

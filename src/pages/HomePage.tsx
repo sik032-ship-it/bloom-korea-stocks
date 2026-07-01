@@ -21,6 +21,20 @@ import type { Database } from "@/integrations/supabase/types";
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
+// 자정까지 남은 시간을 사람이 읽는 형태로 — "다음 레슨까지"에 사용
+const formatTimeUntilTomorrow = (now: Date = new Date()): string => {
+  const tomorrow = new Date(now);
+  tomorrow.setHours(24, 0, 0, 0);
+  const diffMs = tomorrow.getTime() - now.getTime();
+  const totalMinutes = Math.max(0, Math.floor(diffMs / 60000));
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  if (h === 0) return `${m}분`;
+  if (m === 0) return `${h}시간`;
+  return `${h}시간 ${m}분`;
+};
+
+
 export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -32,6 +46,17 @@ export default function HomePage() {
   const [previousStreak, setPreviousStreak] = useState(0);
   const [showFreezeUsed, setShowFreezeUsed] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [timeUntilTomorrow, setTimeUntilTomorrow] = useState(() => formatTimeUntilTomorrow());
+
+  // 완료 후 "다음 레슨까지 X시간 Y분" 카운트다운 — 1분마다 갱신
+  useEffect(() => {
+    if (!todayDone) return;
+    const tick = () => setTimeUntilTomorrow(formatTimeUntilTomorrow());
+    tick();
+    const id = window.setInterval(tick, 60_000);
+    return () => window.clearInterval(id);
+  }, [todayDone]);
+
 
   useEffect(() => {
     if (!user) return;
@@ -152,8 +177,8 @@ export default function HomePage() {
         />
       )}
       <div className="stagger-children">
-        {/* 스트릭 깨짐 위로 배너 */}
-        {streakBrokenMsg && (
+        {/* 스트릭 깨짐 배너 — Freeze 알림이 뜬 경우엔 겹치지 않게 숨김 */}
+        {streakBrokenMsg && !showFreezeUsed && (
           <div className="bg-accent border border-border rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
             <Mascot mood={streakBrokenMsg.mood} size="sm" />
             <div className="flex-1">
@@ -167,6 +192,7 @@ export default function HomePage() {
             </div>
           </div>
         )}
+
 
         {/* 🛡️ Streak Freeze 사용 알림 */}
         {showFreezeUsed && (
@@ -208,7 +234,14 @@ export default function HomePage() {
           {todayDone ? (
             <PpuriCard className="border-primary/20 bg-primary/5 text-center">
               <p className="text-title text-foreground font-semibold mb-1">✅ 오늘 완료!</p>
-              <p className="text-xs text-muted-foreground mb-4">내일도 도토리를 모아봐요 🌰</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                {streak > 0
+                  ? `🔥 ${streak}일 연속 — 이 리듬을 내일도 지켜요`
+                  : "오늘의 씨앗을 심었어요 🌱"}
+              </p>
+              <p className="text-xs text-primary/80 font-medium mb-4 tabular-nums">
+                다음 레슨까지 {timeUntilTomorrow}
+              </p>
               <button
                 onClick={() => navigate("/lesson")}
                 className="w-full py-3 rounded-xl border-2 border-primary/30 bg-primary/5 text-primary font-bold text-small hover:bg-primary/10 transition-all press-effect"
@@ -216,6 +249,7 @@ export default function HomePage() {
                 📚 복습하기
               </button>
             </PpuriCard>
+
           ) : (
             <div className="text-center">
               <p id="today-cta" className="text-xs text-muted-foreground mb-2 tracking-wide">오늘의 레슨이 기다리고 있어요</p>
