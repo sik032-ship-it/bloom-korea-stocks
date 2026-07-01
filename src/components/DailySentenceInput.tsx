@@ -191,20 +191,33 @@ export const DailySentenceInput = ({
       {holdings.length > 0 ? (
         <>
           <div className="flex gap-2 mb-3 flex-wrap">
-            {holdings.map((h) => (
-              <button
-                key={h.ticker}
-                onClick={() => handleSelectTicker(h.ticker)}
-                className={`px-3 py-1.5 rounded-md text-small font-medium transition-all ${
-                  selectedTicker === h.ticker
-                    ? "bg-primary text-primary-foreground shadow-button"
-                    : "bg-muted text-muted-foreground hover:bg-accent"
-                }`}
-              >
-                {h.ticker}
-              </button>
-            ))}
+            {holdings.map((h) => {
+              const hasDraft =
+                h.ticker !== selectedTicker && !!drafts[h.ticker]?.trim();
+              return (
+                <button
+                  key={h.ticker}
+                  onClick={() => handleSelectTicker(h.ticker)}
+                  aria-label={hasDraft ? `${h.ticker} — 작성 중인 문장 있음` : h.ticker}
+                  className={`relative px-3 py-1.5 rounded-md text-small font-medium transition-all ${
+                    selectedTicker === h.ticker
+                      ? "bg-primary text-primary-foreground shadow-button"
+                      : "bg-muted text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  {h.ticker}
+                  {hasDraft && (
+                    <span
+                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-primary border-2 border-card"
+                      title="작성 중인 문장이 있어요"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
+
 
           {selectedHolding && (
             <p className="text-xs text-muted-foreground mb-2">
