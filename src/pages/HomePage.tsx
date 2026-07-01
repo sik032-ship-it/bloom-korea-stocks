@@ -240,7 +240,7 @@ export default function HomePage() {
                   : "오늘의 씨앗을 심었어요 🌱"}
               </p>
               <p className="text-xs text-primary/80 font-medium mb-4 tabular-nums">
-                다음 레슨까지 {getTimeUntilTomorrow()}
+                다음 레슨까지 {timeUntilTomorrow}
               </p>
               <button
                 onClick={() => navigate("/lesson")}
