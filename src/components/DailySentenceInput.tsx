@@ -83,13 +83,14 @@ export const DailySentenceInput = ({
     }
     if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
     saveTimerRef.current = window.setTimeout(() => {
-      const drafts = readDrafts();
+      const next = { ...readDrafts() };
       if (sentence.trim().length === 0) {
-        delete drafts[selectedTicker];
+        delete next[selectedTicker];
       } else {
-        drafts[selectedTicker] = sentence;
+        next[selectedTicker] = sentence;
       }
-      const ok = writeDrafts(drafts);
+      const ok = writeDrafts(next);
+      setDrafts(next);
       if (ok) {
         setSaveStatus('saved');
         setSavedAt(Date.now());
@@ -101,6 +102,7 @@ export const DailySentenceInput = ({
       if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
     };
   }, [sentence, selectedTicker]);
+
 
   // 탭 닫기/이동 직전, 디바운스가 아직 안 끝났어도 즉시 보관
   useEffect(() => {
