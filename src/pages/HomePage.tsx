@@ -209,7 +209,14 @@ export default function HomePage() {
           {todayDone ? (
             <PpuriCard className="border-primary/20 bg-primary/5 text-center">
               <p className="text-title text-foreground font-semibold mb-1">✅ 오늘 완료!</p>
-              <p className="text-xs text-muted-foreground mb-4">내일도 도토리를 모아봐요 🌰</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                {streak > 0
+                  ? `🔥 ${streak}일 연속 — 이 리듬을 내일도 지켜요`
+                  : "오늘의 씨앗을 심었어요 🌱"}
+              </p>
+              <p className="text-xs text-primary/80 font-medium mb-4 tabular-nums">
+                다음 레슨까지 {getTimeUntilTomorrow()}
+              </p>
               <button
                 onClick={() => navigate("/lesson")}
                 className="w-full py-3 rounded-xl border-2 border-primary/30 bg-primary/5 text-primary font-bold text-small hover:bg-primary/10 transition-all press-effect"
@@ -217,6 +224,7 @@ export default function HomePage() {
                 📚 복습하기
               </button>
             </PpuriCard>
+
           ) : (
             <div className="text-center">
               <p id="today-cta" className="text-xs text-muted-foreground mb-2 tracking-wide">오늘의 레슨이 기다리고 있어요</p>
