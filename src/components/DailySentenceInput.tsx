@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+
 
 interface DailySentenceInputProps {
   holdings: { ticker: string; company_name_kr: string }[];
