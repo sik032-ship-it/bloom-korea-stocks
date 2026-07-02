@@ -227,7 +227,20 @@ export const DailySentenceInput = ({
 
 
   // 종목을 바꿔 고르면 자연스럽게 입력으로 포커스 이동 — 한 손 흐름 유지
+  // 이때 아직 디바운스 안 된 현재 문장을 즉시 flush 해 인디케이터가 정확히 반영되게 함
   const handleSelectTicker = (ticker: string) => {
+    if (ticker === selectedTicker) return;
+    if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
+    const next = { ...readDrafts() };
+    if (selectedTicker) {
+      if (sentence.trim().length === 0) {
+        delete next[selectedTicker];
+      } else {
+        next[selectedTicker] = sentence;
+      }
+      writeDrafts(next);
+    }
+    setDrafts(next);
     setSelectedTicker(ticker);
     textareaRef.current?.focus({ preventScroll: true });
   };
