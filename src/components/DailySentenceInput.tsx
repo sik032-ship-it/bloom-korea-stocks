@@ -16,7 +16,12 @@ const shortcutLabel = isMac ? "⌘ + Enter" : "Ctrl + Enter";
 
 // 작성 중 문장 임시 보관용 — 종목별로 분리해 페이지를 떠나도 복원
 const DRAFT_KEY = "ppuri:daily-sentence-draft";
+// 최근 제출 — 새로고침/탭 이동 후에도 5초 안이면 되돌리기 토스트 복원
+const PENDING_UNDO_KEY = "ppuri:daily-sentence-pending-undo";
+const UNDO_WINDOW_MS = 5000;
+
 type DraftMap = Record<string, string>;
+type PendingUndo = { ticker: string; text: string; submittedAt: number };
 
 const readDrafts = (): DraftMap => {
   if (typeof window === "undefined") return {};
@@ -35,6 +40,35 @@ const writeDrafts = (drafts: DraftMap): boolean => {
   } catch {
     // quota/permission 문제는 무시 — 사용자 입력은 화면에 그대로 남음
     return false;
+  }
+};
+
+const readPendingUndo = (): PendingUndo | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(PENDING_UNDO_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PendingUndo;
+    if (!parsed?.ticker || typeof parsed.submittedAt !== "number") return null;
+    if (Date.now() - parsed.submittedAt > UNDO_WINDOW_MS) {
+      window.localStorage.removeItem(PENDING_UNDO_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+const writePendingUndo = (undo: PendingUndo | null) => {
+  try {
+    if (!undo) {
+      window.localStorage.removeItem(PENDING_UNDO_KEY);
+    } else {
+      window.localStorage.setItem(PENDING_UNDO_KEY, JSON.stringify(undo));
+    }
+  } catch {
+    /* ignore */
   }
 };
 
