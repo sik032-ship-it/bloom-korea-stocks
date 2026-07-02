@@ -21,7 +21,16 @@ const PENDING_UNDO_KEY = "ppuri:daily-sentence-pending-undo";
 const UNDO_WINDOW_MS = 5000;
 
 type DraftMap = Record<string, string>;
-type PendingUndo = { ticker: string; text: string; submittedAt: number };
+type PendingUndo = { ticker: string; text: string; submittedAt: number; origin: string };
+
+// 탭마다 고유 id — 여러 탭이 동시에 submit/undo 할 때 자기 이벤트를 구분
+const TAB_ID =
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `tab-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+
+const undoKey = (u: PendingUndo | null) =>
+  u ? `${u.origin}:${u.submittedAt}:${u.ticker}` : "";
 
 const readDrafts = (): DraftMap => {
   if (typeof window === "undefined") return {};
@@ -90,6 +99,17 @@ export const DailySentenceInput = ({
   const saveTimerRef = useRef<number | null>(null);
 
 
+  const undoToastIdRef = useRef<string | number | null>(null);
+  const currentUndoRef = useRef<PendingUndo | null>(null);
+
+  const dismissUndoToast = () => {
+    if (undoToastIdRef.current !== null) {
+      toast.dismiss(undoToastIdRef.current);
+      undoToastIdRef.current = null;
+    }
+    currentUndoRef.current = null;
+  };
+
   // 되돌리기 — 제출 후 5초 안에 초안으로 복원 (새로고침/탭 이동 후에도 동일하게 동작)
   const restorePendingUndo = (undo: PendingUndo) => {
     setSelectedTicker(undo.ticker);
@@ -97,22 +117,44 @@ export const DailySentenceInput = ({
     const next = { ...readDrafts(), [undo.ticker]: undo.text };
     writeDrafts(next);
     setDrafts(next);
-    writePendingUndo(null);
+    writePendingUndo(null); // 다른 탭도 storage 이벤트로 자기 토스트를 정리
+    dismissUndoToast();
     textareaRef.current?.focus({ preventScroll: true });
   };
 
   const showUndoToast = (undo: PendingUndo) => {
     const remaining = Math.max(0, UNDO_WINDOW_MS - (Date.now() - undo.submittedAt));
     if (remaining <= 0) return;
-    toast.success("🌱 문장을 심었어요!", {
+    // 이미 같은 undo 를 보여주고 있으면 재표시 생략
+    if (undoKey(currentUndoRef.current) === undoKey(undo)) return;
+    dismissUndoToast();
+    currentUndoRef.current = undo;
+    undoToastIdRef.current = toast.success("🌱 문장을 심었어요!", {
       description: undo.text.length > 40 ? `${undo.text.slice(0, 40)}…` : undo.text,
       duration: remaining,
       action: {
         label: "되돌리기",
         onClick: () => restorePendingUndo(undo),
       },
-      onDismiss: () => writePendingUndo(null),
-      onAutoClose: () => writePendingUndo(null),
+      onDismiss: () => {
+        // 자기 origin 의 토스트가 닫힐 때만 pending 을 지움 — 다른 탭 것을 덮어쓰지 않게
+        if (undoKey(currentUndoRef.current) === undoKey(undo) && undo.origin === TAB_ID) {
+          writePendingUndo(null);
+        }
+        if (undoKey(currentUndoRef.current) === undoKey(undo)) {
+          currentUndoRef.current = null;
+          undoToastIdRef.current = null;
+        }
+      },
+      onAutoClose: () => {
+        if (undoKey(currentUndoRef.current) === undoKey(undo) && undo.origin === TAB_ID) {
+          writePendingUndo(null);
+        }
+        if (undoKey(currentUndoRef.current) === undoKey(undo)) {
+          currentUndoRef.current = null;
+          undoToastIdRef.current = null;
+        }
+      },
     });
   };
 
@@ -126,14 +168,40 @@ export const DailySentenceInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 다른 탭에서 draft 가 바뀌면 인디케이터를 동기화
+  // 다른 탭에서 draft / pending-undo 가 바뀌면 UI 동기화 (충돌 규칙 포함)
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === DRAFT_KEY) setDrafts(readDrafts());
+      if (e.key === DRAFT_KEY) {
+        const fresh = readDrafts();
+        setDrafts(fresh);
+        // 현재 선택된 종목의 draft 가 원격에서 바뀐 경우:
+        //   - 로컬 textarea 가 비어 있으면 원격 값을 채택 (사용자 방해 없음)
+        //   - 이미 입력 중이면 로컬 유지 → 다음 flush 로 자연스러운 last-write-wins
+        if (selectedTicker && sentence.trim().length === 0) {
+          const remote = fresh[selectedTicker] ?? "";
+          if (remote !== sentence) setSentence(remote);
+        }
+      } else if (e.key === PENDING_UNDO_KEY) {
+        if (!e.newValue) {
+          // 다른 탭에서 undo 눌렀거나 만료 → 여기 토스트도 즉시 정리
+          dismissUndoToast();
+        } else {
+          try {
+            const remote = JSON.parse(e.newValue) as PendingUndo;
+            // 다른 탭에서 새 submit 발생 → 최신이 이김. 내 예전 토스트만 조용히 닫음
+            if (remote.origin !== TAB_ID) {
+              dismissUndoToast();
+              // 원격 undo 는 그 탭이 소유 — 여기서 새로 띄우진 않음 (스팸 방지)
+            }
+          } catch {
+            /* ignore */
+          }
+        }
+      }
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
-  }, []);
+  }, [selectedTicker, sentence]);
 
   // 종목을 바꾸면 해당 종목의 드래프트로 복원 + localStorage 기준으로 인디케이터 재동기화
   useEffect(() => {
@@ -220,6 +288,7 @@ export const DailySentenceInput = ({
       ticker: submittedTicker,
       text: submittedText,
       submittedAt: Date.now(),
+      origin: TAB_ID,
     };
     writePendingUndo(undo);
     showUndoToast(undo);
