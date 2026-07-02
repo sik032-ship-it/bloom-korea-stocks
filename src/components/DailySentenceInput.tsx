@@ -16,7 +16,12 @@ const shortcutLabel = isMac ? "⌘ + Enter" : "Ctrl + Enter";
 
 // 작성 중 문장 임시 보관용 — 종목별로 분리해 페이지를 떠나도 복원
 const DRAFT_KEY = "ppuri:daily-sentence-draft";
+// 최근 제출 — 새로고침/탭 이동 후에도 5초 안이면 되돌리기 토스트 복원
+const PENDING_UNDO_KEY = "ppuri:daily-sentence-pending-undo";
+const UNDO_WINDOW_MS = 5000;
+
 type DraftMap = Record<string, string>;
+type PendingUndo = { ticker: string; text: string; submittedAt: number };
 
 const readDrafts = (): DraftMap => {
   if (typeof window === "undefined") return {};
@@ -38,6 +43,35 @@ const writeDrafts = (drafts: DraftMap): boolean => {
   }
 };
 
+const readPendingUndo = (): PendingUndo | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(PENDING_UNDO_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PendingUndo;
+    if (!parsed?.ticker || typeof parsed.submittedAt !== "number") return null;
+    if (Date.now() - parsed.submittedAt > UNDO_WINDOW_MS) {
+      window.localStorage.removeItem(PENDING_UNDO_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+const writePendingUndo = (undo: PendingUndo | null) => {
+  try {
+    if (!undo) {
+      window.localStorage.removeItem(PENDING_UNDO_KEY);
+    } else {
+      window.localStorage.setItem(PENDING_UNDO_KEY, JSON.stringify(undo));
+    }
+  } catch {
+    /* ignore */
+  }
+};
+
 export const DailySentenceInput = ({
   holdings,
   onSubmit,
@@ -56,18 +90,57 @@ export const DailySentenceInput = ({
   const saveTimerRef = useRef<number | null>(null);
 
 
-  // 최초 mount 시 autoFocus 프롭이 true일 때만 focus — 스크롤 점프 방지
+  // 되돌리기 — 제출 후 5초 안에 초안으로 복원 (새로고침/탭 이동 후에도 동일하게 동작)
+  const restorePendingUndo = (undo: PendingUndo) => {
+    setSelectedTicker(undo.ticker);
+    setSentence(undo.text);
+    const next = { ...readDrafts(), [undo.ticker]: undo.text };
+    writeDrafts(next);
+    setDrafts(next);
+    writePendingUndo(null);
+    textareaRef.current?.focus({ preventScroll: true });
+  };
+
+  const showUndoToast = (undo: PendingUndo) => {
+    const remaining = Math.max(0, UNDO_WINDOW_MS - (Date.now() - undo.submittedAt));
+    if (remaining <= 0) return;
+    toast.success("🌱 문장을 심었어요!", {
+      description: undo.text.length > 40 ? `${undo.text.slice(0, 40)}…` : undo.text,
+      duration: remaining,
+      action: {
+        label: "되돌리기",
+        onClick: () => restorePendingUndo(undo),
+      },
+      onDismiss: () => writePendingUndo(null),
+      onAutoClose: () => writePendingUndo(null),
+    });
+  };
+
+  // 최초 mount: autoFocus + 새로고침 직후 남아있는 되돌리기 창 복원
   useEffect(() => {
     if (autoFocus && !disabled && holdings.length > 0) {
       textareaRef.current?.focus({ preventScroll: true });
     }
+    const pending = readPendingUndo();
+    if (pending) showUndoToast(pending);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 종목을 바꾸면 해당 종목의 드래프트로 복원
+  // 다른 탭에서 draft 가 바뀌면 인디케이터를 동기화
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === DRAFT_KEY) setDrafts(readDrafts());
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // 종목을 바꾸면 해당 종목의 드래프트로 복원 + localStorage 기준으로 인디케이터 재동기화
   useEffect(() => {
     if (!selectedTicker) return;
-    setSentence(readDrafts()[selectedTicker] ?? "");
+    const fresh = readDrafts();
+    setDrafts(fresh);
+    setSentence(fresh[selectedTicker] ?? "");
     setSavedAt(null);
     setSaveStatus('idle');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -143,27 +216,31 @@ export const DailySentenceInput = ({
     setSavedAt(null);
     setSaveStatus('idle');
 
-    // 되돌리기 토스트 — 실수로 제출했거나 다시 다듬고 싶을 때 5초 안에 복원
-    toast.success("🌱 문장을 심었어요!", {
-      description: submittedText.length > 40 ? `${submittedText.slice(0, 40)}…` : submittedText,
-      duration: 5000,
-      action: {
-        label: "되돌리기",
-        onClick: () => {
-          setSelectedTicker(submittedTicker);
-          setSentence(submittedText);
-          const next = { ...readDrafts(), [submittedTicker]: submittedText };
-          writeDrafts(next);
-          setDrafts(next);
-          textareaRef.current?.focus({ preventScroll: true });
-        },
-      },
-    });
+    const undo: PendingUndo = {
+      ticker: submittedTicker,
+      text: submittedText,
+      submittedAt: Date.now(),
+    };
+    writePendingUndo(undo);
+    showUndoToast(undo);
   };
 
 
   // 종목을 바꿔 고르면 자연스럽게 입력으로 포커스 이동 — 한 손 흐름 유지
+  // 이때 아직 디바운스 안 된 현재 문장을 즉시 flush 해 인디케이터가 정확히 반영되게 함
   const handleSelectTicker = (ticker: string) => {
+    if (ticker === selectedTicker) return;
+    if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
+    const next = { ...readDrafts() };
+    if (selectedTicker) {
+      if (sentence.trim().length === 0) {
+        delete next[selectedTicker];
+      } else {
+        next[selectedTicker] = sentence;
+      }
+      writeDrafts(next);
+    }
+    setDrafts(next);
     setSelectedTicker(ticker);
     textareaRef.current?.focus({ preventScroll: true });
   };
