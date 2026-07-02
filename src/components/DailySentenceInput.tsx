@@ -21,7 +21,16 @@ const PENDING_UNDO_KEY = "ppuri:daily-sentence-pending-undo";
 const UNDO_WINDOW_MS = 5000;
 
 type DraftMap = Record<string, string>;
-type PendingUndo = { ticker: string; text: string; submittedAt: number };
+type PendingUndo = { ticker: string; text: string; submittedAt: number; origin: string };
+
+// 탭마다 고유 id — 여러 탭이 동시에 submit/undo 할 때 자기 이벤트를 구분
+const TAB_ID =
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `tab-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+
+const undoKey = (u: PendingUndo | null) =>
+  u ? `${u.origin}:${u.submittedAt}:${u.ticker}` : "";
 
 const readDrafts = (): DraftMap => {
   if (typeof window === "undefined") return {};
