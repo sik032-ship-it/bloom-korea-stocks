@@ -288,6 +288,7 @@ export const DailySentenceInput = ({
       ticker: submittedTicker,
       text: submittedText,
       submittedAt: Date.now(),
+      origin: TAB_ID,
     };
     writePendingUndo(undo);
     showUndoToast(undo);
