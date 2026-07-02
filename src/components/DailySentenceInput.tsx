@@ -90,18 +90,57 @@ export const DailySentenceInput = ({
   const saveTimerRef = useRef<number | null>(null);
 
 
-  // 최초 mount 시 autoFocus 프롭이 true일 때만 focus — 스크롤 점프 방지
+  // 되돌리기 — 제출 후 5초 안에 초안으로 복원 (새로고침/탭 이동 후에도 동일하게 동작)
+  const restorePendingUndo = (undo: PendingUndo) => {
+    setSelectedTicker(undo.ticker);
+    setSentence(undo.text);
+    const next = { ...readDrafts(), [undo.ticker]: undo.text };
+    writeDrafts(next);
+    setDrafts(next);
+    writePendingUndo(null);
+    textareaRef.current?.focus({ preventScroll: true });
+  };
+
+  const showUndoToast = (undo: PendingUndo) => {
+    const remaining = Math.max(0, UNDO_WINDOW_MS - (Date.now() - undo.submittedAt));
+    if (remaining <= 0) return;
+    toast.success("🌱 문장을 심었어요!", {
+      description: undo.text.length > 40 ? `${undo.text.slice(0, 40)}…` : undo.text,
+      duration: remaining,
+      action: {
+        label: "되돌리기",
+        onClick: () => restorePendingUndo(undo),
+      },
+      onDismiss: () => writePendingUndo(null),
+      onAutoClose: () => writePendingUndo(null),
+    });
+  };
+
+  // 최초 mount: autoFocus + 새로고침 직후 남아있는 되돌리기 창 복원
   useEffect(() => {
     if (autoFocus && !disabled && holdings.length > 0) {
       textareaRef.current?.focus({ preventScroll: true });
     }
+    const pending = readPendingUndo();
+    if (pending) showUndoToast(pending);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 종목을 바꾸면 해당 종목의 드래프트로 복원
+  // 다른 탭에서 draft 가 바뀌면 인디케이터를 동기화
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === DRAFT_KEY) setDrafts(readDrafts());
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // 종목을 바꾸면 해당 종목의 드래프트로 복원 + localStorage 기준으로 인디케이터 재동기화
   useEffect(() => {
     if (!selectedTicker) return;
-    setSentence(readDrafts()[selectedTicker] ?? "");
+    const fresh = readDrafts();
+    setDrafts(fresh);
+    setSentence(fresh[selectedTicker] ?? "");
     setSavedAt(null);
     setSaveStatus('idle');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -177,22 +216,13 @@ export const DailySentenceInput = ({
     setSavedAt(null);
     setSaveStatus('idle');
 
-    // 되돌리기 토스트 — 실수로 제출했거나 다시 다듬고 싶을 때 5초 안에 복원
-    toast.success("🌱 문장을 심었어요!", {
-      description: submittedText.length > 40 ? `${submittedText.slice(0, 40)}…` : submittedText,
-      duration: 5000,
-      action: {
-        label: "되돌리기",
-        onClick: () => {
-          setSelectedTicker(submittedTicker);
-          setSentence(submittedText);
-          const next = { ...readDrafts(), [submittedTicker]: submittedText };
-          writeDrafts(next);
-          setDrafts(next);
-          textareaRef.current?.focus({ preventScroll: true });
-        },
-      },
-    });
+    const undo: PendingUndo = {
+      ticker: submittedTicker,
+      text: submittedText,
+      submittedAt: Date.now(),
+    };
+    writePendingUndo(undo);
+    showUndoToast(undo);
   };
 
 
