@@ -127,11 +127,9 @@ export const DailySentenceInput = ({
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === DRAFT_KEY) {
-        const fresh = readDrafts();
+        // parseDraftsRaw 로 마이그레이션까지 처리 — legacy v0 payload 도 안전
+        const fresh = parseDraftsRaw(e.newValue);
         setDrafts(fresh);
-        // 현재 선택된 종목의 draft 가 원격에서 바뀐 경우:
-        //   - 로컬 textarea 가 비어 있으면 원격 값을 채택 (사용자 방해 없음)
-        //   - 이미 입력 중이면 로컬 유지 → 다음 flush 로 자연스러운 last-write-wins
         if (selectedTicker && sentence.trim().length === 0) {
           const remote = fresh[selectedTicker] ?? "";
           if (remote !== sentence) setSentence(remote);
@@ -141,15 +139,11 @@ export const DailySentenceInput = ({
           // 다른 탭에서 undo 눌렀거나 만료 → 여기 토스트도 즉시 정리
           dismissUndoToast();
         } else {
-          try {
-            const remote = JSON.parse(e.newValue) as PendingUndo;
-            // 다른 탭에서 새 submit 발생 → 최신이 이김. 내 예전 토스트만 조용히 닫음
-            if (remote.origin !== TAB_ID) {
-              dismissUndoToast();
-              // 원격 undo 는 그 탭이 소유 — 여기서 새로 띄우진 않음 (스팸 방지)
-            }
-          } catch {
-            /* ignore */
+          const remote = parsePendingUndoRaw(e.newValue);
+          // 다른 탭에서 새 submit 발생 → 최신이 이김. 내 예전 토스트만 조용히 닫음
+          if (remote && remote.origin !== TAB_ID) {
+            dismissUndoToast();
+            // 원격 undo 는 그 탭이 소유 — 여기서 새로 띄우진 않음 (스팸 방지)
           }
         }
       }
