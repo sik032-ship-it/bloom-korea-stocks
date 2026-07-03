@@ -1,5 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import {
+  DRAFT_KEY,
+  PENDING_UNDO_KEY,
+  UNDO_WINDOW_MS,
+  readDrafts,
+  writeDrafts,
+  readPendingUndo,
+  writePendingUndo,
+  parsePendingUndoRaw,
+  parseDraftsRaw,
+  type DraftMap,
+  type PendingUndo,
+} from "@/utils/dailyDraftStorage";
 
 
 interface DailySentenceInputProps {
@@ -14,15 +27,6 @@ interface DailySentenceInputProps {
 const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
 const shortcutLabel = isMac ? "⌘ + Enter" : "Ctrl + Enter";
 
-// 작성 중 문장 임시 보관용 — 종목별로 분리해 페이지를 떠나도 복원
-const DRAFT_KEY = "ppuri:daily-sentence-draft";
-// 최근 제출 — 새로고침/탭 이동 후에도 5초 안이면 되돌리기 토스트 복원
-const PENDING_UNDO_KEY = "ppuri:daily-sentence-pending-undo";
-const UNDO_WINDOW_MS = 5000;
-
-type DraftMap = Record<string, string>;
-type PendingUndo = { ticker: string; text: string; submittedAt: number; origin: string };
-
 // 탭마다 고유 id — 여러 탭이 동시에 submit/undo 할 때 자기 이벤트를 구분
 const TAB_ID =
   typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -31,55 +35,6 @@ const TAB_ID =
 
 const undoKey = (u: PendingUndo | null) =>
   u ? `${u.origin}:${u.submittedAt}:${u.ticker}` : "";
-
-const readDrafts = (): DraftMap => {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = window.localStorage.getItem(DRAFT_KEY);
-    return raw ? (JSON.parse(raw) as DraftMap) : {};
-  } catch {
-    return {};
-  }
-};
-
-const writeDrafts = (drafts: DraftMap): boolean => {
-  try {
-    window.localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
-    return true;
-  } catch {
-    // quota/permission 문제는 무시 — 사용자 입력은 화면에 그대로 남음
-    return false;
-  }
-};
-
-const readPendingUndo = (): PendingUndo | null => {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(PENDING_UNDO_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as PendingUndo;
-    if (!parsed?.ticker || typeof parsed.submittedAt !== "number") return null;
-    if (Date.now() - parsed.submittedAt > UNDO_WINDOW_MS) {
-      window.localStorage.removeItem(PENDING_UNDO_KEY);
-      return null;
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-};
-
-const writePendingUndo = (undo: PendingUndo | null) => {
-  try {
-    if (!undo) {
-      window.localStorage.removeItem(PENDING_UNDO_KEY);
-    } else {
-      window.localStorage.setItem(PENDING_UNDO_KEY, JSON.stringify(undo));
-    }
-  } catch {
-    /* ignore */
-  }
-};
 
 export const DailySentenceInput = ({
   holdings,
