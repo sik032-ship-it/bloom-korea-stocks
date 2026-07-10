@@ -321,6 +321,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -328,9 +349,17 @@ export type Database = {
     Functions: {
       get_onboarding_funnel: { Args: never; Returns: Json }
       get_rls_audit: { Args: never; Returns: Json }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       purge_old_soft_deleted: { Args: never; Returns: undefined }
     }
     Enums: {
+      app_role: "admin" | "user"
       plan_type: "free" | "premium"
       question_type: "daily" | "earnings" | "drop" | "surge" | "fomo"
     }
@@ -460,6 +489,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "user"],
       plan_type: ["free", "premium"],
       question_type: ["daily", "earnings", "drop", "surge", "fomo"],
     },

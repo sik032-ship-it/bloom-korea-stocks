@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ConsentGate } from "@/components/ConsentGate";
 import React, { Suspense, lazy } from "react";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
@@ -46,6 +47,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <ConsentGate>{children}</ConsentGate>;
 }
 
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading: authLoading } = useAuth();
+  const { isAdmin, loading: roleLoading } = useIsAdmin();
+  if (authLoading || roleLoading) return <LoadingFallback />;
+  if (!user) return <Navigate to="/auth" replace />;
+  if (!isAdmin) return <Navigate to="/" replace />;
+  return <ConsentGate>{children}</ConsentGate>;
+}
+
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingFallback />;
@@ -76,10 +86,10 @@ const App = () => (
                 <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                 
                 <Route path="/timemachine" element={<ProtectedRoute><TimeMachinePage /></ProtectedRoute>} />
-                <Route path="/admin/security-check" element={<ProtectedRoute><SecurityCheckPage /></ProtectedRoute>} />
-                <Route path="/admin/onboarding-stats" element={<ProtectedRoute><OnboardingStatsPage /></ProtectedRoute>} />
-                <Route path="/admin/onboarding-events" element={<ProtectedRoute><OnboardingEventCheckPage /></ProtectedRoute>} />
-                <Route path="/admin/beacon-test" element={<ProtectedRoute><BeaconTestPage /></ProtectedRoute>} />
+                <Route path="/admin/security-check" element={<AdminRoute><SecurityCheckPage /></AdminRoute>} />
+                <Route path="/admin/onboarding-stats" element={<AdminRoute><OnboardingStatsPage /></AdminRoute>} />
+                <Route path="/admin/onboarding-events" element={<AdminRoute><OnboardingEventCheckPage /></AdminRoute>} />
+                <Route path="/admin/beacon-test" element={<AdminRoute><BeaconTestPage /></AdminRoute>} />
                 <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
