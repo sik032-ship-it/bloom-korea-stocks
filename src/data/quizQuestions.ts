@@ -1,80 +1,31 @@
 // 사고방식 훈련형 투자 퀴즈
-// 카테고리: risk, psychology, crisis, judgment, us_market(미국주식·매크로), legend_wisdom(레전드 어록)
+// 타입·카테고리 메타는 @/data/quizTypes 에서 단일 정의
+import type {
+  Difficulty,
+  QuizCategory,
+  QuizQuestion,
+  OXQuestion,
+  MultipleChoiceQuestion,
+  FillBlankQuestion,
+} from "@/data/quizTypes";
+import { big4Questions } from "@/data/quizPacks/big4";
+import { strategyQuestions } from "@/data/quizPacks/strategy";
+import { commandmentQuestions } from "@/data/quizPacks/commandments";
+import { psychologyPlusQuestions } from "@/data/quizPacks/psychologyPlus";
+import { dailySeed, seededRandom, seededShuffle } from "@/utils/dailySeed";
+import { getRecentQuestionKeys, recordServedQuestions } from "@/utils/quizHistory";
 
-export type Difficulty = "beginner" | "intermediate" | "advanced";
-export type QuizCategory =
-  | "risk"
-  | "psychology"
-  | "crisis"
-  | "judgment"
-  | "us_market"
-  | "legend_wisdom"
-  | "humility"
-  | "no_bottom_fishing"
-  | "cash_flow"
-  | "brand_moat"
-  | "where_not_when";
+export type {
+  Difficulty,
+  QuizCategory,
+  QuizQuestion,
+  OXQuestion,
+  MultipleChoiceQuestion,
+  FillBlankQuestion,
+  CategoryTone,
+} from "@/data/quizTypes";
+export { categoryLabels, toneClasses } from "@/data/quizTypes";
 
-export interface OXQuestion {
-  format: "ox";
-  difficulty: Difficulty;
-  statement: string;
-  answer: boolean;
-  explanation: string;
-  category: QuizCategory;
-  insight?: string;
-}
-
-export interface MultipleChoiceQuestion {
-  format: "multiple_choice";
-  difficulty: Difficulty;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
-  category: QuizCategory;
-  insight?: string;
-}
-
-export interface FillBlankQuestion {
-  format: "fill_blank";
-  difficulty: Difficulty;
-  sentence: string;
-  answer: string;
-  hints?: string[];
-  explanation: string;
-  category: QuizCategory;
-  insight?: string;
-}
-
-export type QuizQuestion = OXQuestion | MultipleChoiceQuestion | FillBlankQuestion;
-
-// 카테고리 메타 — 4톤 시맨틱 시스템
-// 11개 색 대신 4가지 의미만 색으로 구분: growth(성장)·wisdom(철학)·caution(경계)·truth(실전)
-// 차이는 아이콘과 라벨이 담당.
-export type CategoryTone = "growth" | "wisdom" | "caution" | "truth";
-
-export const categoryLabels: Record<QuizCategory, { name: string; icon: string; tone: CategoryTone }> = {
-  risk:              { name: "위험 이해",        icon: "crosshair",    tone: "caution" },
-  psychology:        { name: "심리 조절",        icon: "brain",        tone: "caution" },
-  crisis:            { name: "위기 대처",        icon: "shield",       tone: "caution" },
-  judgment:          { name: "판단력",           icon: "scale",        tone: "wisdom"  },
-  us_market:         { name: "미국주식·매크로",  icon: "trending-up",  tone: "truth"   },
-  legend_wisdom:     { name: "레전드의 지혜",    icon: "sparkles",     tone: "wisdom"  },
-  humility:          { name: "겸손·능력의 원",   icon: "scan-eye",     tone: "wisdom"  },
-  no_bottom_fishing: { name: "바닥 예측 금지",   icon: "target",       tone: "caution" },
-  cash_flow:         { name: "현금흐름이 진실",  icon: "droplets",     tone: "truth"   },
-  brand_moat:        { name: "브랜드 해자",      icon: "castle",       tone: "growth"  },
-  where_not_when:    { name: "어디에 머무를지",  icon: "map-pin",      tone: "growth"  },
-};
-
-// 톤 → tailwind class (한 곳에서만 정의)
-export const toneClasses: Record<CategoryTone, { fg: string; bg: string; border: string }> = {
-  growth:  { fg: "text-tone-growth-fg",  bg: "bg-tone-growth-bg",  border: "border-tone-growth-fg/20"  },
-  wisdom:  { fg: "text-tone-wisdom-fg",  bg: "bg-tone-wisdom-bg",  border: "border-tone-wisdom-fg/20"  },
-  caution: { fg: "text-tone-caution-fg", bg: "bg-tone-caution-bg", border: "border-tone-caution-fg/20" },
-  truth:   { fg: "text-tone-truth-fg",   bg: "bg-tone-truth-bg",   border: "border-tone-truth-fg/20"   },
-};
 
 // ===== 위험 이해 (Risk) =====
 const riskQuestions: QuizQuestion[] = [
