@@ -1,80 +1,31 @@
 // 사고방식 훈련형 투자 퀴즈
-// 카테고리: risk, psychology, crisis, judgment, us_market(미국주식·매크로), legend_wisdom(레전드 어록)
+// 타입·카테고리 메타는 @/data/quizTypes 에서 단일 정의
+import type {
+  Difficulty,
+  QuizCategory,
+  QuizQuestion,
+  OXQuestion,
+  MultipleChoiceQuestion,
+  FillBlankQuestion,
+} from "@/data/quizTypes";
+import { big4Questions } from "@/data/quizPacks/big4";
+import { strategyQuestions } from "@/data/quizPacks/strategy";
+import { commandmentQuestions } from "@/data/quizPacks/commandments";
+import { psychologyPlusQuestions } from "@/data/quizPacks/psychologyPlus";
+import { dailySeed, seededRandom, seededShuffle } from "@/utils/dailySeed";
+import { getRecentQuestionKeys, recordServedQuestions } from "@/utils/quizHistory";
 
-export type Difficulty = "beginner" | "intermediate" | "advanced";
-export type QuizCategory =
-  | "risk"
-  | "psychology"
-  | "crisis"
-  | "judgment"
-  | "us_market"
-  | "legend_wisdom"
-  | "humility"
-  | "no_bottom_fishing"
-  | "cash_flow"
-  | "brand_moat"
-  | "where_not_when";
+export type {
+  Difficulty,
+  QuizCategory,
+  QuizQuestion,
+  OXQuestion,
+  MultipleChoiceQuestion,
+  FillBlankQuestion,
+  CategoryTone,
+} from "@/data/quizTypes";
+export { categoryLabels, toneClasses } from "@/data/quizTypes";
 
-export interface OXQuestion {
-  format: "ox";
-  difficulty: Difficulty;
-  statement: string;
-  answer: boolean;
-  explanation: string;
-  category: QuizCategory;
-  insight?: string;
-}
-
-export interface MultipleChoiceQuestion {
-  format: "multiple_choice";
-  difficulty: Difficulty;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
-  category: QuizCategory;
-  insight?: string;
-}
-
-export interface FillBlankQuestion {
-  format: "fill_blank";
-  difficulty: Difficulty;
-  sentence: string;
-  answer: string;
-  hints?: string[];
-  explanation: string;
-  category: QuizCategory;
-  insight?: string;
-}
-
-export type QuizQuestion = OXQuestion | MultipleChoiceQuestion | FillBlankQuestion;
-
-// 카테고리 메타 — 4톤 시맨틱 시스템
-// 11개 색 대신 4가지 의미만 색으로 구분: growth(성장)·wisdom(철학)·caution(경계)·truth(실전)
-// 차이는 아이콘과 라벨이 담당.
-export type CategoryTone = "growth" | "wisdom" | "caution" | "truth";
-
-export const categoryLabels: Record<QuizCategory, { name: string; icon: string; tone: CategoryTone }> = {
-  risk:              { name: "위험 이해",        icon: "crosshair",    tone: "caution" },
-  psychology:        { name: "심리 조절",        icon: "brain",        tone: "caution" },
-  crisis:            { name: "위기 대처",        icon: "shield",       tone: "caution" },
-  judgment:          { name: "판단력",           icon: "scale",        tone: "wisdom"  },
-  us_market:         { name: "미국주식·매크로",  icon: "trending-up",  tone: "truth"   },
-  legend_wisdom:     { name: "레전드의 지혜",    icon: "sparkles",     tone: "wisdom"  },
-  humility:          { name: "겸손·능력의 원",   icon: "scan-eye",     tone: "wisdom"  },
-  no_bottom_fishing: { name: "바닥 예측 금지",   icon: "target",       tone: "caution" },
-  cash_flow:         { name: "현금흐름이 진실",  icon: "droplets",     tone: "truth"   },
-  brand_moat:        { name: "브랜드 해자",      icon: "castle",       tone: "growth"  },
-  where_not_when:    { name: "어디에 머무를지",  icon: "map-pin",      tone: "growth"  },
-};
-
-// 톤 → tailwind class (한 곳에서만 정의)
-export const toneClasses: Record<CategoryTone, { fg: string; bg: string; border: string }> = {
-  growth:  { fg: "text-tone-growth-fg",  bg: "bg-tone-growth-bg",  border: "border-tone-growth-fg/20"  },
-  wisdom:  { fg: "text-tone-wisdom-fg",  bg: "bg-tone-wisdom-bg",  border: "border-tone-wisdom-fg/20"  },
-  caution: { fg: "text-tone-caution-fg", bg: "bg-tone-caution-bg", border: "border-tone-caution-fg/20" },
-  truth:   { fg: "text-tone-truth-fg",   bg: "bg-tone-truth-bg",   border: "border-tone-truth-fg/20"   },
-};
 
 // ===== 위험 이해 (Risk) =====
 const riskQuestions: QuizQuestion[] = [
@@ -350,9 +301,21 @@ export const allQuestions: QuizQuestion[] = [
   ...cashFlowQuestions,
   ...brandMoatQuestions,
   ...whereNotWhenQuestions,
+  // --- 확장 팩 (10계명 · Big 4 · 실행 전략 · 심리 심화) ---
+  ...big4Questions,
+  ...strategyQuestions,
+  ...commandmentQuestions,
+  ...psychologyPlusQuestions,
 ];
 
 export type ExperienceLevel = "완전 초보" | "조금 해봤어요" | "1년 이상 투자 중" | "베테랑 투자자";
+
+// 문항 고유 키 (중복 출제 방지 이력용)
+export function questionKey(q: QuizQuestion): string {
+  const body =
+    q.format === "ox" ? q.statement : q.format === "multiple_choice" ? q.question : q.sentence;
+  return `${q.format}:${q.category}:${body.slice(0, 60)}`;
+}
 
 // 경험 수준을 레벨 보정값으로 변환 (온보딩 답변 → 가상 레벨 부스트)
 export function getExperienceBoost(experience?: string | null): number {
@@ -379,54 +342,90 @@ function getDifficultyForLevel(level: number, experience?: string | null): Diffi
   return ["advanced", "intermediate"]; // 베테랑+레벨업 시 advanced 비중↑
 }
 
-// Get quiz set based on user level — ensures category diversity
+// 경험 수준별 카테고리 가중치 — 초보는 기초·철학 우선, 베테랑은 심화 우선
+function getCategoryRotation(experience?: string | null): QuizCategory[] {
+  const beginnerFirst: QuizCategory[] = [
+    "big4_basics",       // 앵커 4종목 기초 (왜 이 회사인가)
+    "where_not_when",    // 10계명 #10
+    "strategy",          // 실행 전략 (분할매수·아무것도 하지 않기)
+    "brand_moat",        // 10계명 #4·#5
+    "cash_flow",         // 10계명 #9
+    "psychology",        // 심리 조절
+    "crisis",            // 위기 대처
+    "no_bottom_fishing", // 바닥 예측 금지
+    "humility",          // 겸손·능력의 원
+    "legend_wisdom",     // 레전드의 지혜
+    "judgment",          // 판단력
+    "risk",              // 위험 이해
+    "us_market",         // 미국주식·매크로
+  ];
+
+  const veteranFirst: QuizCategory[] = [
+    "cash_flow",
+    "no_bottom_fishing",
+    "risk",
+    "judgment",
+    "crisis",
+    "where_not_when",
+    "strategy",
+    "brand_moat",
+    "psychology",
+    "us_market",
+    "humility",
+    "legend_wisdom",
+    "big4_basics",
+  ];
+
+  return getExperienceBoost(experience) >= 2 ? veteranFirst : beginnerFirst;
+}
+
+/**
+ * 하루 단위 결정론적 퀴즈 세트.
+ * - 같은 날 새로고침 → 같은 문항 / 다음 날 → 다른 문항 (날짜+사용자 시드)
+ * - 최근 14일 내 출제된 문항은 제외 (풀이 마르면 자동 완화)
+ * - 카테고리 라운드로빈으로 편중 방지
+ */
 export function getDailyQuizSet(
   count: number,
   userLevel: number = 1,
   experience?: string | null,
+  userId?: string | null,
 ): QuizQuestion[] {
   const difficulties = getDifficultyForLevel(userLevel, experience);
-  // 카테고리 균형 출제 — 매일 다양한 멘탈 자극 (10계명 우선)
-  const categories: QuizCategory[] = [
-    "where_not_when",    // 10계명 #10 (어디에 머무를지)
-    "no_bottom_fishing", // 부자의 행동 패턴
-    "brand_moat",        // 10계명 #4·#5 (브랜드 해자)
-    "humility",          // 겸손·능력의 원
-    "cash_flow",         // 10계명 #9 (현금이 진실)
-    "legend_wisdom",     // 레전드의 지혜
-    "us_market",         // 미국주식·매크로
-    "crisis",            // 위기 대처
-    "psychology",        // 심리 조절
-    "risk",              // 위험 이해
-    "judgment",          // 판단력
-  ];
+  const categories = getCategoryRotation(experience);
+  const rand = seededRandom(dailySeed(userId));
+  const recent = getRecentQuestionKeys();
 
   const result: QuizQuestion[] = [];
+  const chosenKeys = new Set<string>();
+
+  // 카테고리 순서도 하루마다 살짝 회전시켜 첫 문항이 고정되지 않게
+  const rotated = seededShuffle(categories, seededRandom(dailySeed(userId) ^ 0x9e3779b9));
 
   for (let i = 0; i < count; i++) {
-    const targetCategory = categories[i % categories.length];
-    const pool = allQuestions.filter(
-      (q) => q.category === targetCategory && difficulties.includes(q.difficulty)
+    const targetCategory = rotated[i % rotated.length];
+    const basePool = allQuestions.filter(
+      (q) => q.category === targetCategory && difficulties.includes(q.difficulty),
     );
+    if (basePool.length === 0) continue;
 
-    const unused = pool.filter(
-      (q) => !result.some((r) => r === q)
-    );
+    const notChosen = basePool.filter((q) => !chosenKeys.has(questionKey(q)));
+    // 1순위: 최근 14일 미출제 · 2순위: 이번 세트 내 미중복 · 3순위: 전체
+    const fresh = notChosen.filter((q) => !recent.has(questionKey(q)));
+    const pick = fresh.length > 0 ? fresh : notChosen.length > 0 ? notChosen : basePool;
 
-    const pick = unused.length > 0 ? unused : pool;
-    if (pick.length > 0) {
-      result.push(pick[Math.floor(Math.random() * pick.length)]);
-    }
+    const shuffled = seededShuffle(pick, rand);
+    const picked = shuffled[0];
+    result.push(picked);
+    chosenKeys.add(questionKey(picked));
   }
 
-  // Shuffle
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-
-  return result;
+  // 최종 순서도 시드로 섞기 (같은 날엔 항상 동일 순서)
+  const finalSet = seededShuffle(result, rand);
+  recordServedQuestions(finalSet.map(questionKey));
+  return finalSet;
 }
+
 
 // Get a random question
 export function getRandomQuiz(): QuizQuestion {

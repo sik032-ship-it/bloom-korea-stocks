@@ -29,13 +29,13 @@ function pickRandomPreviewQuestion(): OXQuestion {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-const POPULAR_STOCKS = [
-  { ticker: "AAPL", name: "애플", emoji: "🍎" },
+const POPULAR_STOCKS: { ticker: string; name: string; emoji: string; anchor?: boolean }[] = [
+  { ticker: "MSFT", name: "마이크로소프트", emoji: "💻", anchor: true },
+  { ticker: "GOOGL", name: "구글", emoji: "🔍", anchor: true },
+  { ticker: "AMZN", name: "아마존", emoji: "📦", anchor: true },
+  { ticker: "AAPL", name: "애플", emoji: "🍎", anchor: true },
   { ticker: "TSLA", name: "테슬라", emoji: "🚗" },
   { ticker: "NVDA", name: "엔비디아", emoji: "🎮" },
-  { ticker: "MSFT", name: "마이크로소프트", emoji: "💻" },
-  { ticker: "GOOGL", name: "구글", emoji: "🔍" },
-  { ticker: "AMZN", name: "아마존", emoji: "📦" },
   { ticker: "META", name: "메타", emoji: "👓" },
   { ticker: "AMD", name: "AMD", emoji: "⚡" },
   { ticker: "NFLX", name: "넷플릭스", emoji: "🎬" },
@@ -281,53 +281,35 @@ export default function OnboardingPage() {
     }
   };
 
+  // 개인화 요약 — 30일 후 쌓일 원칙 개수
+  const dailyGoalNum = dailyGoal.includes("5") ? 5 : dailyGoal.includes("3") ? 3 : 1;
+  const thirtyDayPrinciples = dailyGoalNum * 30;
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <ProgressBar current={step + 1} total={totalSteps} />
 
       <div className="flex-1 flex flex-col px-6 max-w-lg mx-auto w-full">
-        {/* STEP 0: WHY — 왜 매일 써야 하나요? */}
+        {/* STEP 0: 훅 한 문장 — 인지 부담 최소화 */}
         {step === 0 && (
           <div className="flex-1 flex flex-col animate-slide-up">
-            <div className="flex items-start gap-3 mb-6 mt-4">
+            <div className="flex items-start gap-3 mb-6 mt-6">
               <Mascot mood="wave" size="lg" />
               <SpeechBubble className="mt-2">
                 <p className="text-body font-bold text-foreground">
-                  왜 매일 1분이 필요할까요?
+                  계좌가 아니라 습관을 만들어요.<br />하루 1분이면 충분해요 🌰
                 </p>
               </SpeechBubble>
             </div>
 
-            <div className="space-y-3">
-              <div className="p-4 rounded-xl border-2 border-border bg-accent/30">
-                <p className="text-2xl mb-2">🧠</p>
-                <p className="text-small font-bold text-foreground mb-1">
-                  투자는 정보가 아니라 사고방식입니다
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  같은 뉴스를 봐도 어떻게 생각하느냐에 따라 결과가 달라져요.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl border-2 border-border bg-accent/30">
-                <p className="text-2xl mb-2">💪</p>
-                <p className="text-small font-bold text-foreground mb-1">
-                  매일 1분의 기록이 위기 때 당신을 구합니다
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  하락장에서 흔들리지 않는 사람은 평소에 자기 생각을 정리한 사람이에요.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl border-2 border-primary/30 bg-primary/5">
-                <p className="text-2xl mb-2">🌱</p>
-                <p className="text-small font-bold text-foreground mb-1">
-                  매일 1분 = 5년 후 수익률의 차이
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  뿌리(PPURI)는 당신이 자신의 투자 원칙을 만들도록 돕습니다.
-                </p>
-              </div>
+            <div className="p-5 rounded-2xl border-2 border-primary/30 bg-primary/5">
+              <p className="text-small font-bold text-foreground mb-1">
+                투자는 정보가 아니라 사고방식입니다
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                하락장에서 흔들리지 않는 사람은 평소에 자기 생각을 정리해 둔 사람이에요.
+                30초만 주세요 — 바로 한 문제 같이 풀어볼게요.
+              </p>
             </div>
 
             <div className="mt-auto pb-6">
@@ -335,55 +317,14 @@ export default function OnboardingPage() {
                 onClick={() => setStep(1)}
                 className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 transition-all"
               >
-                좋아요, 시작할게요 🌰
+                좋아요, 시작할게요
               </button>
             </div>
           </div>
         )}
 
-        {/* STEP 1: Investment Goal */}
+        {/* STEP 1: Experience Level (난이도 개인화 먼저) */}
         {step === 1 && (
-          <div className="flex-1 flex flex-col animate-slide-up">
-            <div className="flex items-start gap-3 mb-8 mt-4">
-              <Mascot mood="wave" size="lg" />
-              <SpeechBubble className="mt-2">
-                <p className="text-body font-medium text-foreground">
-                  미국 주식을 투자하는 이유가 무엇인가요?
-                </p>
-              </SpeechBubble>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {INVESTMENT_GOALS.map((goal) => (
-                <button
-                  key={goal.label}
-                  onClick={() => setInvestGoal(goal.label)}
-                  className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
-                    investGoal === goal.label
-                      ? "border-primary bg-accent shadow-sm"
-                      : "border-border hover:border-muted-foreground/30"
-                  }`}
-                >
-                  <span className="text-2xl">{goal.emoji}</span>
-                  <span className="text-small font-medium text-foreground">{goal.label}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-auto pb-6">
-              <button
-                disabled={!investGoal}
-                onClick={() => setStep(2)}
-                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                계속하기
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 2: Experience Level */}
-        {step === 2 && (
           <div className="flex-1 flex flex-col animate-slide-up">
             <div className="flex items-start gap-3 mb-8 mt-4">
               <Mascot mood="thinking" size="lg" />
@@ -398,7 +339,7 @@ export default function OnboardingPage() {
               {EXPERIENCE_LEVELS.map((level) => (
                 <button
                   key={level.label}
-                  onClick={() => setExperience(level.label)}
+                  onClick={() => { setExperience(level.label); setStep(2); }}
                   className={`flex items-center gap-4 w-full p-4 rounded-xl border-2 transition-all text-left ${
                     experience === level.label
                       ? "border-primary bg-accent shadow-sm"
@@ -417,7 +358,7 @@ export default function OnboardingPage() {
             <div className="mt-auto pb-6">
               <button
                 disabled={!experience}
-                onClick={() => setStep(3)}
+                onClick={() => setStep(2)}
                 className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 계속하기
@@ -426,14 +367,122 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* STEP 3: Daily Goal */}
+        {/* STEP 2: 아하 모멘트 — OX 1문제 즉시 체험 */}
+        {step === 2 && (
+          <div className="flex-1 flex flex-col animate-slide-up">
+            <div className="flex items-start gap-3 mb-6 mt-4">
+              <Mascot mood={previewAnswer === null ? "thinking" : isCorrect ? "celebrate" : "default"} size="lg" />
+              <SpeechBubble className="mt-2">
+                <p className="text-body font-bold text-foreground">
+                  {previewAnswer === null
+                    ? "한 문제만 같이 풀어볼까요? 🌰"
+                    : isCorrect
+                    ? "정답이에요! 정말 잘했어요 ✨"
+                    : "괜찮아요, 이게 핵심이에요!"}
+                </p>
+              </SpeechBubble>
+            </div>
+
+            <div className="bg-accent/30 border-2 border-border rounded-2xl p-5 mb-4">
+              <p className="text-xs text-muted-foreground mb-2">OX 퀴즈 · {previewCategory.name}</p>
+              <p className="text-body font-bold text-foreground leading-relaxed">
+                "{previewQuestion.statement}"
+              </p>
+            </div>
+
+            {previewAnswer === null ? (
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setPreviewAnswer(true)}
+                  className="py-6 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-accent transition-all text-3xl font-bold press-effect"
+                >
+                  ⭕<br /><span className="text-small">맞다</span>
+                </button>
+                <button
+                  onClick={() => setPreviewAnswer(false)}
+                  className="py-6 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-accent transition-all text-3xl font-bold press-effect"
+                >
+                  ❌<br /><span className="text-small">아니다</span>
+                </button>
+              </div>
+            ) : (
+              <div className={`p-4 rounded-xl border-2 ${isCorrect ? "border-primary bg-primary/5" : "border-tone-caution-fg/30 bg-tone-caution-bg"} mb-4`}>
+                <p className="text-small font-bold text-foreground mb-2">
+                  정답: {previewQuestion.answer ? "⭕ 맞다" : "❌ 아니다"}
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {previewQuestion.explanation}
+                </p>
+                {previewQuestion.insight && (
+                  <p className="text-xs text-foreground/80 leading-relaxed mt-2 pt-2 border-t border-border/50">
+                    <strong>{previewQuestion.insight}</strong>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {previewAnswer !== null && (
+              <div className="mt-auto pb-6">
+                <button
+                  onClick={() => setStep(3)}
+                  className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 transition-all animate-fade-in"
+                >
+                  계속하기 →
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* STEP 3: Investment Goal */}
         {step === 3 && (
+          <div className="flex-1 flex flex-col animate-slide-up">
+            <div className="flex items-start gap-3 mb-8 mt-4">
+              <Mascot mood="wave" size="lg" />
+              <SpeechBubble className="mt-2">
+                <p className="text-body font-medium text-foreground">
+                  미국 주식에 투자하는 이유가 무엇인가요?
+                </p>
+              </SpeechBubble>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {INVESTMENT_GOALS.map((goal) => (
+                <button
+                  key={goal.label}
+                  onClick={() => { setInvestGoal(goal.label); setStep(4); }}
+                  className={`flex flex-col gap-1 p-4 rounded-xl border-2 transition-all text-left ${
+                    investGoal === goal.label
+                      ? "border-primary bg-accent shadow-sm"
+                      : "border-border hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <span className="text-small font-bold text-foreground">{goal.label}</span>
+                  <span className="text-xs text-muted-foreground leading-snug">{goal.desc}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-auto pb-6">
+              <button
+                disabled={!investGoal}
+                onClick={() => setStep(4)}
+                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                계속하기
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4: Daily Goal */}
+        {step === 4 && (
           <div className="flex-1 flex flex-col animate-slide-up">
             <div className="flex items-start gap-3 mb-8 mt-4">
               <Mascot mood="default" size="lg" />
               <SpeechBubble className="mt-2">
                 <p className="text-body font-medium text-foreground">
-                  일일 학습 목표가 무엇인가요?
+                  하루에 몇 문장을 남길까요?
                 </p>
               </SpeechBubble>
             </div>
@@ -442,7 +491,7 @@ export default function OnboardingPage() {
               {DAILY_GOALS.map((goal) => (
                 <button
                   key={goal.label}
-                  onClick={() => setDailyGoal(goal.label)}
+                  onClick={() => { setDailyGoal(goal.label); setStep(5); }}
                   className={`flex items-center justify-between w-full p-5 rounded-xl border-2 transition-all ${
                     dailyGoal === goal.label
                       ? "border-primary bg-accent shadow-sm"
@@ -458,7 +507,7 @@ export default function OnboardingPage() {
             <div className="mt-auto pb-6">
               <button
                 disabled={!dailyGoal}
-                onClick={() => setStep(4)}
+                onClick={() => setStep(5)}
                 className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 계속하기
@@ -467,14 +516,14 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* STEP 4: Add Holdings (선택사항) */}
-        {step === 4 && (
+        {/* STEP 5: Add Holdings — 앵커 4종목 우선 */}
+        {step === 5 && (
           <div className="flex-1 flex flex-col animate-slide-up">
             <div className="flex items-start gap-3 mb-4 mt-4">
               <Mascot mood="default" size="lg" />
               <SpeechBubble className="mt-2">
                 <p className="text-body font-medium text-foreground">
-                  보유 중인 미국 주식이 있나요?
+                  머무르고 싶은 회사를 골라볼까요?
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   나중에 추가해도 괜찮아요. 지금은 건너뛰어도 OK!
@@ -482,14 +531,12 @@ export default function OnboardingPage() {
               </SpeechBubble>
             </div>
 
-            {/* 선택사항 안내 배지 */}
             <div className="mb-3 px-3 py-2 rounded-lg bg-muted/50 border border-border">
               <p className="text-xs text-muted-foreground text-center">
-                💡 <strong className="text-foreground">선택사항</strong> · 종목 없이도 모든 기능을 사용할 수 있어요
+                <strong className="text-foreground">앵커 4종목</strong>은 10년 뒤에도 사람들이 쓸 제품을 파는 회사예요
               </p>
             </div>
 
-            {/* Added holdings */}
             {holdings.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {holdings.map((h) => (
@@ -509,24 +556,26 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {/* Stock grid */}
             <div className="grid grid-cols-2 gap-2 mb-4 max-h-[280px] overflow-y-auto">
               {POPULAR_STOCKS.filter((s) => !holdings.find((h) => h.ticker === s.ticker)).map((s) => (
                 <button
                   key={s.ticker}
                   onClick={() => addHolding(s.ticker, s.name)}
-                  className="flex items-center gap-3 p-3 rounded-xl border-2 border-border hover:border-primary/40 transition-all text-left"
+                  className={`flex items-center justify-between gap-2 p-3 rounded-xl border-2 transition-all text-left ${
+                    s.anchor ? "border-primary/40 bg-primary/5 hover:border-primary" : "border-border hover:border-primary/40"
+                  }`}
                 >
-                  <span className="text-xl">{s.emoji}</span>
                   <div>
                     <p className="text-small font-bold text-foreground">{s.ticker}</p>
                     <p className="text-xs text-muted-foreground">{s.name}</p>
                   </div>
+                  {s.anchor && (
+                    <span className="text-[10px] font-bold text-primary shrink-0">앵커</span>
+                  )}
                 </button>
               ))}
             </div>
 
-            {/* Custom input */}
             <div className="flex gap-2 mb-4">
               <input
                 value={customTicker}
@@ -556,13 +605,13 @@ export default function OnboardingPage() {
 
             <div className="mt-auto pb-6 flex gap-3">
               <button
-                onClick={() => setStep(5)}
+                onClick={() => setStep(6)}
                 className="flex-1 py-4 rounded-xl border-2 border-border text-foreground font-medium hover:bg-accent transition-colors"
               >
                 {holdings.length === 0 ? "건너뛰기" : "나중에"}
               </button>
               <button
-                onClick={() => setStep(5)}
+                onClick={() => setStep(6)}
                 className="flex-[2] py-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 transition-all"
               >
                 계속하기
@@ -571,93 +620,57 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* STEP 5: 첫 레슨 미리보기 (랜덤 OX 1문제) */}
-        {step === 5 && (
-          <div className="flex-1 flex flex-col animate-slide-up">
-            <div className="flex items-start gap-3 mb-6 mt-4">
-              <Mascot mood={previewAnswer === null ? "thinking" : isCorrect ? "celebrate" : "default"} size="lg" />
-              <SpeechBubble className="mt-2">
-                <p className="text-body font-bold text-foreground">
-                  {previewAnswer === null
-                    ? "한 문제만 같이 풀어볼까요? 🌰"
-                    : isCorrect
-                    ? "정답이에요! 정말 잘했어요 ✨"
-                    : "괜찮아요, 이게 핵심이에요!"}
-                </p>
-              </SpeechBubble>
-            </div>
-
-            <div className="bg-accent/30 border-2 border-border rounded-2xl p-5 mb-4">
-              <p className="text-xs text-muted-foreground mb-2">📝 OX 퀴즈 · {previewCategory.name}</p>
-              <p className="text-body font-bold text-foreground leading-relaxed">
-                "{previewQuestion.statement}"
-              </p>
-            </div>
-
-            {previewAnswer === null ? (
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setPreviewAnswer(true)}
-                  className="py-6 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-accent transition-all text-3xl font-bold press-effect"
-                >
-                  ⭕<br /><span className="text-small">맞다</span>
-                </button>
-                <button
-                  onClick={() => setPreviewAnswer(false)}
-                  className="py-6 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-accent transition-all text-3xl font-bold press-effect"
-                >
-                  ❌<br /><span className="text-small">아니다</span>
-                </button>
-              </div>
-            ) : (
-              <div className={`p-4 rounded-xl border-2 ${isCorrect ? "border-primary bg-primary/5" : "border-orange-300 bg-orange-50"} mb-4`}>
-                <p className="text-small font-bold text-foreground mb-2">
-                  💡 정답: {previewQuestion.answer ? "⭕ 맞다" : "❌ 아니다"}
-                </p>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {previewQuestion.explanation}
-                </p>
-                {previewQuestion.insight && (
-                  <p className="text-xs text-foreground/80 leading-relaxed mt-2 pt-2 border-t border-border/50">
-                    🌱 <strong>{previewQuestion.insight}</strong>
-                  </p>
-                )}
-              </div>
-            )}
-
-            {previewAnswer !== null && (
-              <div className="mt-auto pb-6">
-                <button
-                  onClick={() => setStep(6)}
-                  className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 transition-all animate-fade-in"
-                >
-                  계속하기 →
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* STEP 6: Ready! */}
+        {/* STEP 6: 개인화 완료 카드 + Day 1 스트릭 시드 */}
         {step === 6 && (
-          <div className="flex-1 flex flex-col items-center justify-center text-center animate-bounce-in">
-            <Mascot mood="celebrate" size="xl" className="mb-4" />
+          <div className="flex-1 flex flex-col items-center text-center animate-bounce-in pt-6">
+            <Mascot mood="celebrate" size="xl" className="mb-3" />
 
-            <h1 className="text-display text-foreground mb-2">준비 완료!</h1>
-            <p className="text-body text-muted-foreground mb-6">
-              이제 매일 도토리를 모으며<br />투자 체질을 길러봐요! 🌰
+            <h1 className="text-display text-foreground mb-1">준비 완료!</h1>
+            <p className="text-body text-muted-foreground mb-5">
+              {experience || "당신"}을 위한 30일 계획이 만들어졌어요
             </p>
 
+            {/* 개인화 계획 카드 */}
+            <div className="w-full max-w-sm text-left rounded-2xl border-2 border-primary/30 bg-primary/5 p-4 mb-4">
+              <p className="text-xs font-bold text-primary mb-3">나의 30일 계획</p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">경험 수준</span>
+                  <span className="text-small font-bold text-foreground">{experience || "완전 초보"}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">투자 목표</span>
+                  <span className="text-small font-bold text-foreground">{investGoal || "자산 증식"}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">하루 목표</span>
+                  <span className="text-small font-bold text-foreground text-num">{dailyGoalNum}문장</span>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-primary/20">
+                  <span className="text-xs text-muted-foreground">30일 후 쌓일 원칙</span>
+                  <span className="text-body font-bold text-primary text-num">{thirtyDayPrinciples}개</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Day 1 스트릭 시드 */}
+            <div className="w-full max-w-sm flex items-center gap-3 rounded-xl border border-border bg-card p-3 mb-4">
+              <span className="text-2xl">🔥</span>
+              <div className="text-left">
+                <p className="text-small font-bold text-foreground">1일차 시작!</p>
+                <p className="text-xs text-muted-foreground">오늘 한 문장을 남기면 불꽃이 이어져요</p>
+              </div>
+            </div>
+
             {holdings.length > 0 && (
-              <div className="w-full space-y-2 mb-6 max-w-sm">
+              <div className="w-full max-w-sm flex flex-wrap gap-2 mb-5 justify-center">
                 {holdings.map((h) => (
-                  <div
+                  <span
                     key={h.ticker}
-                    className="flex items-center gap-3 p-3 bg-accent rounded-xl border border-border"
+                    className="px-3 py-1.5 bg-accent rounded-full border border-border text-xs font-semibold text-foreground"
                   >
-                    <span className="text-small font-bold text-primary">{h.ticker}</span>
-                    <span className="text-small text-muted-foreground">{h.company_name_kr}</span>
-                  </div>
+                    {h.ticker}
+                  </span>
                 ))}
               </div>
             )}
@@ -665,9 +678,9 @@ export default function OnboardingPage() {
             <button
               onClick={handleFinish}
               disabled={saving}
-              className="w-full max-w-sm py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
+              className="w-full max-w-sm py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-sm hover:opacity-90 transition-all disabled:opacity-50 mb-6"
             >
-              {saving ? "저장 중..." : "🌱 시작하기"}
+              {saving ? "저장 중..." : "첫 문장 심으러 가기"}
             </button>
           </div>
         )}
@@ -675,3 +688,4 @@ export default function OnboardingPage() {
     </div>
   );
 }
+
