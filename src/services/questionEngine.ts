@@ -1,5 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { dailySeed, seededRandom, seededShuffle } from "@/utils/dailySeed";
+import { getRecentQuestionKeys, recordServedQuestions } from "@/utils/quizHistory";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 type QuestionType = Database["public"]["Enums"]["question_type"];
@@ -11,12 +13,13 @@ interface SelectedQuestion {
   placeholderText: string;
 }
 
-function pickQuestionType(): QuestionType {
-  const r = Math.random();
+function pickQuestionType(rand: () => number): QuestionType {
+  const r = rand();
   if (r < 0.8) return "daily";
   const situational: QuestionType[] = ["earnings", "drop", "surge", "fomo"];
-  return situational[Math.floor(Math.random() * situational.length)];
+  return situational[Math.floor(rand() * situational.length)];
 }
+
 
 function calculateDays(addedAt: string): string {
   const added = new Date(addedAt);
