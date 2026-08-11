@@ -29,13 +29,13 @@ function pickRandomPreviewQuestion(): OXQuestion {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-const POPULAR_STOCKS = [
-  { ticker: "AAPL", name: "애플", emoji: "🍎" },
+const POPULAR_STOCKS: { ticker: string; name: string; emoji: string; anchor?: boolean }[] = [
+  { ticker: "MSFT", name: "마이크로소프트", emoji: "💻", anchor: true },
+  { ticker: "GOOGL", name: "구글", emoji: "🔍", anchor: true },
+  { ticker: "AMZN", name: "아마존", emoji: "📦", anchor: true },
+  { ticker: "AAPL", name: "애플", emoji: "🍎", anchor: true },
   { ticker: "TSLA", name: "테슬라", emoji: "🚗" },
   { ticker: "NVDA", name: "엔비디아", emoji: "🎮" },
-  { ticker: "MSFT", name: "마이크로소프트", emoji: "💻" },
-  { ticker: "GOOGL", name: "구글", emoji: "🔍" },
-  { ticker: "AMZN", name: "아마존", emoji: "📦" },
   { ticker: "META", name: "메타", emoji: "👓" },
   { ticker: "AMD", name: "AMD", emoji: "⚡" },
   { ticker: "NFLX", name: "넷플릭스", emoji: "🎬" },
