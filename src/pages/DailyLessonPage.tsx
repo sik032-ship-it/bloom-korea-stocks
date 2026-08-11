@@ -285,7 +285,7 @@ export default function DailyLessonPage() {
       setCurrentStreak(streak);
       setTotalSentences(profile?.total_sentences || 0);
       // 효과적 레벨 = 실제 레벨 + boost (베테랑 보정은 getDailyQuizSet 내부에서 처리)
-      const baseQuiz = getDailyQuizSet(qc, lvl + boost, exp);
+      const baseQuiz = getDailyQuizSet(qc, lvl + boost, exp, user.id);
       // Will personalize after holdings load
       setQuizQuestions(baseQuiz);
 
