@@ -298,7 +298,7 @@ export default function DailyLessonPage() {
         const holdingNames = h.map(holding => holding.company_name_kr);
         setQuizQuestions(prev => prev.map(q => personalizeQuiz(q, holdingNames)));
         
-        const question = await selectQuestion(h);
+        const question = await selectQuestion(h, { userId: user.id });
         if (question) {
           setSelectedHolding(question.holding);
           setQuestionType(question.type as QuestionType);
