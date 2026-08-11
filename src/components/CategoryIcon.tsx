@@ -1,4 +1,4 @@
-import { Crosshair, Brain, Shield, Scale, TrendingUp, Sparkles, ScanEye, Target, Droplets, Castle, MapPin, type LucideIcon } from "lucide-react";
+import { Crosshair, Brain, Shield, Scale, TrendingUp, Sparkles, ScanEye, Target, Droplets, Castle, MapPin, Landmark, Route, type LucideIcon } from "lucide-react";
 import type { QuizCategory } from "@/data/quizQuestions";
 
 const iconMap: Record<QuizCategory, LucideIcon> = {
@@ -13,7 +13,10 @@ const iconMap: Record<QuizCategory, LucideIcon> = {
   cash_flow: Droplets,
   brand_moat: Castle,
   where_not_when: MapPin,
+  big4_basics: Landmark,
+  strategy: Route,
 };
+
 
 interface CategoryIconProps {
   category: QuizCategory;
