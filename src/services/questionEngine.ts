@@ -39,14 +39,20 @@ function replaceTemplateVars(template: string, holding: Holding): string {
     .replace(/\{보유기간\}/g, calculateDays(holding.added_at));
 }
 
-export async function selectQuestion(holdings: Holding[]): Promise<SelectedQuestion | null> {
+export async function selectQuestion(
+  holdings: Holding[],
+  opts?: { userId?: string | null; salt?: number },
+): Promise<SelectedQuestion | null> {
   if (holdings.length === 0) return null;
+
+  // 하루 단위 결정론: 같은 날 새로고침 → 같은 질문 / 다음 날 → 다른 질문
+  const rand = seededRandom(dailySeed(opts?.userId) ^ (opts?.salt ?? 0));
 
   // Prioritize neglected holdings (least sentences first) to build balanced perspective
   const sorted = [...holdings].sort((a, b) => a.sentence_count - b.sentence_count);
   const leastPracticed = sorted.filter(h => h.sentence_count === sorted[0].sentence_count);
-  const holding = leastPracticed[Math.floor(Math.random() * leastPracticed.length)];
-  const type = pickQuestionType();
+  const holding = leastPracticed[Math.floor(rand() * leastPracticed.length)];
+  const type = pickQuestionType(rand);
 
   const { data: templates } = await supabase
     .from("question_templates")
@@ -63,7 +69,12 @@ export async function selectQuestion(holdings: Holding[]): Promise<SelectedQuest
     };
   }
 
-  const template = templates[Math.floor(Math.random() * templates.length)];
+  // 최근 14일 내 사용한 템플릿 제외 (풀이 마르면 자동 완화)
+  const recent = getRecentQuestionKeys();
+  const fresh = templates.filter((t) => !recent.has(`tpl:${t.id}`));
+  const pool = fresh.length > 0 ? fresh : templates;
+  const template = seededShuffle(pool, rand)[0];
+  recordServedQuestions([`tpl:${template.id}`]);
 
   return {
     holding,
@@ -77,11 +88,14 @@ export async function selectQuestion(holdings: Holding[]): Promise<SelectedQuest
 
 export async function selectNewQuestion(
   holdings: Holding[],
-  excludeHoldingId?: string
+  excludeHoldingId?: string,
+  opts?: { userId?: string | null },
 ): Promise<SelectedQuestion | null> {
   const filtered = excludeHoldingId
     ? holdings.filter((h) => h.id !== excludeHoldingId)
     : holdings;
   const pool = filtered.length > 0 ? filtered : holdings;
-  return selectQuestion(pool);
+  // "다른 질문 보기" — 같은 날에도 새 조합이 나오도록 salt 사용
+  return selectQuestion(pool, { userId: opts?.userId, salt: Math.floor(Math.random() * 1e9) });
 }
+
