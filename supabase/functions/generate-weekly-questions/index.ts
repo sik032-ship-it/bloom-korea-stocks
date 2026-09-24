@@ -17,7 +17,7 @@ function weeklyCategories(week: string): string[] {
 
 const Schema = z.object({
   questions: z.array(z.object({
-    category: z.enum(CATEGORIES),
+    category: z.enum(ALL_CATEGORIES),
     statement: z.string(),
     answer: z.boolean(),
     explanation: z.string(),
