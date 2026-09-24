@@ -14,6 +14,7 @@ import { RewardPeakSequence } from "@/components/RewardPeakSequence";
 import { WarmupPrompt, getTodayWarmup, type WarmupQuestion } from "@/components/WarmupPrompt";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
 import { QuizPicker } from "@/components/QuizPicker";
+import { buildWeaknessProfile, fetchCoachAttempts, getCoachQuizSet, type WeaknessProfile } from "@/lib/weaknessCoach";
 import { getDailyQuizSet, getChosenQuizSet, personalizeQuiz, questionKey, type QuizQuestion } from "@/data/quizQuestions";
 import { todayKey } from "@/utils/dailySeed";
 import {
@@ -230,6 +231,11 @@ export default function DailyLessonPage() {
  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
  const baseKeysRef = useRef<string[]>([]);
  const serverRecentRef = useRef<Set<string>>(new Set());
+ const [coach, setCoach] = useState<WeaknessProfile | null>(null);
+ useEffect(() => {
+ if (!user) return;
+ fetchCoachAttempts(user.id).then((a) => setCoach(buildWeaknessProfile(a)));
+ }, [user]);
  const holdingNamesRef = useRef<string[]>([]);
  const [lastAnswerInfo, setLastAnswerInfo] = useState<{ user: string; correct: string } | null>(null);
  const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
@@ -700,8 +706,15 @@ export default function DailyLessonPage() {
  {phase === "pick" && (
  <QuizPicker
  count={quizCount}
- onStart={({ category, difficulty }) => {
- if (category || difficulty) {
+ coach={coach}
+ onStart={({ category, difficulty, coach: useCoach }) => {
+ if (useCoach && coach) {
+ const set = getCoachQuizSet(quizCount, coach, user?.id, serverRecentRef.current);
+ baseKeysRef.current = set.map(questionKey);
+ const names = holdingNamesRef.current;
+ setQuizQuestions(names.length ? set.map((q) => personalizeQuiz(q, names)) : set);
+ setQuizCount(set.length);
+ } else if (category || difficulty) {
  const set = getChosenQuizSet(quizCount, { category, difficulty }, user?.id, serverRecentRef.current);
  baseKeysRef.current = set.map(questionKey);
  const names = holdingNamesRef.current;
