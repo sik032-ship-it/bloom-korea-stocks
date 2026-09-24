@@ -12,7 +12,8 @@ import { LevelUpModal } from "@/components/LevelUpModal";
 import { RewardPeakSequence } from "@/components/RewardPeakSequence";
 import { WarmupPrompt, getTodayWarmup, type WarmupQuestion } from "@/components/WarmupPrompt";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
-import { getDailyQuizSet, personalizeQuiz, type QuizQuestion } from "@/data/quizQuestions";
+import { getDailyQuizSet, personalizeQuiz, questionKey, type QuizQuestion } from "@/data/quizQuestions";
+import { todayKey } from "@/utils/dailySeed";
 import {
   getCorrectMessage,
   getWrongMessage,
@@ -285,7 +286,17 @@ export default function DailyLessonPage() {
       setCurrentStreak(streak);
       setTotalSentences(profile?.total_sentences || 0);
       // 효과적 레벨 = 실제 레벨 + boost (베테랑 보정은 getDailyQuizSet 내부에서 처리)
-      const baseQuiz = getDailyQuizSet(qc, lvl + boost, exp, user.id);
+      // 서버 기록(다른 기기 포함) 최근 14일 문항도 제외 대상에 합침 — 실패해도 로컬 이력으로 폴백
+      const serverRecent = new Set<string>();
+      try {
+        const since = new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10);
+        const { data: past } = await supabase
+          .from("quiz_attempts").select("question_key, day")
+          .eq("user_id", user.id).gte("day", since).lt("day", todayKey());
+        past?.forEach((r) => serverRecent.add(r.question_key));
+      } catch { /* 폴백 */ }
+      const baseQuiz = getDailyQuizSet(qc, lvl + boost, exp, user.id, serverRecent);
+      baseKeysRef.current = baseQuiz.map(questionKey);
       // Will personalize after holdings load
       setQuizQuestions(baseQuiz);
 
@@ -343,6 +354,29 @@ export default function DailyLessonPage() {
       }
       // 동적 난이도 학습 — 다음 세션에 반영
       recordQuizResult(correct);
+      // 풀이 기록 저장 (정답/해설 복습용) — 실패해도 레슨 진행은 막지 않음
+      if (user) {
+        const text = q.format === "ox" ? q.statement : q.format === "multiple_choice" ? q.question : q.sentence;
+        const fmt = (v: unknown) =>
+          q.format === "ox" ? (v ? "O" : "X")
+            : q.format === "multiple_choice" ? String(q.options[v as number] ?? v)
+            : String(v);
+        const correctVal = q.format === "multiple_choice" ? q.correctIndex : q.answer;
+        void supabase.from("quiz_attempts").upsert({
+          user_id: user.id,
+          day: todayKey(),
+          question_key: baseKeysRef.current[currentQuizIndex] ?? questionKey(q),
+          question_text: text,
+          category: q.category,
+          format: q.format,
+          user_answer: fmt(userAnswer),
+          correct_answer: fmt(correctVal),
+          is_correct: correct,
+          explanation: q.explanation,
+        }, { onConflict: "user_id,day,question_key", ignoreDuplicates: true }).then(({ error }) => {
+          if (error) console.warn("[quiz_attempts] save failed", error.message);
+        });
+      }
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
       setCurrentInsight((q as any).insight || null);
@@ -356,7 +390,7 @@ export default function DailyLessonPage() {
       }
       setShowFeedback(true);
     },
-    [quizQuestions, currentQuizIndex, quizStreak]
+    [quizQuestions, currentQuizIndex, quizStreak, user]
   );
 
   const handleContinue = () => {
