@@ -269,3 +269,41 @@
   .bg-gradient-done { background-image: var(--gradient-done); }
   .shadow-hero { box-shadow: var(--shadow-hero); }
 }
+
+/* ===== 생동감 모션 추가 ===== */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+.animate-wiggle { animation: wiggle 0.5s ease-in-out; }
+
+@keyframes pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop-in { animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+.progress-shine { position: relative; overflow: hidden; }
+.progress-shine::after {
+  content: ""; position: absolute; inset: 0; width: 40%;
+  background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.45), transparent);
+  animation: shimmer-sweep 2.4s ease-in-out infinite;
+}
+
+@keyframes nav-hop {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+.animate-nav-hop { animation: nav-hop 0.35s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-wiggle, .animate-pop-in, .animate-nav-hop { animation: none; }
+  .progress-shine::after { animation: none; }
+}
