@@ -32,7 +32,7 @@ export const LEGENDARY_BARGAINS: LegendaryBargain[] = [
     todayPriceLabel: "약 $88",
     multiplier: 36,
     story: "1987년 블랙먼데이 직후, 시장은 공포에 잠겨 있었어요. 버핏은 1988~1989년에 걸쳐 약 13억 달러어치 코카콜라를 매수했습니다. 사람들은 '비싸다'고 했지만, 버핏은 '평생 마실 음료'라며 흔들리지 않았어요.",
-    lesson: "당시엔 비싸 보였던 가격이, 36년 뒤엔 약 28배가 되었어요.",
+    lesson: "당시엔 비싸 보였던 가격이, 약 37년 뒤엔 약 36배가 되었어요.",
     category: "consumer",
     source: "Berkshire 연차서한, Investopedia",
   },
