@@ -27,7 +27,7 @@ export const Layout = ({ children, currentStreak = 0, longestStreak = 0 }: Layou
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-            <img src={mascotWave} alt="뿌리 다람쥐" className="w-8 h-8 object-contain" width={32} height={32} />
+            <img src={mascotWave} alt="뿌리 다람쥐" className="w-8 h-8 object-contain transition-transform duration-200 hover:animate-wiggle" width={32} height={32} />
             <h1 className="text-title text-foreground font-bold">PPURI</h1>
           </div>
           <StreakDisplay currentStreak={currentStreak} longestStreak={longestStreak} />
@@ -53,7 +53,7 @@ export const Layout = ({ children, currentStreak = 0, longestStreak = 0 }: Layou
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
-                <Icon size={22} strokeWidth={isActive ? 2.4 : 2} className={`transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
+                <Icon size={22} strokeWidth={isActive ? 2.4 : 2} className={`transition-transform duration-200 ${isActive ? "scale-110 animate-nav-hop" : ""}`} />
                 <span className={`text-xs font-medium transition-colors ${isActive ? "font-bold" : ""}`}>{item.label}</span>
               </button>
             );
