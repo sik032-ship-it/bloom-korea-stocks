@@ -235,6 +235,84 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_attempts: {
+        Row: {
+          category: string | null
+          correct_answer: string | null
+          created_at: string
+          day: string
+          explanation: string | null
+          format: string | null
+          id: string
+          is_correct: boolean
+          question_key: string
+          question_text: string
+          user_answer: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          correct_answer?: string | null
+          created_at?: string
+          day?: string
+          explanation?: string | null
+          format?: string | null
+          id?: string
+          is_correct?: boolean
+          question_key: string
+          question_text: string
+          user_answer?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          correct_answer?: string | null
+          created_at?: string
+          day?: string
+          explanation?: string | null
+          format?: string | null
+          id?: string
+          is_correct?: boolean
+          question_key?: string
+          question_text?: string
+          user_answer?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reminder_preferences: {
+        Row: {
+          asked_at: string | null
+          enabled: boolean
+          permission: string | null
+          push_subscription: Json | null
+          remind_time: string
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asked_at?: string | null
+          enabled?: boolean
+          permission?: string | null
+          push_subscription?: Json | null
+          remind_time?: string
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asked_at?: string | null
+          enabled?: boolean
+          permission?: string | null
+          push_subscription?: Json | null
+          remind_time?: string
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sentences: {
         Row: {
           answer_text: string
