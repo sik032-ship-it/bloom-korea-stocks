@@ -1,3 +1,4 @@
+import { StockLogo } from "@/components/StockLogo";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
