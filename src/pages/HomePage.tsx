@@ -17,6 +17,7 @@ import { CrisisTriggerModal } from "@/components/CrisisTriggerModal";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { CuteIcon } from "@/components/CuteIcon";
 import { CountUp } from "@/components/CountUp";
+import GrowingTree from "@/components/GrowingTree";
 import acornImg from "@/assets/acorn.png";
 import mascotAcorn from "@/assets/mascot-acorn.png";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
@@ -142,11 +143,12 @@ export default function HomePage() {
     return () => { supabase.removeChannel(channel); };
   }, [user]);
 
-  // 8시 알림을 눌러 들어오면 오늘의 레슨으로 바로 안내
+  // 8시 알림을 눌러 들어오면 홈에서 오늘의 레슨 카드를 바로 강조해 보여줌
   const fromReminder = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "reminder";
   useEffect(() => {
-    if (!loading && fromReminder && !todayDone) navigate("/lesson", { replace: true });
-  }, [loading, fromReminder, todayDone, navigate]);
+    if (loading || !fromReminder) return;
+    requestAnimationFrame(() => document.getElementById("today-cta")?.scrollIntoView({ behavior: "smooth", block: "center" }));
+  }, [loading, fromReminder]);
 
   if (loading) {
     return <Layout><HomeSkeleton /></Layout>;
@@ -227,6 +229,13 @@ export default function HomePage() {
           </div>
         )}
 
+        {fromReminder && (
+          <div role="status" className="flex items-center gap-3 rounded-2xl bg-tone-caution-bg text-tone-caution-fg p-3.5 animate-pop-in">
+            <img src={acornImg} alt="" className="w-8 h-8 object-contain animate-wiggle" width={32} height={32} />
+            <p className="text-small font-bold">{todayDone ? "도토리 알림 도착! 오늘 레슨은 이미 끝냈어요" : "도토리 알림 도착! 오늘의 레슨이 기다리고 있어요"}</p>
+          </div>
+        )}
+
         {/* 히어로: 인사 한 줄 + 오늘의 한 가지 행동 */}
         <section aria-labelledby="today-cta" className="pt-1">
           <div className="flex items-center gap-3 mb-4">
@@ -276,6 +285,9 @@ export default function HomePage() {
             </button>
           )}
         </section>
+
+        <GrowingTree sentences={profile?.total_sentences || 0} />
+
 
         {/* 핵심 숫자 3개 — 한눈에 */}
         <div className="grid grid-cols-3 gap-2.5">
