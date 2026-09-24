@@ -3,6 +3,7 @@
 // 목표: "오늘도 흔들리지 않을 마음 근육을 쓴다"는 감각 + 마찰 최소화
 
 import React, { useState } from "react";
+import { Sun, Lightbulb } from "lucide-react";
 import { Mascot } from "./Mascot";
 
 export interface WarmupQuestion {
@@ -95,8 +96,8 @@ export function WarmupPrompt({ question, onComplete }: WarmupPromptProps) {
     <div className="flex-1 flex flex-col px-4 py-6 max-w-lg mx-auto w-full animate-fade-in">
       {/* 헤더: 워밍업 라벨 */}
       <div className="flex items-center justify-center gap-2 mb-4">
-        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#F59E0B]/15 text-[#F59E0B]">
-          ☀️ 30초 워밍업
+        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-tone-caution-bg text-tone-caution-fg">
+          <Sun size={12} strokeWidth={2.4} /> 30초 워밍업
         </span>
       </div>
 
@@ -149,7 +150,7 @@ export function WarmupPrompt({ question, onComplete }: WarmupPromptProps) {
       {/* 정답 후 인사이트 */}
       {showResult && (
         <div className="mt-5 px-4 py-3 bg-accent/50 border border-border rounded-xl animate-slide-up">
-          <p className="text-xs font-semibold text-primary mb-1">💡 멘탈 코어</p>
+          <p className="text-xs font-semibold text-primary mb-1 inline-flex items-center gap-1"><Lightbulb size={12} strokeWidth={2.4} /> 멘탈 코어</p>
           <p className="text-small text-foreground leading-relaxed">{question.insight}</p>
         </div>
       )}
