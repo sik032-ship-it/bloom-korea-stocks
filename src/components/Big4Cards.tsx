@@ -1,3 +1,4 @@
+import { StockLogo } from "@/components/StockLogo";
 // Big 4 앵커 종목 학습 카드 — MSFT/GOOGL/AMZN/AAPL
 // 카드 시각: 티커 모노그램(텍스트) + Lucide 섹션 아이콘. 이모지 제거.
 
