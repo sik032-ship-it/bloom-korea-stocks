@@ -74,6 +74,11 @@ const EMOJI_MAP: Record<string, { icon: LucideIcon; tone: Tone }> = {
   "⏰": { icon: Clock, tone: "wisdom" },
   "🧠": { icon: Brain, tone: "wisdom" },
   "🐿️": { icon: Sparkles, tone: "growth" },
+  "⚔️": { icon: Shield, tone: "truth" },
+  "⚔": { icon: Shield, tone: "truth" },
+  "🏅": { icon: Trophy, tone: "growth" },
+  "🤖": { icon: Brain, tone: "wisdom" },
+  "🌙": { icon: Clock, tone: "muted" },
 };
 
 const sizeMap = {

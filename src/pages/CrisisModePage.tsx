@@ -6,6 +6,7 @@ import { Mascot } from "@/components/Mascot";
 import { MentorCard } from "@/components/MentorCard";
 import { PpuriButton } from "@/components/PpuriButton";
 import { ShareCard } from "@/components/ShareCard";
+import { CuteIcon } from "@/components/CuteIcon";
 import { GrowthComparison } from "@/components/GrowthComparison";
 import { Shield, TrendingDown, Flame, Waves, Landmark, DollarSign, BarChart3, TrendingUp, Trophy, Zap, Share2, Sparkles, Loader2, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
