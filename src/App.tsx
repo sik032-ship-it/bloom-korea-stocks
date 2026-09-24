@@ -24,6 +24,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 
 const QuizHistoryPage = lazy(() => import("./pages/QuizHistoryPage"));
 const TimeMachinePage = lazy(() => import("./pages/TimeMachinePage"));
+const LegendsPage = lazy(() => import("./pages/LegendsPage"));
 const SecurityCheckPage = lazy(() => import("./pages/admin/SecurityCheckPage"));
 const OnboardingStatsPage = lazy(() => import("./pages/admin/OnboardingStatsPage"));
 const OnboardingEventCheckPage = lazy(() => import("./pages/admin/OnboardingEventCheckPage"));
@@ -87,6 +88,7 @@ const App = () => (
                 <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                 
                 <Route path="/quiz-history" element={<ProtectedRoute><QuizHistoryPage /></ProtectedRoute>} />
+                <Route path="/legends" element={<ProtectedRoute><LegendsPage /></ProtectedRoute>} />
                 <Route path="/timemachine" element={<ProtectedRoute><TimeMachinePage /></ProtectedRoute>} />
                 <Route path="/admin/security-check" element={<AdminRoute><SecurityCheckPage /></AdminRoute>} />
                 <Route path="/admin/onboarding-stats" element={<AdminRoute><OnboardingStatsPage /></AdminRoute>} />
