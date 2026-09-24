@@ -12,6 +12,7 @@ import { big4Questions } from "@/data/quizPacks/big4";
 import { strategyQuestions } from "@/data/quizPacks/strategy";
 import { commandmentQuestions } from "@/data/quizPacks/commandments";
 import { psychologyPlusQuestions } from "@/data/quizPacks/psychologyPlus";
+import { depthPackQuestions } from "@/data/quizPacks/depth";
 import { dailySeed, seededRandom, seededShuffle, todayKey } from "@/utils/dailySeed";
 import { getRecentQuestionKeys, recordServedQuestions, readDailySet, writeDailySet } from "@/utils/quizHistory";
 
@@ -306,6 +307,8 @@ export const allQuestions: QuizQuestion[] = [
   ...strategyQuestions,
   ...commandmentQuestions,
   ...psychologyPlusQuestions,
+  // --- 콘텐츠 심화 팩 (얇은 주제 보강: 바닥 예측 금지 · 머무름 · 겸손 · 해자 · 현금흐름 · 매크로 · 위기) ---
+  ...depthPackQuestions,
 ];
 
 export type ExperienceLevel = "완전 초보" | "조금 해봤어요" | "1년 이상 투자 중" | "베테랑 투자자";
