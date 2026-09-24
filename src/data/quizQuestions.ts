@@ -12,8 +12,8 @@ import { big4Questions } from "@/data/quizPacks/big4";
 import { strategyQuestions } from "@/data/quizPacks/strategy";
 import { commandmentQuestions } from "@/data/quizPacks/commandments";
 import { psychologyPlusQuestions } from "@/data/quizPacks/psychologyPlus";
-import { dailySeed, seededRandom, seededShuffle } from "@/utils/dailySeed";
-import { getRecentQuestionKeys, recordServedQuestions } from "@/utils/quizHistory";
+import { dailySeed, seededRandom, seededShuffle, todayKey } from "@/utils/dailySeed";
+import { getRecentQuestionKeys, recordServedQuestions, readDailySet, writeDailySet } from "@/utils/quizHistory";
 
 export type {
   Difficulty,
@@ -418,12 +418,18 @@ export function getDailyQuizSet(
     const basePool = allQuestions.filter(
       (q) => q.category === targetCategory && difficulties.includes(q.difficulty),
     );
-    if (basePool.length === 0) continue;
-
-    const notChosen = basePool.filter((q) => !chosenKeys.has(questionKey(q)));
+    let notChosen = basePool.filter((q) => !chosenKeys.has(questionKey(q)));
+    // 해당 카테고리가 소진되면 다른 카테고리에서 보충 — 하루 세트 내 중복은 절대 없음
+    if (notChosen.length === 0) {
+      notChosen = allQuestions.filter(
+        (q) => difficulties.includes(q.difficulty) && !chosenKeys.has(questionKey(q)),
+      );
+    }
+    if (notChosen.length === 0) notChosen = allQuestions.filter((q) => !chosenKeys.has(questionKey(q)));
+    if (notChosen.length === 0) break;
     // 1순위: 최근 14일 미출제 · 2순위: 이번 세트 내 미중복 · 3순위: 전체
     const fresh = notChosen.filter((q) => !recent.has(questionKey(q)));
-    const pick = fresh.length > 0 ? fresh : notChosen.length > 0 ? notChosen : basePool;
+    const pick = fresh.length > 0 ? fresh : notChosen;
 
     const shuffled = seededShuffle(pick, rand);
     const picked = shuffled[0];
