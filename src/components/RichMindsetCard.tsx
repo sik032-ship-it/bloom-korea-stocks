@@ -1,124 +1,114 @@
-// "부자처럼 생각하기" — 매일 30초 마인드셋 카드
-// 날짜 기반 회전. 이모지 → Lucide 아이콘 + 4톤 시맨틱으로 톤 통일.
+// "오늘의 마인드셋" — 투자 귀재가 눈앞에서 직접 말하는 듯한 카드
+// 날짜 기반 회전. 버핏/린치/멍거 초상 + 말풍선 스타일.
 
 import React from "react";
-import {
-  Target, Gem, Ruler, Compass, Search, Wind,
-  Hourglass, Mountain, Brain, VolumeX,
-  type LucideIcon,
-} from "lucide-react";
+import { Quote } from "lucide-react";
 import { toneClasses, type CategoryTone } from "@/data/quizQuestions";
+import mentorBuffett from "@/assets/mentor-buffett.png";
+import mentorLynch from "@/assets/mentor-lynch.png";
+
+type Mentor = "buffett" | "lynch" | "munger" | null;
 
 interface MindsetCard {
   id: string;
-  topic: "no_bottom" | "humility" | "long_term" | "circle";
   topicLabel: string;
-  Icon: LucideIcon;
   tone: CategoryTone;
-  headline: string;
-  body: string;
-  source?: string;
+  mentor: Mentor;
+  // 귀재가 사용자에게 직접 던지는 한마디
+  quote: string;
+  // 짧은 해설 (뿌리의 목소리)
+  note: string;
 }
 
+const MENTOR_META: Record<
+  Exclude<Mentor, null>,
+  { name: string; title: string; img?: string }
+> = {
+  buffett: { name: "워렌 버핏", title: "오마하의 현인", img: mentorBuffett },
+  lynch: { name: "피터 린치", title: "마젤란 펀드의 전설", img: mentorLynch },
+  munger: { name: "찰리 멍거", title: "버핏의 평생 파트너" },
+};
+
 const CARDS: MindsetCard[] = [
-  // === 바닥 예측 금지 (caution) ===
   {
     id: "buffett-no-bottom",
-    topic: "no_bottom",
     topicLabel: "바닥 예측 금지",
-    Icon: Target,
     tone: "caution",
-    headline: "버핏도 바닥은 모른다고 했어요.",
-    body: "세계 최고의 투자자조차 \"내가 산 다음 더 떨어질지 아닐지 모른다\"고 말합니다.\n바닥을 잡으려는 사람은 자기도 모르게 \"나는 버핏보다 잘 안다\"고 말하는 셈이에요.",
-    source: "워렌 버핏",
+    mentor: "buffett",
+    quote: "나도 바닥이 어딘지 모른다. 그런데 당신은 안다고 생각하나?",
+    note: "세계 최고의 투자자조차 모르는 걸 우리가 알 리 없습니다. 바닥을 노리지 말고, 구간을 정하세요.",
   },
   {
-    id: "rich-buy-on-drop",
-    topic: "no_bottom",
-    topicLabel: "부자의 행동",
-    Icon: Gem,
-    tone: "caution",
-    headline: "부자는 -15% 빠지면 \"좋은 가격이다\"라고 말해요.",
-    body: "일반인은 \"더 떨어질 것 같다\"며 못 사고, 회복하면 비싸게 따라 사요.\n부자는 미리 정한 구간에 도달하면 감정 없이 분할매수를 시작합니다.",
-  },
-  {
-    id: "split-buy-plan",
-    topic: "no_bottom",
-    topicLabel: "구간 대응",
-    Icon: Ruler,
-    tone: "caution",
-    headline: "예측이 아니라 \"계획\"으로 산다.",
-    body: "-15%, -25%, -40% — 우량주가 이 구간에 오면 미리 정한 비중대로 분할매수.\n바닥은 신만 알아요. 우리는 구간만 정할 수 있어요.",
-  },
-
-  // === 겸손 (wisdom) ===
-  {
-    id: "circle-of-competence",
-    topic: "circle",
-    topicLabel: "능력의 원",
-    Icon: Compass,
-    tone: "wisdom",
-    headline: "버핏은 어려운 투자를 거의 한 적이 없어요.",
-    body: "코카콜라, 애플, 코스트코, 비자 — 초등학생도 아는 기업뿐이에요.\n\"내가 모르는 회사에는 투자하지 않는다\" — 이게 그의 비밀입니다.",
-    source: "워렌 버핏",
-  },
-  {
-    id: "humility-test",
-    topic: "humility",
+    id: "lynch-crayon",
     topicLabel: "겸손 테스트",
-    Icon: Search,
     tone: "wisdom",
-    headline: "한 문장으로 설명할 수 없으면, 모르는 거예요.",
-    body: "피터 린치: \"이 회사가 무슨 일을 하는지 크레용으로 그릴 수 없다면 사지 마라.\"\n복잡할수록 위험합니다. 단순함이 곧 안전입니다.",
-    source: "피터 린치",
+    mentor: "lynch",
+    quote: "이 회사가 무슨 일을 하는지 크레용으로 그릴 수 없다면, 사지 마라.",
+    note: "한 문장으로 설명 못 하는 회사는 아직 모르는 회사입니다. 단순함이 곧 안전이에요.",
+  },
+  {
+    id: "buffett-circle",
+    topicLabel: "능력의 원",
+    tone: "wisdom",
+    mentor: "buffett",
+    quote: "내가 모르는 회사에는 투자하지 않는다. 그게 전부다.",
+    note: "코카콜라, 애플, 코스트코 — 초등학생도 아는 기업만으로 그는 세계 최고가 됐습니다.",
+  },
+  {
+    id: "lynch-know-why",
+    topicLabel: "버티기",
+    tone: "growth",
+    mentor: "lynch",
+    quote: "당신이 그 주식을 산 이유를 한 문장으로 말해보라. 못 하면 팔아라.",
+    note: "산 이유가 분명한 사람만이 -30%에서도 흔들리지 않습니다. 오늘 문장 하나를 심어보세요.",
   },
   {
     id: "munger-humility",
-    topic: "humility",
     topicLabel: "겸손",
-    Icon: Wind,
     tone: "wisdom",
-    headline: "내가 틀릴 수 있다는 것을 인정하는 순간, 진짜 투자가 시작돼요.",
-    body: "찰리 멍거: \"나는 평생 멍청한 짓을 피하려 노력했고, 그게 천재가 되려는 것보다 더 효과적이었다.\"",
-    source: "찰리 멍거",
+    mentor: "munger",
+    quote: "나는 평생 멍청한 짓을 피하려 했다. 천재가 되려는 것보다 효과적이었지.",
+    note: "내가 틀릴 수 있다는 걸 인정하는 순간, 진짜 투자가 시작됩니다.",
   },
-
-  // === 장기투자 (growth) ===
   {
-    id: "time-is-friend",
-    topic: "long_term",
+    id: "buffett-time",
     topicLabel: "시간의 마법",
-    Icon: Hourglass,
     tone: "growth",
-    headline: "오늘의 가격은 2040년의 당신에게 \"헐값\"이 됩니다.",
-    body: "버핏이 1988년 코카콜라를 비싸게 샀다고 했던 그 가격은, 오늘 보면 약 36배 헐값이었어요.\n시간은 좋은 기업의 가장 강력한 친구예요.",
+    mentor: "buffett",
+    quote: "주식시장은 참을성 없는 사람의 돈을 참을성 있는 사람에게 옮겨주는 장치다.",
+    note: "1988년에 비싸게 샀다던 코카콜라는 오늘 약 36배입니다. 시간은 좋은 기업의 가장 강력한 친구예요.",
   },
   {
-    id: "panic-sell",
-    topic: "long_term",
+    id: "lynch-drop",
+    topicLabel: "구간 대응",
+    tone: "caution",
+    mentor: "lynch",
+    quote: "주식이 떨어졌다고 울지 마라. 좋은 회사가 세일 중인지부터 확인해라.",
+    note: "일반인은 -15%에 도망치고, 부자는 미리 정한 구간에서 감정 없이 분할매수를 시작합니다.",
+  },
+  {
+    id: "buffett-panic",
     topicLabel: "버티기",
-    Icon: Mountain,
     tone: "growth",
-    headline: "2년 공부해서 산 주식을, 한 번의 패닉이 날립니다.",
-    body: "수많은 사람이 \"공부\"는 했지만 \"멘탈\"은 훈련 안 해서 -40%에 손절했어요.\n그리고 그 주식이 3배 오르는 걸 뉴스로만 봅니다. 당신은 다르게 살자.",
+    mentor: "buffett",
+    quote: "10년을 보유할 생각이 없다면, 10분도 보유하지 마라.",
+    note: "2년 공부해서 산 주식을 한 번의 패닉이 날립니다. 멘탈도 훈련입니다. 매일 조금씩.",
   },
   {
-    id: "compounding-mind",
-    topic: "long_term",
-    topicLabel: "복리",
-    Icon: Brain,
-    tone: "growth",
-    headline: "투자 멘탈도 복리예요.",
-    body: "오늘 0.5%, 내일 0.5% — 매일 누적되면 1년 뒤 완전히 다른 사람이 돼요.\n하루는 별것 아니지만, 매일은 모든 것을 바꿉니다.",
-  },
-  {
-    id: "noise-vs-signal",
-    topic: "circle",
+    id: "lynch-noise",
     topicLabel: "소음 차단",
-    Icon: VolumeX,
     tone: "wisdom",
-    headline: "애널리스트 목표가는 소음, 사업의 본질은 신호.",
-    body: "목표가 하향에 흔들리지 마세요. 그건 단기 의견이에요.\n질문은 단 하나: \"내가 이 회사를 산 이유가 무너졌는가?\"",
+    mentor: "lynch",
+    quote: "목표가 하향? 그건 그들의 의견일 뿐이다. 회사가 무너졌는지가 질문이다.",
+    note: "애널리스트 목표가는 소음, 사업의 본질은 신호. 내가 이 회사를 산 이유가 무너졌는지만 보세요.",
+  },
+  {
+    id: "munger-compound",
+    topicLabel: "복리",
+    tone: "growth",
+    mentor: "munger",
+    quote: "복리의 첫 번째 규칙은, 절대 멈추지 않는 것이다.",
+    note: "오늘 0.5%, 내일 0.5% — 매일 누적되면 1년 뒤 완전히 다른 사람이 됩니다.",
   },
 ];
 
@@ -131,33 +121,69 @@ function getTodayCard(): MindsetCard {
 export function RichMindsetCard() {
   const card = getTodayCard();
   const t = toneClasses[card.tone];
-  const Icon = card.Icon;
+  const meta = card.mentor ? MENTOR_META[card.mentor] : null;
 
   return (
     <section
       aria-label="오늘의 마인드셋"
-      className="rounded-2xl border border-border bg-card p-4 animate-fade-in"
+      className="rounded-2xl border border-border bg-card p-4 animate-fade-in overflow-hidden"
     >
       <div className="flex items-center gap-2 mb-3">
         <span
           className={`inline-flex items-center justify-center w-7 h-7 rounded-lg ${t.bg} ${t.fg}`}
         >
-          <Icon className="w-4 h-4" strokeWidth={2} />
+          <Quote className="w-4 h-4" strokeWidth={2} />
         </span>
         <span className="text-[11px] font-bold tracking-wider uppercase text-muted-foreground">
           오늘의 마인드셋
         </span>
         <span className={`text-[11px] font-bold ${t.fg}`}>· {card.topicLabel}</span>
       </div>
-      <p className="text-body font-bold text-foreground leading-snug mb-2">
-        {card.headline}
+
+      <div className="flex items-start gap-3">
+        {/* 귀재 초상 */}
+        {meta && (
+          <div className="shrink-0 flex flex-col items-center gap-1.5 pt-0.5">
+            {meta.img ? (
+              <img
+                src={meta.img}
+                alt={meta.name}
+                className="w-14 h-14 rounded-2xl object-cover border-2 border-border shadow-sm animate-float"
+              />
+            ) : (
+              <div
+                className={`w-14 h-14 rounded-2xl ${t.bg} ${t.fg} flex items-center justify-center text-lg font-black border-2 border-border shadow-sm`}
+              >
+                {meta.name[0]}
+              </div>
+            )}
+            <div className="text-center">
+              <p className="text-[11px] font-bold text-foreground leading-tight">{meta.name}</p>
+              <p className="text-[9px] text-muted-foreground leading-tight">{meta.title}</p>
+            </div>
+          </div>
+        )}
+
+        {/* 말풍선 */}
+        <div className="relative flex-1 min-w-0">
+          <div
+            className={`relative rounded-2xl rounded-tl-md ${t.bg} px-4 py-3 animate-scale-in`}
+          >
+            {/* 말풍선 꼬리 */}
+            <span
+              className={`absolute -left-1.5 top-3 w-3 h-3 rotate-45 ${t.bg} rounded-[3px]`}
+              aria-hidden
+            />
+            <p className="relative text-[15px] font-bold text-foreground leading-snug">
+              “{card.quote}”
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <p className="text-small text-muted-foreground leading-relaxed mt-3 pl-1 border-l-2 border-border ml-1">
+        {card.note}
       </p>
-      <p className="text-small text-muted-foreground leading-relaxed whitespace-pre-line">
-        {card.body}
-      </p>
-      {card.source && (
-        <p className="text-[11px] text-muted-foreground mt-3 italic">— {card.source}</p>
-      )}
     </section>
   );
 }
