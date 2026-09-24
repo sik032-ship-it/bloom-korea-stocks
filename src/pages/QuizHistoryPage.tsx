@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/Layout";
 import { PpuriCard } from "@/components/PpuriCard";
+import { QuizStatsDashboard } from "@/components/QuizStatsDashboard";
 import { todayKey } from "@/utils/dailySeed";
 
 interface Attempt {
@@ -99,6 +100,8 @@ export default function QuizHistoryPage() {
         </div>
         <p className="text-xs text-muted-foreground mt-2">칸이 진할수록 정답을 많이 맞힌 날이에요.</p>
       </PpuriCard>
+
+      <QuizStatsDashboard attempts={rows} />
 
       {loading ? (
         <p className="text-small text-muted-foreground text-center py-8">불러오는 중...</p>
