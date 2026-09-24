@@ -1,6 +1,6 @@
 import { cn } from "@/utils/cn";
+import { Mascot } from "@/components/Mascot";
 
-const LEVEL_EMOJIS = ["🌱", "🌿", "🌳", "🌲", "🏔", "🌍"];
 const LEVEL_NAMES = ["씨앗", "새싹", "줄기", "가지", "나무", "숲"];
 
 interface MascotAvatarProps {
@@ -11,10 +11,12 @@ interface MascotAvatarProps {
 }
 
 const sizeMap = {
-  sm: "text-xl w-8 h-8",
-  md: "text-3xl w-12 h-12",
-  lg: "text-5xl w-16 h-16",
+  sm: "w-8 h-8",
+  md: "w-12 h-12",
+  lg: "w-16 h-16",
 };
+
+const mascotSizeMap = { sm: "sm", md: "sm", lg: "md" } as const;
 
 export const MascotAvatar = ({
   level = 1,
@@ -27,16 +29,16 @@ export const MascotAvatar = ({
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full bg-accent",
+        "flex items-center justify-center rounded-full bg-accent overflow-hidden",
         sizeMap[size],
         animated && "animate-bounce-in",
         className
       )}
       title={`${LEVEL_NAMES[idx]} (Lv.${level})`}
     >
-      {LEVEL_EMOJIS[idx]}
+      <Mascot level={level} size={mascotSizeMap[size]} />
     </div>
   );
 };
 
-export { LEVEL_EMOJIS, LEVEL_NAMES };
+export { LEVEL_NAMES };
