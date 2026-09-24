@@ -5,7 +5,15 @@ import { createOpenAI } from "npm:@ai-sdk/openai";
 import { streamText, Output } from "npm:ai";
 import { z } from "npm:zod";
 
-const CATEGORIES = ["brand_moat", "cash_flow", "humility", "judgment", "legend_wisdom", "no_bottom_fishing", "risk", "where_not_when", "strategy"] as const;
+// 주제 순회: 매주 3개 주제씩 돌아가며 전체 13개 주제를 커버 (4주 + 나머지 1주 = 5주 주기)
+const ALL_CATEGORIES = ["brand_moat", "cash_flow", "humility", "judgment", "legend_wisdom", "no_bottom_fishing", "risk", "where_not_when", "strategy", "psychology", "crisis", "us_market", "big4_basics"] as const;
+
+function weeklyCategories(week: string): string[] {
+  const start = week.split("-").reduce((acc, p) => acc * 100 + Number(p), 0);
+  const out: string[] = [];
+  for (let i = 0; i < 3; i++) out.push(ALL_CATEGORIES[(start + i * 4) % ALL_CATEGORIES.length]);
+  return out;
+}
 
 const Schema = z.object({
   questions: z.array(z.object({
