@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
   });
 
   // 이미 저장된 문제 재검수 모드: 철학과 맞지 않는 문제는 삭제
-  const mode = new URL(req.url).searchParams.get("mode");
+  const mode = new URL(req.url).searchParams.get("mode") ?? req.headers.get("x-mode");
   if (mode === "review") {
     const { data: existing } = await admin.from("weekly_questions").select("id, statement, answer, explanation, insight");
     if (!existing?.length) return json({ ok: true, reviewed: 0 });
