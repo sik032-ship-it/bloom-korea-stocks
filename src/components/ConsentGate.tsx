@@ -114,7 +114,7 @@ export function ConsentGate({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-8">
         <div className="w-full max-w-sm animate-fade-in">
           <div className="text-center mb-6">
-            <span className="text-5xl block mb-3">🌱</span>
+            <img src={mascotWave} alt="뿌리 다람쥐" className="w-20 h-20 object-contain mx-auto mb-3" width={80} height={80} />
             <h1 className="text-2xl font-bold text-foreground mb-2">PPURI 시작 전에</h1>
             <p className="text-small text-muted-foreground">
               안전한 학습 환경을 위해<br />아래 항목에 동의해주세요.
@@ -185,7 +185,7 @@ export function ConsentGate({ children }: { children: React.ReactNode }) {
           )}
 
           <PpuriButton fullWidth onClick={handleAccept} disabled={!allAgreed || saving}>
-            {saving ? "저장 중..." : "동의하고 시작하기 🌱"}
+            {saving ? "저장 중..." : "동의하고 시작하기"}
           </PpuriButton>
 
           <button
