@@ -12,8 +12,8 @@ import { big4Questions } from "@/data/quizPacks/big4";
 import { strategyQuestions } from "@/data/quizPacks/strategy";
 import { commandmentQuestions } from "@/data/quizPacks/commandments";
 import { psychologyPlusQuestions } from "@/data/quizPacks/psychologyPlus";
-import { dailySeed, seededRandom, seededShuffle } from "@/utils/dailySeed";
-import { getRecentQuestionKeys, recordServedQuestions } from "@/utils/quizHistory";
+import { dailySeed, seededRandom, seededShuffle, todayKey } from "@/utils/dailySeed";
+import { getRecentQuestionKeys, recordServedQuestions, readDailySet, writeDailySet } from "@/utils/quizHistory";
 
 export type {
   Difficulty,
@@ -390,11 +390,22 @@ export function getDailyQuizSet(
   userLevel: number = 1,
   experience?: string | null,
   userId?: string | null,
+  extraRecent?: Set<string>,
 ): QuizQuestion[] {
+  const day = todayKey();
+  const userTag = userId || "anon";
+  // 0) 오늘 이미 확정된 세트가 있으면 그대로 (새로고침/재진입 시 동일 문항)
+  const cachedKeys = readDailySet(day, userTag, count);
+  if (cachedKeys && cachedKeys.length === count) {
+    const byKey = new Map(allQuestions.map((q) => [questionKey(q), q]));
+    const cached = cachedKeys.map((k) => byKey.get(k)).filter(Boolean) as QuizQuestion[];
+    if (cached.length === count) return cached;
+  }
   const difficulties = getDifficultyForLevel(userLevel, experience);
   const categories = getCategoryRotation(experience);
   const rand = seededRandom(dailySeed(userId));
   const recent = getRecentQuestionKeys();
+  extraRecent?.forEach((k) => recent.add(k));
 
   const result: QuizQuestion[] = [];
   const chosenKeys = new Set<string>();
@@ -407,12 +418,18 @@ export function getDailyQuizSet(
     const basePool = allQuestions.filter(
       (q) => q.category === targetCategory && difficulties.includes(q.difficulty),
     );
-    if (basePool.length === 0) continue;
-
-    const notChosen = basePool.filter((q) => !chosenKeys.has(questionKey(q)));
+    let notChosen = basePool.filter((q) => !chosenKeys.has(questionKey(q)));
+    // 해당 카테고리가 소진되면 다른 카테고리에서 보충 — 하루 세트 내 중복은 절대 없음
+    if (notChosen.length === 0) {
+      notChosen = allQuestions.filter(
+        (q) => difficulties.includes(q.difficulty) && !chosenKeys.has(questionKey(q)),
+      );
+    }
+    if (notChosen.length === 0) notChosen = allQuestions.filter((q) => !chosenKeys.has(questionKey(q)));
+    if (notChosen.length === 0) break;
     // 1순위: 최근 14일 미출제 · 2순위: 이번 세트 내 미중복 · 3순위: 전체
     const fresh = notChosen.filter((q) => !recent.has(questionKey(q)));
-    const pick = fresh.length > 0 ? fresh : notChosen.length > 0 ? notChosen : basePool;
+    const pick = fresh.length > 0 ? fresh : notChosen;
 
     const shuffled = seededShuffle(pick, rand);
     const picked = shuffled[0];
@@ -423,6 +440,7 @@ export function getDailyQuizSet(
   // 최종 순서도 시드로 섞기 (같은 날엔 항상 동일 순서)
   const finalSet = seededShuffle(result, rand);
   recordServedQuestions(finalSet.map(questionKey));
+  writeDailySet(day, userTag, count, finalSet.map(questionKey));
   return finalSet;
 }
 
