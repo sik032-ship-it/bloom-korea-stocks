@@ -13,37 +13,12 @@ import { useMentorExperiment } from "@/hooks/useMentorExperiment";
 import type { Database } from "@/integrations/supabase/types";
 import { FutureValueSimulator } from "@/components/FutureValueSimulator";
 import { DropPlanModal, hasDropPlan } from "@/components/DropPlanModal";
+import { searchStocks, TICKER_RE } from "@/data/stockList";
 import { HumilityCheckModal, getHumilityCheck } from "@/components/HumilityCheck";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];
 
-const STOCK_LIST = [
-  { ticker: "AAPL", name: "애플" }, { ticker: "TSLA", name: "테슬라" },
-  { ticker: "NVDA", name: "엔비디아" }, { ticker: "MSFT", name: "마이크로소프트" },
-  { ticker: "GOOGL", name: "구글" }, { ticker: "AMZN", name: "아마존" },
-  { ticker: "META", name: "메타" }, { ticker: "AMD", name: "AMD" },
-  { ticker: "NFLX", name: "넷플릭스" }, { ticker: "DIS", name: "디즈니" },
-  { ticker: "COST", name: "코스트코" }, { ticker: "JPM", name: "JP모건" },
-  { ticker: "V", name: "비자" }, { ticker: "MA", name: "마스터카드" },
-  { ticker: "PLTR", name: "팔란티어" }, { ticker: "COIN", name: "코인베이스" },
-  { ticker: "SOFI", name: "소파이" }, { ticker: "SNOW", name: "스노우플레이크" },
-  { ticker: "CRM", name: "세일즈포스" }, { ticker: "UBER", name: "우버" },
-  { ticker: "SQ", name: "블록(스퀘어)" }, { ticker: "SHOP", name: "쇼피파이" },
-  { ticker: "PYPL", name: "페이팔" }, { ticker: "INTC", name: "인텔" },
-  { ticker: "QCOM", name: "퀄컴" }, { ticker: "AVGO", name: "브로드컴" },
-  { ticker: "TSM", name: "TSMC" }, { ticker: "BABA", name: "알리바바" },
-  { ticker: "JNJ", name: "존슨앤존슨" }, { ticker: "PG", name: "P&G" },
-  { ticker: "KO", name: "코카콜라" }, { ticker: "PEP", name: "펩시" },
-  { ticker: "WMT", name: "월마트" }, { ticker: "HD", name: "홈디포" },
-  { ticker: "MCD", name: "맥도날드" }, { ticker: "NKE", name: "나이키" },
-  { ticker: "BA", name: "보잉" }, { ticker: "GS", name: "골드만삭스" },
-  { ticker: "MS", name: "모건스탠리" }, { ticker: "BRK.B", name: "버크셔해서웨이" },
-  { ticker: "XOM", name: "엑슨모빌" }, { ticker: "CVX", name: "셰브론" },
-  { ticker: "LLY", name: "일라이릴리" }, { ticker: "UNH", name: "유나이티드헬스" },
-  { ticker: "PFE", name: "화이자" }, { ticker: "ABBV", name: "애브비" },
-  { ticker: "MRK", name: "머크" }, { ticker: "TMO", name: "써모피셔" },
-  { ticker: "ABT", name: "애보트" }, { ticker: "PANW", name: "팔로알토네트웍스" },
-];
+
 
 export default function HoldingsPage() {
   const { user } = useAuth();
@@ -72,24 +47,24 @@ export default function HoldingsPage() {
 
   useEffect(() => { fetchData(); }, [user]);
 
-  const filteredStocks = STOCK_LIST.filter(
-    (s) =>
-      !holdings.find((h) => h.ticker === s.ticker) &&
-      (s.ticker.toLowerCase().includes(search.toLowerCase()) ||
-        s.name.includes(search))
-  ).slice(0, 10);
+  const filteredStocks = searchStocks(search, new Set(holdings.map((h) => h.ticker)), 20);
 
   const addHolding = async (ticker: string, nameKr: string) => {
     if (!user || holdings.length >= 10) {
       if (holdings.length >= 10) toast.error("최대 10개까지 추가할 수 있어요");
       return;
     }
+    const t = ticker.trim().toUpperCase();
+    const n = nameKr.trim().slice(0, 60);
+    if (!TICKER_RE.test(t) || !n) { toast.error("티커는 영문/숫자 10자 이내, 종목명은 필수예요"); return; }
+    if (holdings.some((h) => h.ticker === t)) { toast.error("이미 추가된 종목이에요"); return; }
     const { error } = await supabase.from("holdings").insert({
       user_id: user.id,
-      ticker,
-      company_name_kr: nameKr,
+      ticker: t,
+      company_name_kr: n,
     });
-    if (error) { toast.error("추가 실패"); return; }
+    if (error) { toast.error(error.message.includes("holdings_limit") ? "최대 10개까지 추가할 수 있어요" : "추가 실패 — 잠시 후 다시 시도해 주세요"); return; }
+    ticker = t;
     toast.success(`${ticker} 추가 완료`);
     setShowAdd(false);
     setSearch("");
@@ -236,13 +211,15 @@ export default function HoldingsPage() {
               <div className="flex gap-2">
                 <input
                   value={customTicker}
-                  onChange={(e) => setCustomTicker(e.target.value.toUpperCase())}
+                  onChange={(e) => setCustomTicker(e.target.value.toUpperCase().replace(/[^A-Z0-9.\-]/g, "").slice(0, 10))}
+                  maxLength={10}
                   placeholder="티커"
                   className="flex-1 h-11 px-3 rounded-md bg-input border border-border text-small focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <input
                   value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
+                  onChange={(e) => setCustomName(e.target.value.slice(0, 60))}
+                  maxLength={60}
                   placeholder="종목명"
                   className="flex-1 h-11 px-3 rounded-md bg-input border border-border text-small focus:outline-none focus:ring-2 focus:ring-ring"
                 />
