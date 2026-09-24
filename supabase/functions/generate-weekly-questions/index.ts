@@ -5,14 +5,12 @@ import { createOpenAI } from "npm:@ai-sdk/openai";
 import { streamText, Output } from "npm:ai";
 import { z } from "npm:zod";
 
-// 주제 순회: 매주 3개 주제씩 돌아가며 전체 13개 주제를 커버 (4주 + 나머지 1주 = 5주 주기)
+// 주제 순회: 매주 3개 주제를 연속 블록으로 돌려 5주마다 전체 13개 주제를 커버
 const ALL_CATEGORIES = ["brand_moat", "cash_flow", "humility", "judgment", "legend_wisdom", "no_bottom_fishing", "risk", "where_not_when", "strategy", "psychology", "crisis", "us_market", "big4_basics"] as const;
 
 function weeklyCategories(week: string): string[] {
-  const start = week.split("-").reduce((acc, p) => acc * 100 + Number(p), 0);
-  const out: string[] = [];
-  for (let i = 0; i < 3; i++) out.push(ALL_CATEGORIES[(start + i * 4) % ALL_CATEGORIES.length]);
-  return out;
+  const weekIndex = Math.floor(new Date(week + "T00:00:00Z").getTime() / 86400000 / 7);
+  return [0, 1, 2].map((i) => ALL_CATEGORIES[(weekIndex * 3 + i) % ALL_CATEGORIES.length]);
 }
 
 const Schema = z.object({
