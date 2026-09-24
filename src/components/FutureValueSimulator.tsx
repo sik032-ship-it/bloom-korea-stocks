@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { PpuriButton } from "@/components/PpuriButton";
 import { LEGENDARY_BARGAINS, findClosestBargain } from "@/data/legendaryBargains";
+import { CuteIcon } from "@/components/CuteIcon";
 
 interface FutureValueSimulatorProps {
  ticker: string;
@@ -277,7 +278,7 @@ export const FutureValueSimulator: React.FC<FutureValueSimulatorProps> = ({ tick
  <div className="space-y-1.5">
  {SHOCK_STATS.map((s) => (
  <div key={s.title} className="flex items-center gap-2 rounded-md border border-border bg-card p-2.5">
- <span className="text-xl">{s.emoji}</span>
+ <CuteIcon emoji={s.emoji} size="sm" />
  <div className="flex-1 min-w-0">
  <p className="text-small font-semibold text-foreground leading-tight">{s.title}</p>
  <p className="text-[10px] text-muted-foreground">{s.desc} · <span className="italic">{s.source}</span></p>
@@ -292,7 +293,7 @@ export const FutureValueSimulator: React.FC<FutureValueSimulatorProps> = ({ tick
  <div className="rounded-md border border-border p-3 mb-4">
  <p className="text-xs text-muted-foreground mb-1"> 실제 역사 — 시간이 증명한 것</p>
  <p className="text-small text-foreground">
- {legendCase.investorEmoji} <b>{legendCase.investor}</b>의 <b>{legendCase.company}</b> ({legendCase.buyYear})
+ <span className="inline-flex items-center gap-1.5"><CuteIcon emoji={legendCase.investorEmoji} size="sm" /> <b>{legendCase.investor}</b>의 <b>{legendCase.company}</b> ({legendCase.buyYear})</span>
  </p>
  <p className="text-xs text-muted-foreground mt-1">
  당시 {legendCase.buyPriceLabel} 오늘 {legendCase.todayPriceLabel}

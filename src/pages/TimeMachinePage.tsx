@@ -182,7 +182,7 @@ export default function TimeMachinePage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">{b.emoji}</span>
+                    <CuteIcon emoji={b.emoji} size="md" />
                     <div>
                       <p className="text-small font-bold text-foreground">{b.company}</p>
                       <p className="text-[10px] text-muted-foreground">{b.ticker}</p>

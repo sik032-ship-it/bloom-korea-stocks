@@ -134,7 +134,7 @@ export function BehavioralNudge({ userId, holdings, triggerAfterLesson }: Behavi
                   className={`w-full text-left rounded-xl p-3 transition-all ${SEVERITY_COLORS[bias.severity]} hover:opacity-90`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">{label.emoji}</span>
+                    <CuteIcon emoji={label.emoji} size="sm" className="w-6 h-6 rounded-md bg-transparent" />
                     <span className="text-xs font-bold">{label.name}</span>
                     <span className={`ml-auto text-[10px] transition-transform ${isExpanded ? "rotate-90" : ""}`}>▶</span>
                   </div>

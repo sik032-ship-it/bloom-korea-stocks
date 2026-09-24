@@ -40,7 +40,7 @@ export function TimeMachinePreview({ holdingsTickers = [] }: Props) {
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-xl">⏰</span>
+          <CuteIcon emoji="⏰" size="sm" />
           <p className="text-small font-bold text-foreground">오늘의 시간 머신</p>
         </div>
         {ownedHint && (
