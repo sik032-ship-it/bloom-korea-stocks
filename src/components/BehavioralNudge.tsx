@@ -5,6 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
+import { CuteIcon } from "@/components/CuteIcon";
 import type { Database } from "@/integrations/supabase/types";
 
 type Holding = Database["public"]["Tables"]["holdings"]["Row"];

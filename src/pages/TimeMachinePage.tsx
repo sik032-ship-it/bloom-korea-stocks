@@ -6,6 +6,7 @@ import { PpuriButton } from "@/components/PpuriButton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { BIG_TECH, dcaFutureValue, type BigTechRecord } from "@/data/bigTechHistory";
+import { CuteIcon } from "@/components/CuteIcon";
 
 type Mode = "lump" | "dca";
 type Period = 10 | 20;

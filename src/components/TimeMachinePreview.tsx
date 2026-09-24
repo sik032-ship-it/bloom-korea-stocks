@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BIG_TECH } from "@/data/bigTechHistory";
 import { PpuriCard } from "@/components/PpuriCard";
+import { CuteIcon } from "@/components/CuteIcon";
 
 // 매일 다른 종목을 자동 로테이션 (요일 기반 → 동일 일자엔 동일 종목 보장)
 function getDailyPick(holdingsTickers: string[]) {
