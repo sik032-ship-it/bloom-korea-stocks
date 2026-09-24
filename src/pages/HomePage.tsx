@@ -141,10 +141,9 @@ export default function HomePage() {
 
   // 8시 알림을 눌러 들어오면 오늘의 레슨으로 바로 안내
   const fromReminder = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "reminder";
-  if (!loading && fromReminder && !todayDone) {
-    window.history.replaceState(null, "", "/");
-    navigate("/lesson", { replace: true });
-  }
+  useEffect(() => {
+    if (!loading && fromReminder && !todayDone) navigate("/lesson", { replace: true });
+  }, [loading, fromReminder, todayDone, navigate]);
 
   if (loading) {
     return <Layout><HomeSkeleton /></Layout>;
