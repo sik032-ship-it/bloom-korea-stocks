@@ -49,9 +49,41 @@ function withinWindow(entries: HistoryEntry[]): HistoryEntry[] {
   return entries.filter((e) => e.t >= cutoff);
 }
 
-/** 최근 14일 내 출제된 문항 키 집합 */
+function startOfToday(): number {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+/** 최근 14일 내(오늘 제외) 출제된 문항 키 집합 — 오늘 기록은 제외해야 새로고침해도 같은 세트 */
 export function getRecentQuestionKeys(): Set<string> {
-  return new Set(withinWindow(safeRead()).map((e) => e.k));
+  const today = startOfToday();
+  return new Set(withinWindow(safeRead()).filter((e) => e.t < today).map((e) => e.k));
+}
+
+// ── 오늘의 세트 고정 캐시 ──
+const DAILY_KEY = "ppuri:quiz-daily-set";
+interface DailySetPayload { v: 1; day: string; user: string; count: number; keys: string[] }
+
+export function readDailySet(day: string, user: string, count: number): string[] | null {
+  try {
+    const raw = localStorage.getItem(DAILY_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as DailySetPayload;
+    if (p?.v !== 1 || p.day !== day || p.user !== user || p.count !== count || !Array.isArray(p.keys)) return null;
+    return p.keys.filter((k) => typeof k === "string");
+  } catch {
+    return null;
+  }
+}
+
+export function writeDailySet(day: string, user: string, count: number, keys: string[]): void {
+  try {
+    const p: DailySetPayload = { v: 1, day, user, count, keys };
+    localStorage.setItem(DAILY_KEY, JSON.stringify(p));
+  } catch {
+    // 조용히 폴백
+  }
 }
 
 /** 오늘 출제한 문항을 이력에 기록 */
