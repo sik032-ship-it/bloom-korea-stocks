@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { SpeechBubble } from "@/components/SpeechBubble";
+import { hashString } from "@/utils/dailySeed";
 import { allQuestions, categoryLabels, type OXQuestion } from "@/data/quizQuestions";
 import {
   validateOnboardingPayload,
@@ -18,15 +19,24 @@ import {
 } from "@/utils/onboardingBeacon";
 
 
-// 온보딩용: 초보자 친화적인 OX 문제만 풀에서 랜덤 선택
+// 온보딩용 "이번 주의 철학 문제" — 매주 월요일 자동으로 새 문제로 교체된다.
+// 투자 철학(10계명) 카테고리의 OX 문제를 고정 시드로 섞은 뒤 주차 번호로 순환 → 모든 신규 유저가 같은 주엔 같은 문제,
+// 다음 주엔 반드시 다른 문제. 풀이 다 돌면 처음부터 다시(문항 추가 시 자동 편입).
+const PHILOSOPHY_CATS = new Set([
+  "brand_moat", "cash_flow", "humility", "judgment", "legend_wisdom",
+  "no_bottom_fishing", "risk", "where_not_when", "strategy",
+]);
+function weekIndex(d = new Date()): number {
+  const MONDAY_EPOCH = Date.UTC(2024, 0, 1); // 월요일
+  return Math.floor((d.getTime() - MONDAY_EPOCH) / (7 * 86400000));
+}
 function pickRandomPreviewQuestion(): OXQuestion {
-  const oxBeginner = allQuestions.filter(
-    (q): q is OXQuestion => q.format === "ox" && q.difficulty === "beginner"
-  );
-  const pool = oxBeginner.length > 0
-    ? oxBeginner
-    : allQuestions.filter((q): q is OXQuestion => q.format === "ox");
-  return pool[Math.floor(Math.random() * pool.length)];
+  const ox = allQuestions.filter((q): q is OXQuestion => q.format === "ox");
+  const philosophy = ox.filter((q) => PHILOSOPHY_CATS.has(q.category) && q.difficulty !== "advanced");
+  const pool = (philosophy.length > 0 ? philosophy : ox)
+    .slice()
+    .sort((a, b) => hashString(a.statement) - hashString(b.statement));
+  return pool[weekIndex() % pool.length];
 }
 
 const POPULAR_STOCKS: { ticker: string; name: string; emoji: string; anchor?: boolean }[] = [
