@@ -10,7 +10,7 @@ const depthNoBottomFishing: QuizQuestion[] = [
   { format: "ox", difficulty: "intermediate", category: "no_bottom_fishing", statement: "1년 만에 70% 떨어진 주식은 70% 싸졌으므로 무조건 사 둘 때다", answer: false, explanation: "가격이 70% 내려갔어도 기업 가치가 90% 무너졌을 수 있어요. 싸 보이는 건 과거 가격과의 비교일 뿐, 현재 가치와의 비교가 아니에요.", insight: "'예전 가격의 몇 할'이 아니라 '지금 가치 대비 얼마'를 물어야 해요." },
   { format: "multiple_choice", difficulty: "intermediate", category: "no_bottom_fishing", question: "급락장에서 바닥 예측 대신 해야 할 일은?", options: ["기업의 펀더멘털이 변했는지 확인", "차트에 바닥선 그리기", "레버리지로 물타기", "커뮤니티 의견 따라가기"], correctIndex: 0, explanation: "가격의 문제가 아니라 사업의 문제인지부터 봐야 해요. 사업이 그대로라면 급락은 소음일 수 있어요.", insight: "차트는 과거를 그려주고, 펀더멘털은 미래를 말해줘요." },
   { format: "ox", difficulty: "intermediate", category: "no_bottom_fishing", statement: "물타기(평단 조정)는 손실 종목에서 항상 올바른 전략이다", answer: false, explanation: "기업 가치가 그대로인 게 확인됐다면 근거 있는 추가 매수예요. 하지만 떨어지는 이유가 사업 무너짐이라면 투입한 돈만 늘어나는 손실이죠.", insight: "물타기의 근거는 '더 싸졌다'가 아니라 '여전히 좋다'여야 해요." },
-  { format: "ox", difficulty: "advanced", category: "no_bottom_fishing", statement: "2000년 IT버블 당시 '바닥은 충분히 왔다'며 시스코를 매수한 투자자는 20년 가까이 손실을 안았다", answer: true, explanation: "시스코는 2000년 3월 최고점 이후 90% 가까이 떨어졌고, 최고가를 회복하는 데 약 20년이 걸렸어요. '한 번의 바닥 판단'이 세대급 손실이 됐습니다.", insight: "바닥 판단을 한 번 틀리면, 그 시간은 평생 투자 시간에서 빠져나가요." },
+  { format: "ox", difficulty: "advanced", category: "no_bottom_fishing", statement: "2000년 IT버블 당시 '바닥은 충분히 왔다'며 시스코를 매수한 투자자는 20년 넘게 손실을 안았다", answer: true, explanation: "시스코는 2000년 3월 최고점 이후 90% 가까이 떨어졌고, 2025년 12월에야 최고가를 회복했어요(약 25년). '한 번의 바닥 판단'이 세대급 손실이 됐습니다.", insight: "바닥 판단을 한 번 틀리면, 그 시간은 평생 투자 시간에서 빠져나가요." },
   { format: "multiple_choice", difficulty: "advanced", category: "no_bottom_fishing", question: "'폭락한 우량주'와 '싸지는 쓰레기주'를 가르는 기준은?", options: ["사업의 근본 가치(현금흐름·해자)가 유지되는가", "하락 폭이 얼마나 큰가", "거래량이 얼마나 많은가", "최고가 대비 몇 % 할인됐는가"], correctIndex: 0, explanation: "같은 -80%라도 해자가 남은 회사는 시간이 가격을 회복시키고, 사업이 무너진 회사는 회복이 없어요.", insight: "하락 폭은 기회의 크기가 아니라, 사업 상태가 기회의 본질이에요." },
   { format: "fill_blank", difficulty: "advanced", category: "no_bottom_fishing", sentence: "가격이 아무리 싸 보여도 사업이 무너졌다면 그것은 기회가 아니라 ___이다", answer: "함정", hints: ["함정", "덫"], explanation: "싸게 보이는 가격 자체가 유혹일 때, 그 뒤에 숨은 이유를 확인하지 않으면 덫에 걸려요.", insight: "'왜 이렇게 싸졌지?'라는 질문에 답할 수 없으면 사지 마세요." },
 ];
@@ -24,7 +24,7 @@ const depthWhereNotWhen: QuizQuestion[] = [
   { format: "multiple_choice", difficulty: "intermediate", category: "where_not_when", question: "'이제 팔아야 하나' 고민이 시작되면 가장 먼저 점검할 것은?", options: ["내가 산 이유(논거)가 사라졌는지", "이번 달 주가 등락률", "친구들의 수익률", "뉴스 분위기"], correctIndex: 0, explanation: "산 이유가 그대로면 팔 이유도 없어요. 논거가 무너졌을 때만 매도를 검토하세요.", insight: "매수 기록을 남긴 사람만, 매도 판단도 깔끔하게 내릴 수 있어요." },
   { format: "fill_blank", difficulty: "intermediate", category: "where_not_when", sentence: "좋은 기업을 팔아야 할 이유는 가격이 아니라 ___의 변화다", answer: "사업", hints: ["사업", "펀더멘털"], explanation: "가격 하락은 사업 문제가 아닐 수 있어요. 사업 자체가 무너졌을 때만 판단이 서야 합니다.", insight: "가격은 매일 변하고, 사업은 천천히 변해요. 천천히 변하는 것을 보세요." },
   { format: "ox", difficulty: "advanced", category: "where_not_when", statement: "1987년 10월 19일 미국 증시가 하루 만에 약 22% 폭락했지만, 좋은 기업을 들고 있었다면 시간이 문제를 해결했다", answer: true, explanation: "블랙 먼데이(-22.6%)는 역사상 가장 큰 하루 폭락이었지만, 시장은 약 2년 만에 회복했어요. 그날 매도한 사람이 진짜 손실을 확정했죠.", insight: "하루의 충격과 10년의 결과는 다른 세계예요." },
-  { format: "ox", difficulty: "advanced", category: "where_not_when", statement: "'지금은 위험하니 현금으로 있다가 바닥에 다시 사겠다'는 전략은 장기 누적 수익률에서 대부분 실패한다", answer: false, explanation: "질문을 되돌려 보세요 — 이 문장은 '사실이다'가 정답이에요. 매수를 미룬 기간에 시장은 오르고, 재진입 타이밍은 계속 놓칩니다. 연구마다 현금 대기 전략이 장기 수익률을 낮춘다고 나와요.", insight: "바닥에 다시 사겠다는 사람 중 바닥에 다시 산 사람은 거의 없어요." },
+  { format: "ox", difficulty: "advanced", category: "where_not_when", statement: "'지금은 위험하니 현금으로 있다가 바닥에 다시 사겠다'는 전략은 장기 누적 수익률에서 대부분 실패한다", answer: true, explanation: "매수를 미룬 기간에 시장은 오르고, 재진입 타이밍은 계속 놓칩니다. 연구마다 현금 대기 전략이 장기 수익률을 낮춘다고 나와요.", insight: "바닥에 다시 사겠다는 사람 중 바닥에 다시 산 사람은 거의 없어요." },
 ];
 
 // ===== 겸손·능력의 원 (2/2/3) =====
@@ -40,7 +40,7 @@ const depthHumility: QuizQuestion[] = [
 
 // ===== 브랜드 해자 (1/3/3) =====
 const depthBrandMoat: QuizQuestion[] = [
-  { format: "ox", difficulty: "beginner", category: "brand_moat", statement: "해자가 깊은 회사는 경쟁자가 나타나도 가격 결정력을 지킬 수 있다", answer: false, explanation: "질문을 뒤집어 보세요 — 이 문장은 '사실이다'가 정답이에요. 해자란 경쟁자가 뛰어넘기 어려운 보호막이라, 회사가 가격을 스스로 정할 수 있게 해줍니다.", insight: "가격을 누가 정하는지 물어보면 해자가 보여요." },
+  { format: "ox", difficulty: "beginner", category: "brand_moat", statement: "해자가 깊은 회사는 경쟁자가 나타나도 가격 결정력을 지킬 수 있다", answer: true, explanation: "해자란 경쟁자가 뛰어넘기 어려운 보호막이라, 회사가 가격을 스스로 정할 수 있게 해줍니다.", insight: "가격을 누가 정하는지 물어보면 해자가 보여요." },
   { format: "multiple_choice", difficulty: "intermediate", category: "brand_moat", question: "다음 중 '가짜 해자'에 가까운 것은?", options: ["이름에 유행하는 신기술 키워드를 붙인 것", "수십 년간 쌓인 브랜드 신뢰", "전환 비용이 큰 구독 서비스", "독점적으로 쌓인 데이터"], correctIndex: 0, explanation: "키워드는 경쟁자도 하루 만에 붙일 수 있어요. 해자는 시간과 구조로만 만들어집니다.", insight: "말로 만든 해자는 물에 녹아요." },
   { format: "fill_blank", difficulty: "intermediate", category: "brand_moat", sentence: "돈으로 살 수 있는 설비는 해자가 아니다. 살 수 없는 ___만 해자다", answer: "브랜드", hints: ["브랜드", "신뢰"], explanation: "공장·기계는 경쟁자도 돈으로 살 수 있어요. 고객의 신뢰와 습관만이 살 수 없는 자산입니다.", insight: "구매하려면 몇 년, 신뢰되려면 몇십 년." },
   { format: "multiple_choice", difficulty: "advanced", category: "brand_moat", question: "네트워크 효과 해자의 핵심은?", options: ["사용자가 늘수록 제품 가치가 커져 후발주자가 따라잡기 어렵다", "공장이 많아 생산력이 크다", "광고비를 많이 쓸 수 있다", "정부 규제 덕분에 보호받는다"], correctIndex: 0, explanation: "사용자 수가 곧 제품 품질인 사업이에요. 후발주자는 더 좋은 제품을 만들어도 사용자가 없으면 이길 수 없죠.", insight: "쓰면 쓸수록 좋아지는 제품이 가장 오래 삽니다." },
@@ -69,7 +69,7 @@ const depthUsMarket: QuizQuestion[] = [
 
 // ===== 위기 대처 — 중급 보강 (3) =====
 const depthCrisis: QuizQuestion[] = [
-  { format: "ox", difficulty: "intermediate", category: "crisis", statement: "위기 때 뉴스를 끄고 내 투자 원칙을 다시 읽는 것은 도피가 아니라 전략이다", answer: false, explanation: "질문을 뒤집어 보세요 — '사실이다'가 정답이에요. 위기 때 뉴스는 공포를 증폭시켜 판단을 흐려요. 원칙은 흔들린 마음을 붙잡아 주는 앵커입니다.", insight: "폭풍 속에서 붙잡을 건 등대(원칙)지, 파도(뉴스)가 아니에요." },
+  { format: "ox", difficulty: "intermediate", category: "crisis", statement: "위기 때 뉴스를 끄고 내 투자 원칙을 다시 읽는 것은 도피가 아니라 전략이다", answer: true, explanation: "위기 때 뉴스는 공포를 증폭시켜 판단을 흐려요. 원칙은 흔들린 마음을 붙잡아 주는 앵커입니다.", insight: "폭풍 속에서 붙잡을 건 등대(원칙)지, 파도(뉴스)가 아니에요." },
   { format: "multiple_choice", difficulty: "intermediate", category: "crisis", question: "내 종목이 하루 만에 -8% 급락했다. 첫 행동으로 가장 나은 것은?", options: ["회사가 변했는지 점검한다 — 팔 이유가 생겼나?", "즉시 전량 매도해 더 큰 손실을 막는다", "레버리지로 더 사서 평단을 낮춘다", "차트의 지지선을 확인해 본다"], correctIndex: 0, explanation: "가격의 급락과 사업의 급락은 다른 일이에요. 회사가 그대로라면 소음, 사업이 무너졌다면 그때가 판단 시점입니다.", insight: "급락장의 첫 질문은 '얼마나 떨어졌나'가 아니라 '무엇이 변했나'예요." },
   { format: "fill_blank", difficulty: "intermediate", category: "crisis", sentence: "버핏: '물이 빠지면 누가 ___ 수영을 했는지 드러난다'", answer: "알몸으로", hints: ["알몸으로", "벗은 채"], explanation: "호황 때는 레버리지와 무모한 투자도 잘 되는 것처럼 보여요. 위기가 와야 누가 근거 없이 헤엄쳤는지 드러납니다.", insight: "위기는 실력을 만들지 않아요. 숨겨둔 무지를 보여줄 뿐이에요." },
 ];
