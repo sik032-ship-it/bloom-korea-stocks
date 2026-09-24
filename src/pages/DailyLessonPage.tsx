@@ -206,6 +206,7 @@ export default function DailyLessonPage() {
   const navigate = useNavigate();
 
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+  const baseKeysRef = useRef<string[]>([]);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [quizStreak, setQuizStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
