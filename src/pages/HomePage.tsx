@@ -13,10 +13,10 @@ import { TimeMachinePreview } from "@/components/TimeMachinePreview";
 import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { RichMindsetCard } from "@/components/RichMindsetCard";
 import { Big4Cards } from "@/components/Big4Cards";
-import { StayDashboard } from "@/components/StayDashboard";
 import { CrisisTriggerModal } from "@/components/CrisisTriggerModal";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { CuteIcon } from "@/components/CuteIcon";
+import { CountUp } from "@/components/CountUp";
 import acornImg from "@/assets/acorn.png";
 import mascotAcorn from "@/assets/mascot-acorn.png";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
@@ -230,7 +230,7 @@ export default function HomePage() {
         {/* 히어로: 인사 한 줄 + 오늘의 한 가지 행동 */}
         <section aria-labelledby="today-cta" className="pt-1">
           <div className="flex items-center gap-3 mb-4">
-            <Mascot level={userLevel} size="md" mood={greeting.mood} />
+            <div className="animate-float"><Mascot level={userLevel} size="md" mood={greeting.mood} /></div>
             <div className="flex-1 min-w-0">
               <p className="text-[22px] font-extrabold text-foreground leading-tight tracking-tight">
                 {todayDone ? "오늘도 해냈어요" : "오늘도 1분, 시작해볼까요?"}
@@ -284,9 +284,9 @@ export default function HomePage() {
             { icon: "📝", value: profile?.total_sentences || 0, label: "심은 문장", tone: "bg-tone-growth-bg text-tone-growth-fg" },
             { icon: "🏆", value: profile?.longest_streak || 0, label: "최장 기록", tone: "bg-tone-wisdom-bg text-tone-wisdom-fg" },
           ].map((s) => (
-            <div key={s.label} className={`rounded-2xl p-3.5 ${s.tone}`}>
+            <div key={s.label} className={`rounded-2xl p-3.5 ${s.tone} transition-transform duration-200 hover:scale-[1.04] hover:-rotate-1`}>
               <CuteIcon emoji={s.icon} size="sm" className="bg-transparent" />
-              <p className="text-[26px] font-extrabold tabular-nums leading-none mt-1">{s.value}</p>
+              <p className="text-[26px] font-extrabold tabular-nums leading-none mt-1"><CountUp value={s.value} /></p>
               <p className="text-xs font-medium mt-1 opacity-80">{s.label}</p>
             </div>
           ))}
@@ -299,7 +299,7 @@ export default function HomePage() {
             <span className="text-small text-primary font-extrabold tabular-nums">{Math.round(progress.percent)}%</span>
           </div>
           <div className="h-3 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-hero rounded-full transition-all duration-700" style={{ width: `${progress.percent}%` }} />
+            <div className="h-full bg-gradient-hero rounded-full transition-all duration-700 progress-shine" style={{ width: `${progress.percent}%` }} />
           </div>
           <p className="text-xs text-muted-foreground mt-2">다음 단계까지 꾸준히 한 문장씩</p>
         </PpuriCard>
@@ -309,9 +309,6 @@ export default function HomePage() {
 
         {/* Big 4 앵커 종목 — 우리의 4그루 나무 (10계명 매일 상기) */}
         <Big4Cards />
-
-        {/* 머무름 대시보드 — When이 아니라 Where (10계명 #10) */}
-        <StayDashboard holdings={holdings} />
 
         {/* Time Machine — daily companion */}
         <TimeMachinePreview holdingsTickers={holdings.map((h) => h.ticker)} />
