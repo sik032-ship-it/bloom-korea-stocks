@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { PpuriButton } from "@/components/PpuriButton";
 import { Checkbox } from "@/components/ui/checkbox";
+import mascotWave from "@/assets/mascot-wave.png";
 
 const TERMS_VERSION = "2026-04-20";
 const PRIVACY_VERSION = "2026-04-20";
