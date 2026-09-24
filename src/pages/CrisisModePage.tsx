@@ -351,7 +351,7 @@ function SurvivalLevel({ avg, totalAttempts }: { avg: number; totalAttempts: num
  return (
  <div>
  <div className="flex items-center gap-2 mb-2">
- <span className="text-lg">{level.icon}</span>
+ <CuteIcon emoji={level.icon} size="sm" />
  <div>
  <p className="text-xs font-bold text-foreground">{level.label}</p>
  <p className="text-[10px] text-muted-foreground">{level.next}</p>
