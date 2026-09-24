@@ -2,7 +2,7 @@
 // 10계명 #10: When이 아니라 Where. 매수일·수익률 대신 "오래 머물렀다는 사실" 자체를 자랑한다.
 // 시간이 위대한 기업의 편이라는 감각을 매일 시각적으로 강화.
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Sprout } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
@@ -44,10 +44,16 @@ function formatStay(days: number): string {
 
 export function StayDashboard({ holdings }: Props) {
   const items = useMemo(() => {
-    return holdings
-      .map((h) => ({ h, days: daysHeld(h.added_at) }))
-      .sort((a, b) => b.days - a.days);
+    // 같은 종목이 여러 번 추가돼도 한 줄로 — 가장 오래 머문 기록 기준
+    const byTicker = new Map<string, { h: Holding; days: number }>();
+    holdings.forEach((h) => {
+      const days = daysHeld(h.added_at);
+      const prev = byTicker.get(h.ticker);
+      if (!prev || days > prev.days) byTicker.set(h.ticker, { h, days });
+    });
+    return [...byTicker.values()].sort((a, b) => b.days - a.days);
   }, [holdings]);
+  const [showAll, setShowAll] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -74,6 +80,7 @@ export function StayDashboard({ holdings }: Props) {
 
   const maxDays = items[0].days;
   const totalDays = items.reduce((s, x) => s + x.days, 0);
+  const visible = showAll ? items : items.slice(0, 5);
 
   return (
     <section
@@ -81,7 +88,7 @@ export function StayDashboard({ holdings }: Props) {
       className="rounded-2xl border border-border bg-card p-4 animate-fade-in"
     >
       <div className="flex items-end justify-between mb-1">
-        <h2 className="text-small font-bold text-foreground">머무름 대시보드</h2>
+        <h2 className="text-body font-extrabold text-foreground">머무름 대시보드</h2>
         <span className="text-[10px] text-muted-foreground tracking-widest uppercase">Where, not When</span>
       </div>
       <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
@@ -98,7 +105,7 @@ export function StayDashboard({ holdings }: Props) {
 
       {/* Bars */}
       <ul className="space-y-2.5">
-        {items.map(({ h, days }) => {
+        {visible.map(({ h, days }) => {
           const tier = tierFor(days);
           const pct = Math.max(4, Math.round((days / maxDays) * 100));
           return (
@@ -134,6 +141,14 @@ export function StayDashboard({ holdings }: Props) {
           );
         })}
       </ul>
+      {items.length > 5 && (
+        <button
+          onClick={() => setShowAll((v) => !v)}
+          className="w-full mt-3 py-2 rounded-xl bg-muted text-xs font-bold text-foreground press-effect"
+        >
+          {showAll ? "접기" : `${items.length - 5}개 종목 더 보기`}
+        </button>
+      )}
 
       <p className="text-[11px] text-center text-muted-foreground mt-4 italic leading-relaxed">
         "우리의 이상적인 보유 기간은 <strong className="text-foreground">영원히</strong>다."
