@@ -361,6 +361,27 @@ export type Database = {
           },
         ]
       }
+      stock_prices: {
+        Row: {
+          as_of: string
+          price: number
+          ticker: string
+          updated_at: string
+        }
+        Insert: {
+          as_of: string
+          price: number
+          ticker: string
+          updated_at?: string
+        }
+        Update: {
+          as_of?: string
+          price?: number
+          ticker?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           id: string
@@ -428,6 +449,7 @@ export type Database = {
           explanation: string
           id: string
           insight: string | null
+          review_note: string | null
           statement: string
           week_start: string
         }
@@ -438,6 +460,7 @@ export type Database = {
           explanation: string
           id?: string
           insight?: string | null
+          review_note?: string | null
           statement: string
           week_start: string
         }
@@ -448,6 +471,7 @@ export type Database = {
           explanation?: string
           id?: string
           insight?: string | null
+          review_note?: string | null
           statement?: string
           week_start?: string
         }
