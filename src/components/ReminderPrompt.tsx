@@ -90,7 +90,7 @@ export function ReminderPrompt() {
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 bg-foreground/40 flex items-end sm:items-center justify-center p-4 animate-fade-in">
+    <div className="fixed inset-0 z-[60] bg-foreground/40 flex items-end sm:items-center justify-center p-4 animate-fade-in">
       <div className="w-full max-w-sm bg-background rounded-2xl p-6 text-center shadow-lg">
         <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
           <Bell className="w-7 h-7 text-primary" />
