@@ -142,11 +142,12 @@ export default function HomePage() {
     return () => { supabase.removeChannel(channel); };
   }, [user]);
 
-  // 8시 알림을 눌러 들어오면 오늘의 레슨으로 바로 안내
+  // 8시 알림을 눌러 들어오면 홈에서 오늘의 레슨 카드를 바로 강조해 보여줌
   const fromReminder = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "reminder";
   useEffect(() => {
-    if (!loading && fromReminder && !todayDone) navigate("/lesson", { replace: true });
-  }, [loading, fromReminder, todayDone, navigate]);
+    if (loading || !fromReminder) return;
+    requestAnimationFrame(() => document.getElementById("today-cta")?.scrollIntoView({ behavior: "smooth", block: "center" }));
+  }, [loading, fromReminder]);
 
   if (loading) {
     return <Layout><HomeSkeleton /></Layout>;
