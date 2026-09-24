@@ -25,7 +25,7 @@ export default function LegendsPage() {
                 <p className="text-caption text-muted-foreground">{b.investor} · {b.buyYear}년</p>
                 <p className="text-body font-bold text-foreground">{b.company} <span className="text-muted-foreground font-medium">{b.ticker}</span></p>
               </div>
-              <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-small font-bold text-primary">약 {b.multiplier}배</span>
+              <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-small font-bold text-primary">약 {b.multiplier < 10 ? b.multiplier.toFixed(1) : Math.round(b.multiplier).toLocaleString("ko-KR")}배</span>
             </div>
             <p className="mt-2 text-small text-muted-foreground">{b.buyPriceLabel} → {b.todayPriceLabel}</p>
             <p className="mt-3 text-small leading-relaxed text-foreground">{b.story}</p>
