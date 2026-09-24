@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, TrendingUp, ArrowUp } from "lucide-react";
+import { Sparkles, TrendingUp, ArrowUp, Flame } from "lucide-react";
 
 interface TodayProgressProps {
   userId: string;
@@ -55,7 +55,7 @@ export function TodayProgress({ userId, totalSentences, currentStreak, todayDone
 
   // Calculate deltas (simulated from today's activity)
   const skillDelta = todayCount * 1; // Each sentence = ~1 skill point
-  const streakText = currentStreak > 1 ? `${currentStreak}일 연속 🔥` : "오늘 시작!";
+  const streakText = currentStreak > 1 ? `${currentStreak}일 연속` : "오늘 시작!";
 
   if (!todayDone && todayCount === 0) return null;
 
@@ -85,8 +85,8 @@ export function TodayProgress({ userId, totalSentences, currentStreak, todayDone
           </div>
         )}
         {currentStreak > 0 && (
-          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F59E0B]/10 text-[#F59E0B] text-[11px] font-semibold">
-            🔥 {currentStreak}일
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tone-caution-bg text-tone-caution-fg text-[11px] font-semibold">
+            <Flame size={11} strokeWidth={2.4} fill="currentColor" fillOpacity={0.25} /> {currentStreak}일
           </div>
         )}
       </div>

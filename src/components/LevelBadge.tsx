@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { Mascot } from "@/components/Mascot";
 
 const LEVELS = [
-  { name: "씨앗", emoji: "🌱", label: "Seed", min: 0 },
-  { name: "새싹", emoji: "🌿", label: "Sprout", min: 10 },
-  { name: "줄기", emoji: "🌳", label: "Stem", min: 30 },
-  { name: "가지", emoji: "🌲", label: "Branch", min: 70 },
-  { name: "나무", emoji: "🏔", label: "Tree", min: 150 },
-  { name: "숲", emoji: "🌍", label: "Forest", min: 300 },
+  { name: "씨앗", label: "Seed", min: 0 },
+  { name: "새싹", label: "Sprout", min: 10 },
+  { name: "줄기", label: "Stem", min: 30 },
+  { name: "가지", label: "Branch", min: 70 },
+  { name: "나무", label: "Tree", min: 150 },
+  { name: "숲", label: "Forest", min: 300 },
 ];
 
 export function getLevelInfo(totalSentences: number) {
@@ -30,14 +30,16 @@ interface LevelBadgeProps {
 }
 
 export const LevelBadge = ({ totalSentences }: LevelBadgeProps) => {
-  const { current, next, progress } = getLevelInfo(totalSentences);
+  const { current, next, progress, levelIndex } = getLevelInfo(totalSentences);
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-3xl animate-bounce-in">{current.emoji}</span>
+      <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center overflow-hidden animate-bounce-in">
+        <Mascot level={levelIndex + 1} size="sm" />
+      </div>
       <div className="flex-1 min-w-0">
         <p className="text-small font-semibold text-foreground">
-          {current.name} <span className="text-muted-foreground">Lv.</span>
+          {current.name} <span className="text-muted-foreground">Lv.{levelIndex + 1}</span>
         </p>
         <div className="h-2 bg-muted rounded-full overflow-hidden mt-1">
           <div
@@ -47,7 +49,7 @@ export const LevelBadge = ({ totalSentences }: LevelBadgeProps) => {
         </div>
         {next && (
           <p className="text-xs text-muted-foreground mt-0.5">
-            {next.emoji} {next.name}까지 {next.min - totalSentences}문장
+            {next.name}까지 {next.min - totalSentences}문장
           </p>
         )}
       </div>

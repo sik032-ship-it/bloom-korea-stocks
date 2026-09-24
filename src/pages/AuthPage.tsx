@@ -8,6 +8,7 @@ import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { translateAuthError } from "@/utils/authErrors";
 import { evaluatePassword, validateEmail } from "@/utils/passwordStrength";
 import { Shield, Brain, Crosshair, TrendingUp, Eye, EyeOff, X, Check, Lock, Mail } from "lucide-react";
+import mascotDefault from "@/assets/mascot-default.png";
 
 function GoogleIcon({ size = 20 }: { size?: number }) {
   return (
@@ -24,7 +25,9 @@ function VerificationSentScreen({ email, onBack }: { email: string; onBack: () =
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-8 animate-fade-in">
       <div className="w-full max-w-sm text-center">
-        <span className="text-6xl block mb-4">📬</span>
+        <span className="w-20 h-20 rounded-full bg-tone-truth-bg text-tone-truth-fg flex items-center justify-center mx-auto mb-4">
+          <Mail size={36} strokeWidth={1.8} />
+        </span>
         <h1 className="text-2xl font-bold text-foreground mb-3">이메일을 확인해주세요</h1>
         <p className="text-small text-muted-foreground mb-2">
           <strong className="text-foreground">{email}</strong>으로<br />
@@ -70,7 +73,7 @@ const ONBOARDING_SLIDES = [
     iconBg: "hsl(var(--ppuri-amber) / 0.1)",
     title: "매일 성장하는\n나의 투자 체질",
     subtitle: "도토리처럼 매일 조금씩 쌓이면\n어떤 폭풍에도 흔들리지 않는 뿌리가 돼요.",
-    highlight: "🌰 → 🌱 → 🌿 → 🌳 → 🌲 → 🏔️",
+    highlight: "도토리 → 씨앗 → 새싹 → 줄기 → 가지 → 숲",
   },
 ];
 
@@ -165,7 +168,7 @@ function OnboardingSlides({ onComplete }: { onComplete: () => void }) {
           onClick={goNext}
           className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-body shadow-button hover:opacity-90 transition-all press-effect"
         >
-          {current === ONBOARDING_SLIDES.length - 1 ? "🌱 시작하기" : "다음"}
+          {current === ONBOARDING_SLIDES.length - 1 ? "시작하기" : "다음"}
         </button>
       </div>
     </div>
@@ -214,7 +217,9 @@ function ForgotPasswordModal({ onClose }: { onClose: () => void }) {
 
         {sent ? (
           <div className="text-center py-4">
-            <span className="text-5xl block mb-3">📧</span>
+            <span className="w-16 h-16 rounded-full bg-tone-truth-bg text-tone-truth-fg flex items-center justify-center mx-auto mb-3">
+              <Mail size={28} strokeWidth={1.8} />
+            </span>
             <h2 className="text-xl font-bold text-foreground mb-2">이메일을 확인해주세요</h2>
             <p className="text-small text-muted-foreground mb-6">
               <strong className="text-foreground">{email}</strong>으로<br />
@@ -412,7 +417,7 @@ export default function AuthPage() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-8">
       <div className="w-full max-w-sm animate-fade-in">
         <div className="text-center mb-8">
-          <span className="text-5xl block mb-3 animate-float">🌱</span>
+          <img src={mascotDefault} alt="뿌리 다람쥐" className="w-24 h-24 object-contain mx-auto mb-3 animate-float" width={96} height={96} />
           <h1 className="text-display text-foreground animate-scale-pop">PPURI</h1>
           <p className="text-small text-muted-foreground mt-1">
             위험을 이해하는 투자자로 성장하세요

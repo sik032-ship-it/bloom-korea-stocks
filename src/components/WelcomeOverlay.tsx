@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Mascot } from "@/components/Mascot";
+import acornImg from "@/assets/acorn.png";
 
 interface WelcomeOverlayProps {
   displayName: string;
@@ -23,9 +24,9 @@ export const WelcomeOverlay = ({ displayName, onStart, onSkip }: WelcomeOverlayP
   }, []);
 
   const lines = [
-    { emoji: "👋", text: `${displayName}님, 만나서 반가워요!` },
-    { emoji: "🌰", text: "하루 3분, 도토리처럼 작은 습관이\n투자 멘탈을 단단하게 만들어요." },
-    { emoji: "✨", text: "오늘의 첫 도토리,\n지금 함께 심어볼까요?" },
+    `${displayName}님, 만나서 반가워요!`,
+    "하루 3분, 도토리처럼 작은 습관이\n투자 멘탈을 단단하게 만들어요.",
+    "오늘의 첫 도토리,\n지금 함께 심어볼까요?",
   ];
 
   return (
@@ -46,7 +47,7 @@ export const WelcomeOverlay = ({ displayName, onStart, onSkip }: WelcomeOverlayP
       <Mascot mood="wave" size="xl" className="animate-float mb-6" />
 
       <div className="min-h-[112px] max-w-xs text-center mb-8">
-        {lines.slice(0, step + 1).map((l, i) => (
+        {lines.slice(0, step + 1).map((text, i) => (
           <p
             key={i}
             className={`whitespace-pre-line leading-relaxed mb-2 animate-fade-in ${
@@ -55,8 +56,7 @@ export const WelcomeOverlay = ({ displayName, onStart, onSkip }: WelcomeOverlayP
                 : "text-small text-muted-foreground"
             }`}
           >
-            <span className="mr-1">{l.emoji}</span>
-            {l.text}
+            {text}
           </p>
         ))}
       </div>
@@ -77,7 +77,10 @@ export const WelcomeOverlay = ({ displayName, onStart, onSkip }: WelcomeOverlayP
         onClick={onStart}
         className="w-full max-w-xs py-4 rounded-2xl bg-primary text-primary-foreground font-bold text-body shadow-button press-effect animate-cta-breathe"
       >
-        🌰 첫 도토리 심기
+        <span className="inline-flex items-center justify-center gap-2">
+          <img src={acornImg} alt="" className="w-5 h-5 object-contain" width={20} height={20} />
+          첫 도토리 심기
+        </span>
       </button>
       <p className="text-[11px] text-muted-foreground mt-3">3분이면 충분해요</p>
     </div>

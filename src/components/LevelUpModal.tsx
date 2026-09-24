@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Confetti from "react-confetti";
+import { Sparkles } from "lucide-react";
 import { getLevelForCount } from "@/utils/levelSystem";
 import { Mascot } from "@/components/Mascot";
 import { PpuriButton } from "@/components/PpuriButton";
@@ -30,11 +31,11 @@ export const LevelUpModal = ({ oldLevel, newLevel, onClose }: LevelUpModalProps)
         {/* Stars decoration */}
         <div className="flex justify-center gap-2 mb-2">
           {[...Array(3)].map((_, i) => (
-            <span key={i} className="text-2xl animate-pulse" style={{ animationDelay: `${i * 200}ms` }}>⭐</span>
+            <Sparkles key={i} size={22} className="text-tone-caution-fg animate-pulse" style={{ animationDelay: `${i * 200}ms` }} />
           ))}
         </div>
 
-        <h2 className="text-display text-foreground mb-4">레벨 업! 🎉</h2>
+        <h2 className="text-display text-foreground mb-4">레벨 업!</h2>
 
         {/* Mascot evolution */}
         <div className="flex items-center justify-center gap-4 mb-6 min-h-[140px]">
@@ -66,7 +67,7 @@ export const LevelUpModal = ({ oldLevel, newLevel, onClose }: LevelUpModalProps)
         {phase === "new" && (
           <div className="animate-fade-in">
             <p className="text-body text-primary font-bold mb-1">
-              {newInfo.emoji} {newInfo.name} 레벨 달성!
+              {newInfo.name} 레벨 달성!
             </p>
             <p className="text-small text-muted-foreground mb-6">
               꾸준한 투자 공부가 결실을 맺고 있어요!

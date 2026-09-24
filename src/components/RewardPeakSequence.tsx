@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Mascot } from "@/components/Mascot";
+import acornImg from "@/assets/acorn.png";
 
 interface RewardPeakSequenceProps {
   message?: string;
@@ -14,7 +15,7 @@ interface RewardPeakSequenceProps {
  */
 export const RewardPeakSequence = ({
   message = "오늘의 한 걸음을 심었어요",
-  subMessage = "내일도 함께 도토리를 모아봐요 🌰",
+  subMessage = "내일도 함께 도토리를 모아봐요",
   onDone,
 }: RewardPeakSequenceProps) => {
   const [phase, setPhase] = useState<"burst" | "settle" | "out">("burst");
@@ -28,11 +29,11 @@ export const RewardPeakSequence = ({
 
   // 떨어지는 도토리들 — 시각적 보상
   const acorns = [
-    { left: "12%", delay: "0ms", size: "text-3xl" },
-    { left: "28%", delay: "120ms", size: "text-2xl" },
-    { left: "48%", delay: "60ms", size: "text-4xl" },
-    { left: "68%", delay: "180ms", size: "text-2xl" },
-    { left: "84%", delay: "240ms", size: "text-3xl" },
+    { left: "12%", delay: "0ms", size: "w-8 h-8" },
+    { left: "28%", delay: "120ms", size: "w-6 h-6" },
+    { left: "48%", delay: "60ms", size: "w-10 h-10" },
+    { left: "68%", delay: "180ms", size: "w-6 h-6" },
+    { left: "84%", delay: "240ms", size: "w-8 h-8" },
   ];
 
   return (
@@ -46,14 +47,14 @@ export const RewardPeakSequence = ({
       {/* 도토리 낙하 */}
       <div className="absolute inset-0 pointer-events-none">
         {acorns.map((a, i) => (
-          <span
+          <img
             key={i}
-            className={`absolute top-[-10%] ${a.size} animate-acorn-fall`}
+            src={acornImg}
+            alt=""
+            className={`absolute top-[-10%] ${a.size} object-contain animate-acorn-fall`}
             style={{ left: a.left, animationDelay: a.delay }}
             aria-hidden
-          >
-            🌰
-          </span>
+          />
         ))}
       </div>
 

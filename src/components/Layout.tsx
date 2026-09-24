@@ -1,6 +1,8 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Home, BarChart3, PenLine, BookOpen, Settings } from "lucide-react";
 import { StreakDisplay } from "@/components/StreakDisplay";
+import mascotWave from "@/assets/mascot-wave.png";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,11 +11,11 @@ interface LayoutProps {
 }
 
 const NAV_ITEMS = [
-  { path: "/", emoji: "🏠", label: "홈" },
-  { path: "/holdings", emoji: "📊", label: "종목" },
-  { path: "/quiz-history", emoji: "📝", label: "문제" },
-  { path: "/archive", emoji: "📖", label: "기록" },
-  { path: "/settings", emoji: "⚙️", label: "설정" },
+  { path: "/", icon: Home, label: "홈" },
+  { path: "/holdings", icon: BarChart3, label: "종목" },
+  { path: "/quiz-history", icon: PenLine, label: "문제" },
+  { path: "/archive", icon: BookOpen, label: "기록" },
+  { path: "/settings", icon: Settings, label: "설정" },
 ];
 
 export const Layout = ({ children, currentStreak = 0, longestStreak = 0 }: LayoutProps) => {
@@ -25,7 +27,7 @@ export const Layout = ({ children, currentStreak = 0, longestStreak = 0 }: Layou
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-            <span className="text-2xl">🌱</span>
+            <img src={mascotWave} alt="뿌리 다람쥐" className="w-8 h-8 object-contain" width={32} height={32} />
             <h1 className="text-title text-foreground font-bold">PPURI</h1>
           </div>
           <StreakDisplay currentStreak={currentStreak} longestStreak={longestStreak} />
@@ -40,6 +42,7 @@ export const Layout = ({ children, currentStreak = 0, longestStreak = 0 }: Layou
         <div className="max-w-lg mx-auto flex items-center justify-around py-2">
           {NAV_ITEMS.map((item) => {
             const isActive = location.pathname === item.path;
+            const Icon = item.icon;
             return (
               <button
                 key={item.path}
@@ -50,7 +53,7 @@ export const Layout = ({ children, currentStreak = 0, longestStreak = 0 }: Layou
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
-                <span className={`text-xl transition-transform duration-200 ${isActive ? "scale-110" : ""}`}>{item.emoji}</span>
+                <Icon size={22} strokeWidth={isActive ? 2.4 : 2} className={`transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
                 <span className={`text-xs font-medium transition-colors ${isActive ? "font-bold" : ""}`}>{item.label}</span>
               </button>
             );

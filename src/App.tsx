@@ -8,6 +8,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ConsentGate } from "@/components/ConsentGate";
 import React, { Suspense, lazy } from "react";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import mascotDefault from "@/assets/mascot-default.png";
 
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
@@ -36,7 +37,7 @@ const queryClient = new QueryClient();
 function LoadingFallback() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
-      <span className="text-4xl animate-bounce-in">🌱</span>
+      <img src={mascotDefault} alt="뿌리 다람쥐" className="w-20 h-20 object-contain animate-bounce-in" width={80} height={80} />
       <p className="text-small text-muted-foreground">로딩 중...</p>
     </div>
   );

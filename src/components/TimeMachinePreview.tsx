@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BIG_TECH } from "@/data/bigTechHistory";
 import { PpuriCard } from "@/components/PpuriCard";
+import { CuteIcon } from "@/components/CuteIcon";
 
 // 매일 다른 종목을 자동 로테이션 (요일 기반 → 동일 일자엔 동일 종목 보장)
 function getDailyPick(holdingsTickers: string[]) {
@@ -40,7 +41,7 @@ export function TimeMachinePreview({ holdingsTickers = [] }: Props) {
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-xl">⏰</span>
+          <CuteIcon emoji="⏰" size="sm" />
           <p className="text-small font-bold text-foreground">오늘의 시간 머신</p>
         </div>
         {ownedHint && (
