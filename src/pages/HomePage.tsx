@@ -218,71 +218,81 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* PX 히어로: 마스코트 + 인사 + CTA를 하나의 시선 흐름으로 묶음 */}
-        <section aria-labelledby="today-cta" className="pt-2">
-          <div className="flex items-start gap-3 mb-5">
-            <Mascot level={userLevel} size="lg" showLevelTag mood={greeting.mood} />
+        {/* 히어로: 인사 한 줄 + 오늘의 한 가지 행동 */}
+        <section aria-labelledby="today-cta" className="pt-1">
+          <div className="flex items-center gap-3 mb-4">
+            <Mascot level={userLevel} size="md" mood={greeting.mood} />
             <div className="flex-1 min-w-0">
-              <p className="text-small text-muted-foreground mb-1">{displayName}님</p>
-              <SpeechBubble>
-                <p className="text-small text-foreground whitespace-pre-line leading-relaxed">
-                  {greeting.text}
-                </p>
-              </SpeechBubble>
+              <p className="text-[22px] font-extrabold text-foreground leading-tight tracking-tight">
+                {displayName}님, {todayDone ? "오늘도 해냈어요" : "안녕하세요"}
+              </p>
+              <p className="text-small text-muted-foreground mt-1 line-clamp-2 whitespace-pre-line">{greeting.text}</p>
             </div>
           </div>
 
-          {/* 단일 주인공 CTA — 호흡 애니메이션으로 기대감 형성 */}
           {todayDone ? (
-            <PpuriCard className="border-primary/20 bg-primary/5 text-center">
-              <p className="text-title text-foreground font-semibold mb-1">✅ 오늘 완료!</p>
-              <p className="text-xs text-muted-foreground mb-1">
-                {streak > 0
-                  ? `🔥 ${streak}일 연속 — 이 리듬을 내일도 지켜요`
-                  : "오늘의 씨앗을 심었어요 🌱"}
-              </p>
-              <p className="text-xs text-primary/80 font-medium mb-4 tabular-nums">
-                다음 레슨까지 {timeUntilTomorrow}
-              </p>
-              <button
-                onClick={() => navigate("/lesson")}
-                className="w-full py-3 rounded-xl border-2 border-primary/30 bg-primary/5 text-primary font-bold text-small hover:bg-primary/10 transition-all press-effect"
-              >
-                📚 복습하기
-              </button>
-            </PpuriCard>
-
-          ) : (
-            <div className="text-center">
-              <p id="today-cta" className="text-xs text-muted-foreground mb-2 tracking-wide">오늘의 레슨이 기다리고 있어요</p>
-              <button
-                onClick={() => navigate("/lesson")}
-                className="w-full py-5 rounded-2xl bg-primary text-primary-foreground font-bold text-body hover:opacity-95 active:translate-y-0 transition-opacity press-effect animate-cta-breathe"
-              >
-                🌰 오늘의 레슨 시작하기
-              </button>
-              <p className="text-[11px] text-muted-foreground mt-2">3분이면 충분해요</p>
+            <div className="rounded-3xl bg-gradient-done border border-primary/20 p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-primary tracking-wider">TODAY · DONE</p>
+                  <p className="text-[26px] font-extrabold text-foreground leading-tight mt-1">오늘의 씨앗 심기 완료</p>
+                </div>
+                <span className="text-5xl" aria-hidden>🌳</span>
+              </div>
+              <div className="mt-4 flex items-end justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">다음 레슨까지</p>
+                  <p className="text-[28px] font-extrabold text-foreground tabular-nums leading-none mt-1">{timeUntilTomorrow}</p>
+                </div>
+                <button
+                  onClick={() => navigate("/quiz-history")}
+                  className="px-4 py-2.5 rounded-xl bg-card border border-border text-small font-bold text-foreground press-effect"
+                >
+                  오늘 푼 문제 보기
+                </button>
+              </div>
             </div>
+          ) : (
+            <button
+              id="today-cta"
+              onClick={() => navigate("/lesson")}
+              className="w-full text-left rounded-3xl bg-gradient-hero shadow-hero p-5 text-primary-foreground press-effect animate-cta-breathe"
+            >
+              <p className="text-xs font-bold tracking-wider opacity-90">TODAY'S LESSON · 3분</p>
+              <p className="text-[26px] font-extrabold leading-tight mt-1">오늘의 레슨 시작하기</p>
+              <p className="text-small opacity-90 mt-1">퀴즈 몇 문제 + 나의 원칙 한 문장</p>
+              <span className="inline-flex mt-4 items-center gap-1 rounded-full bg-primary-foreground/20 px-3 py-1.5 text-small font-bold">
+                🌰 지금 시작 →
+              </span>
+            </button>
           )}
         </section>
 
-        {/* 보조 정보: 진행도 — 위계를 낮춰 CTA 다음 시선으로 */}
+        {/* 핵심 숫자 3개 — 한눈에 */}
+        <div className="grid grid-cols-3 gap-2.5">
+          {[
+            { icon: "🔥", value: streak, label: "연속 일수", tone: "bg-tone-caution-bg text-tone-caution-fg" },
+            { icon: "📝", value: profile?.total_sentences || 0, label: "심은 문장", tone: "bg-tone-growth-bg text-tone-growth-fg" },
+            { icon: "🏆", value: profile?.longest_streak || 0, label: "최장 기록", tone: "bg-tone-wisdom-bg text-tone-wisdom-fg" },
+          ].map((s) => (
+            <div key={s.label} className={`rounded-2xl p-3.5 ${s.tone}`}>
+              <span className="text-lg" aria-hidden>{s.icon}</span>
+              <p className="text-[26px] font-extrabold tabular-nums leading-none mt-1">{s.value}</p>
+              <p className="text-xs font-medium mt-1 opacity-80">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* 레벨 진행 */}
         <PpuriCard>
           <div className="flex items-center justify-between mb-2">
             <LevelBadge totalSentences={profile?.total_sentences || 0} />
-            <span className="text-xs text-primary font-bold tabular-nums">{Math.round(progress.percent)}%</span>
+            <span className="text-small text-primary font-extrabold tabular-nums">{Math.round(progress.percent)}%</span>
           </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden mb-3">
-            <div
-              className="h-full bg-primary rounded-full transition-all duration-700"
-              style={{ width: `${progress.percent}%` }}
-            />
+          <div className="h-3 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-hero rounded-full transition-all duration-700" style={{ width: `${progress.percent}%` }} />
           </div>
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>📝 <strong className="text-foreground tabular-nums">{profile?.total_sentences || 0}</strong> 문장</span>
-            <span>🔥 <strong className="text-foreground tabular-nums">{streak}</strong> 연속</span>
-            <span>🏆 <strong className="text-foreground tabular-nums">{profile?.longest_streak || 0}</strong> 최장</span>
-          </div>
+          <p className="text-xs text-muted-foreground mt-2">다음 단계까지 꾸준히 한 문장씩 🌱</p>
         </PpuriCard>
 
         {/* 부자처럼 생각하기 — 매일 30초 마인드셋 카드 (복리식 누적) */}
