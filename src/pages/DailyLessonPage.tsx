@@ -92,7 +92,7 @@ function OXQuiz({ statement, onAnswer }: { statement: string; onAnswer: (correct
  </div>
  <div className="flex gap-6">
  <button onClick={() => { setSelected(true); onAnswer(true); }} disabled={selected !== null}
- className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all ${selected === true ? "border-primary bg-primary/10 text-primary scale-110" : "border-border hover:border-primary/50 text-foreground hover:scale-105"} disabled:cursor-default`}></button>
+ className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all active:scale-90 ${selected === true ? "border-primary bg-primary/10 text-primary scale-110 animate-pop-in" : "border-border hover:border-primary/50 text-foreground hover:scale-105"} disabled:cursor-default`}></button>
  <button onClick={() => { setSelected(false); onAnswer(false); }} disabled={selected !== null}
  className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all ${selected === false ? "border-destructive bg-destructive/10 text-destructive scale-110" : "border-border hover:border-destructive/50 text-foreground hover:scale-105"} disabled:cursor-default`}></button>
  </div>
@@ -111,7 +111,7 @@ function MultipleChoice({ question, options, onAnswer }: { question: string; opt
  <div className="space-y-3 px-2">
  {options.map((opt, i) => (
  <button key={i} onClick={() => { setSelected(i); onAnswer(i); }} disabled={selected !== null}
- className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${selected === i ? "border-primary bg-accent shadow-sm scale-[1.02]" : "border-border hover:border-muted-foreground/30"} disabled:cursor-default`}>
+ className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 active:scale-[0.98] ${selected === i ? "border-primary bg-accent shadow-sm scale-[1.02] animate-pop-in" : "border-border hover:border-muted-foreground/30 hover:scale-[1.01]"} disabled:cursor-default`}>
  <span className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-small font-bold text-muted-foreground shrink-0">{i + 1}</span>
  <span className="text-[16px] text-foreground leading-relaxed break-keep">{opt}</span>
  </button>
@@ -749,15 +749,17 @@ export default function DailyLessonPage() {
  );
  })()}
 
- {quizQuestions[currentQuizIndex].format === "ox" && (
- <OXQuiz key={currentQuizIndex} statement={(quizQuestions[currentQuizIndex] as any).statement} onAnswer={(val) => handleQuizAnswer(val)} />
- )}
- {quizQuestions[currentQuizIndex].format === "multiple_choice" && (
- <MultipleChoice key={currentQuizIndex} question={(quizQuestions[currentQuizIndex] as any).question} options={(quizQuestions[currentQuizIndex] as any).options} onAnswer={(val) => handleQuizAnswer(val)} />
- )}
- {quizQuestions[currentQuizIndex].format === "fill_blank" && (
- <FillBlank key={currentQuizIndex} sentence={(quizQuestions[currentQuizIndex] as any).sentence} hints={(quizQuestions[currentQuizIndex] as any).hints} onAnswer={(val) => handleQuizAnswer(val)} />
- )}
+  <div key={currentQuizIndex} className="animate-slide-up">
+  {quizQuestions[currentQuizIndex].format === "ox" && (
+  <OXQuiz statement={(quizQuestions[currentQuizIndex] as any).statement} onAnswer={(val) => handleQuizAnswer(val)} />
+  )}
+  {quizQuestions[currentQuizIndex].format === "multiple_choice" && (
+  <MultipleChoice question={(quizQuestions[currentQuizIndex] as any).question} options={(quizQuestions[currentQuizIndex] as any).options} onAnswer={(val) => handleQuizAnswer(val)} />
+  )}
+  {quizQuestions[currentQuizIndex].format === "fill_blank" && (
+  <FillBlank sentence={(quizQuestions[currentQuizIndex] as any).sentence} hints={(quizQuestions[currentQuizIndex] as any).hints} onAnswer={(val) => handleQuizAnswer(val)} />
+  )}
+  </div>
  </>
  )}
 
