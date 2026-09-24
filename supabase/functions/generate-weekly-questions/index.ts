@@ -43,6 +43,7 @@ Deno.serve(async (req) => {
   if (!key) return json({ error: "LOVABLE_API_KEY missing" }, 500);
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const week = mondayKST();
+  const focus = weeklyCategories(week);
 
   const { count } = await admin.from("weekly_questions").select("id", { count: "exact", head: true }).eq("week_start", week);
   if ((count ?? 0) >= 3) return json({ ok: true, skipped: "already generated", week });
@@ -62,7 +63,9 @@ Deno.serve(async (req) => {
       output: Output.object({ schema: Schema }),
       prompt: `당신은 한국 초보 미국주식 투자자를 위한 행동투자 교육 앱 PPURI의 문제 출제자입니다.
 우리 철학: 좋은 기업(MSFT·GOOGL·AMZN·AAPL 같은 10년 뒤에도 쓸 제품을 파는 회사)을 너무 비싸게 사지 않고, 산 뒤 아무것도 하지 않는다. 복잡한 금융상품·유행 신기술 투기 금지. 현금흐름이 진실. 바닥 예측 금지. 시장 타이밍이 아니라 '어디에' 머무를지.
-처음 앱을 켠 사람이 "아하!" 하고 생각이 뒤집히는 OX 문제 3개를 만드세요.
+이번 주 출제 주제는 아래 3개이며, 각 주제에서 정확히 1문제씩 총 3개를 만드세요. 문제의 category 필드에 해당 주제를 그대로 적으세요.
+${focus.map((c, i) => `${i + 1}. ${c}`).join("\n")}
+처음 앱을 켠 사람이 "아하!" 하고 생각이 뒤집히는 OX 문제를 만드세요.
 - statement: 한 문장, 40자 내외, 흔한 오해를 담아 답이 X인 문제를 최소 2개
 - explanation: 2문장, 쉬운 한국어, 구체적 사례/숫자 1개
 - insight: 기억할 한 줄(25자 내외)
