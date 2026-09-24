@@ -581,8 +581,8 @@ export default function OnboardingPage() {
  key={h.ticker}
  className="inline-flex items-center gap-1.5 pl-1.5 pr-3 py-1.5 bg-primary/10 text-primary rounded-full text-small font-semibold border border-primary/20"
  >
- <StockLogo ticker={h.ticker} name={h.name} size="xs" className="rounded-full" />
- {h.name || h.ticker}
+ <StockLogo ticker={h.ticker} name={h.company_name_kr} size="xs" className="rounded-full" />
+ {h.company_name_kr || h.ticker}
  <button
  onClick={() => removeHolding(h.ticker)}
  className="ml-1 text-primary/60 hover:text-destructive"
@@ -710,8 +710,8 @@ export default function OnboardingPage() {
  key={h.ticker}
  className="inline-flex items-center gap-1.5 pl-1 pr-3 py-1 bg-accent rounded-full border border-border text-xs font-semibold text-foreground"
  >
- <StockLogo ticker={h.ticker} name={h.name} size="xs" className="rounded-full" />
- {h.name || h.ticker}
+ <StockLogo ticker={h.ticker} name={h.company_name_kr} size="xs" className="rounded-full" />
+ {h.company_name_kr || h.ticker}
  </span>
  ))}
  </div>
