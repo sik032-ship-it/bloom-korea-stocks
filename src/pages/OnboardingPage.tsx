@@ -578,9 +578,10 @@ export default function OnboardingPage() {
  {holdings.map((h) => (
  <span
  key={h.ticker}
- className="inline-flex items-center gap-1 px-3 py-2 bg-primary/10 text-primary rounded-full text-small font-semibold border border-primary/20"
+ className="inline-flex items-center gap-1.5 pl-1.5 pr-3 py-1.5 bg-primary/10 text-primary rounded-full text-small font-semibold border border-primary/20"
  >
- {h.ticker}
+ <StockLogo ticker={h.ticker} name={h.name} size="xs" className="rounded-full" />
+ {h.name || h.ticker}
  <button
  onClick={() => removeHolding(h.ticker)}
  className="ml-1 text-primary/60 hover:text-destructive"
@@ -601,9 +602,12 @@ export default function OnboardingPage() {
  s.anchor ? "border-primary/40 bg-primary/5 hover:border-primary" : "border-border hover:border-primary/40"
  }`}
  >
- <div>
- <p className="text-small font-bold text-foreground">{s.ticker}</p>
- <p className="text-xs text-muted-foreground">{s.name}</p>
+ <div className="flex items-center gap-2 min-w-0">
+ <StockLogo ticker={s.ticker} name={s.name} size="sm" />
+ <div className="min-w-0">
+ <p className="text-small font-bold text-foreground truncate">{s.name}</p>
+ <p className="text-xs text-muted-foreground">{s.ticker}</p>
+ </div>
  </div>
  {s.anchor && (
  <span className="text-[10px] font-bold text-primary shrink-0">앵커</span>
@@ -703,9 +707,10 @@ export default function OnboardingPage() {
  {holdings.map((h) => (
  <span
  key={h.ticker}
- className="px-3 py-1.5 bg-accent rounded-full border border-border text-xs font-semibold text-foreground"
+ className="inline-flex items-center gap-1.5 pl-1 pr-3 py-1 bg-accent rounded-full border border-border text-xs font-semibold text-foreground"
  >
- {h.ticker}
+ <StockLogo ticker={h.ticker} name={h.name} size="xs" className="rounded-full" />
+ {h.name || h.ticker}
  </span>
  ))}
  </div>

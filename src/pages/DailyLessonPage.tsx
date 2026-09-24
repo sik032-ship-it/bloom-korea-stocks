@@ -781,7 +781,8 @@ export default function DailyLessonPage() {
  <SpeechBubble className="mt-1">
  <div className="flex items-center gap-2 mb-1">
  <QuestionBadge type={questionType} />
- <span className="text-small font-semibold text-foreground">{selectedHolding.ticker}</span>
+ <StockLogo ticker={selectedHolding.ticker} name={selectedHolding.company_name_kr} size="xs" />
+ <span className="text-small font-semibold text-foreground">{selectedHolding.company_name_kr || selectedHolding.ticker}</span>
  </div>
  <p className="text-body text-foreground">{questionText}</p>
  </SpeechBubble>
