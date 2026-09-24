@@ -1,3 +1,4 @@
+import { ReminderPrompt } from "@/components/ReminderPrompt";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -169,6 +170,7 @@ export default function HomePage() {
 
   return (
     <Layout currentStreak={streak} longestStreak={profile?.longest_streak || 0}>
+      <ReminderPrompt />
       {showWelcome && (
         <WelcomeOverlay
           displayName={displayName}

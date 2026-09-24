@@ -11,6 +11,7 @@ interface LayoutProps {
 const NAV_ITEMS = [
   { path: "/", emoji: "🏠", label: "홈" },
   { path: "/holdings", emoji: "📊", label: "종목" },
+  { path: "/quiz-history", emoji: "📝", label: "문제" },
   { path: "/archive", emoji: "📖", label: "기록" },
   { path: "/settings", emoji: "⚙️", label: "설정" },
 ];

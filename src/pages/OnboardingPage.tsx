@@ -264,6 +264,7 @@ export default function OnboardingPage() {
           holdings_count: holdings.length,
         },
       });
+      try { localStorage.setItem("ppuri:ask-reminder", "1"); } catch { /* noop */ }
       navigate("/");
 
     } catch (err: unknown) {
