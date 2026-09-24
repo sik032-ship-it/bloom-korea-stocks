@@ -1,3 +1,4 @@
+import { StockLogo } from "@/components/StockLogo";
 // Big 4 앵커 종목 학습 카드 — MSFT/GOOGL/AMZN/AAPL
 // 카드 시각: 티커 모노그램(텍스트) + Lucide 섹션 아이콘. 이모지 제거.
 
@@ -111,12 +112,7 @@ export function Big4Cards() {
             onClick={() => setOpenIdx(i)}
             className="snap-start shrink-0 w-[148px] h-[160px] rounded-2xl border border-border bg-card p-3 text-left hover:border-primary/40 hover:shadow-card-hover transition-all press-effect flex flex-col"
           >
-            <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-[12px] tabular-nums tracking-tight mb-2 ${TICKER_TONE[c.ticker]}`}
-              aria-hidden
-            >
-              {c.ticker.slice(0, 4)}
-            </div>
+            <StockLogo ticker={c.ticker} name={c.nameKr} size="md" className="mb-2" />
             <div className="text-small font-bold text-foreground mb-1">{c.nameKr}</div>
             <p className="text-[11px] text-muted-foreground leading-snug line-clamp-3 mt-auto">
               {c.oneLiner}
@@ -136,12 +132,7 @@ export function Big4Cards() {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm tabular-nums tracking-tight ${TICKER_TONE[open.ticker]}`}
-                  aria-hidden
-                >
-                  {open.ticker.slice(0, 4)}
-                </div>
+                <StockLogo ticker={open.ticker} name={open.nameKr} size="lg" />
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground tabular-nums tracking-wider">{open.ticker}</p>
                   <h3 className="text-title font-bold text-foreground leading-tight">{open.nameKr}</h3>

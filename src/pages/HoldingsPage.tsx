@@ -1,3 +1,4 @@
+import { StockLogo } from "@/components/StockLogo";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -120,11 +121,9 @@ export default function HoldingsPage() {
  <PpuriCard key={h.id}>
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-3">
- <span className="px-2.5 py-1 bg-primary text-primary-foreground rounded-md text-small font-bold">
- {h.ticker}
- </span>
+ <StockLogo ticker={h.ticker} name={h.company_name_kr} size="md" />
  <div>
- <p className="text-body font-medium text-foreground">{h.company_name_kr}</p>
+ <p className="text-body font-bold text-foreground">{h.company_name_kr} <span className="text-xs font-semibold text-muted-foreground ml-1">{h.ticker}</span></p>
  <p className="text-xs text-muted-foreground">
  머무른 지 <strong className="text-foreground">{Math.max(1, Math.floor((Date.now() - new Date(h.added_at).getTime()) / 86_400_000))}</strong>일 · {h.sentence_count}개 문장
  </p>
@@ -199,8 +198,9 @@ export default function HoldingsPage() {
  onClick={() => addHolding(s.ticker, s.name)}
  className="w-full flex items-center gap-3 p-3 rounded-md hover:bg-accent text-left transition-colors"
  >
- <span className="text-small font-bold text-foreground">{s.ticker}</span>
- <span className="text-small text-muted-foreground">{s.name}</span>
+ <StockLogo ticker={s.ticker} name={s.name} size="sm" />
+ <span className="text-small font-bold text-foreground">{s.name}</span>
+ <span className="text-xs text-muted-foreground">{s.ticker}</span>
  </button>
  ))}
  </div>
