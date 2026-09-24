@@ -18,7 +18,7 @@ const ANNUAL_RATE = 0.10; // 평균 시나리오만 메인으로 (단순화)
 const SHOCK_STATS = [
  { emoji: "", title: "단타 개미의 끝", desc: "1년 넘게 매일 단타한 사람 중 손실 비율", value: "약 97%", source: "Chague·De-Losso·Giovannetti (2020) 브라질 연구" },
  { emoji: "", title: "3배 레버리지 ETF", desc: "하락장 한 번에 잃는 폭", value: "-70~90%", source: "2022년 TQQQ 약 -79%, SOXL 약 -90% (고점 대비)" },
- { emoji: "", title: "단기 매매 수익률", desc: "거래 잦을수록 수익률은", value: "", source: "Barber & Odean 연구" },
+ { emoji: "", title: "단기 매매 수익률", desc: "가장 자주 거래한 그룹의 연 수익률 차이", value: "연 -6%p", source: "Barber & Odean (2000), 시장 17.9% vs 11.4%" },
 ];
 
 // 격언
