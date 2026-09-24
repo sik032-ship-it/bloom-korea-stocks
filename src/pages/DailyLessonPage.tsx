@@ -12,7 +12,8 @@ import { LevelUpModal } from "@/components/LevelUpModal";
 import { RewardPeakSequence } from "@/components/RewardPeakSequence";
 import { WarmupPrompt, getTodayWarmup, type WarmupQuestion } from "@/components/WarmupPrompt";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
-import { getDailyQuizSet, personalizeQuiz, questionKey, type QuizQuestion } from "@/data/quizQuestions";
+import { QuizPicker } from "@/components/QuizPicker";
+import { getDailyQuizSet, getChosenQuizSet, personalizeQuiz, questionKey, type QuizQuestion } from "@/data/quizQuestions";
 import { todayKey } from "@/utils/dailySeed";
 import {
   getCorrectMessage,
@@ -84,12 +85,10 @@ function LessonProgressBar({ current, total, streak, onClose }: { current: numbe
 function OXQuiz({ statement, onAnswer }: { statement: string; onAnswer: (correct: boolean) => void }) {
   const [selected, setSelected] = useState<boolean | null>(null);
   return (
-    <div className="flex-1 flex flex-col items-center justify-center animate-slide-up">
-      <h2 className="text-title font-bold text-foreground text-center mb-6 px-4">
-        다음 문장이 맞으면 O, 틀리면 X를 누르세요
-      </h2>
-      <div className="bg-card border-2 border-border rounded-2xl p-6 mb-10 mx-4 max-w-md">
-        <p className="text-body text-foreground text-center leading-relaxed">{statement}</p>
+    <div className="flex-1 flex flex-col items-center justify-center animate-slide-up pb-10">
+      <p className="text-small font-semibold text-muted-foreground text-center mb-3">맞으면 O, 틀리면 X</p>
+      <div className="w-full bg-card border-2 border-border rounded-3xl px-6 py-8 mb-8 max-w-md shadow-card">
+        <p className="text-[20px] font-bold text-foreground text-center leading-[1.6] break-keep">{statement}</p>
       </div>
       <div className="flex gap-6">
         <button onClick={() => { setSelected(true); onAnswer(true); }} disabled={selected !== null}
@@ -106,13 +105,15 @@ function MultipleChoice({ question, options, onAnswer }: { question: string; opt
   const [selected, setSelected] = useState<number | null>(null);
   return (
     <div className="flex-1 flex flex-col animate-slide-up">
-      <h2 className="text-title font-bold text-foreground text-center mt-4 mb-8 px-2">{question}</h2>
+      <div className="bg-card border-2 border-border rounded-3xl px-5 py-6 mt-3 mb-5 shadow-card">
+        <p className="text-[19px] font-bold text-foreground leading-[1.6] break-keep">{question}</p>
+      </div>
       <div className="space-y-3 px-2">
         {options.map((opt, i) => (
           <button key={i} onClick={() => { setSelected(i); onAnswer(i); }} disabled={selected !== null}
             className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${selected === i ? "border-primary bg-accent shadow-sm scale-[1.02]" : "border-border hover:border-muted-foreground/30"} disabled:cursor-default`}>
             <span className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-small font-bold text-muted-foreground shrink-0">{i + 1}</span>
-            <span className="text-body text-foreground">{opt}</span>
+            <span className="text-[16px] text-foreground leading-relaxed break-keep">{opt}</span>
           </button>
         ))}
       </div>
@@ -134,7 +135,7 @@ const FillBlank = React.forwardRef<HTMLDivElement, { sentence: string; hints?: s
     <div ref={ref} className="flex-1 flex flex-col animate-slide-up min-w-0">
       <h2 className="text-title font-bold text-foreground text-center mt-4 mb-6 px-2 break-keep">빈칸에 들어갈 단어를 입력하세요</h2>
       <div className="bg-card border-2 border-border rounded-2xl p-4 sm:p-5 mx-2 mb-6 overflow-hidden">
-        <p className="text-base sm:text-body text-foreground leading-loose text-center break-keep [overflow-wrap:anywhere]">
+        <p className="text-[19px] font-bold text-foreground leading-loose text-center break-keep [overflow-wrap:anywhere]">
           {parts[0]}
           <span
             className="inline-block border-b-2 border-primary mx-1 text-center align-baseline max-w-full"
@@ -169,32 +170,52 @@ const FillBlank = React.forwardRef<HTMLDivElement, { sentence: string; hints?: s
   );
 });
 
-// ===== Feedback Banner with soul =====
-function FeedbackBanner({ correct, explanation, streakCount, insight, onContinue }: { correct: boolean; explanation: string; streakCount: number; insight?: string | null; onContinue: () => void }) {
+// ===== Feedback Sheet — 결과 · 정답 · 해설을 크게, 한 번에 읽히게 =====
+function FeedbackBanner({ correct, explanation, streakCount, insight, userAnswer, correctAnswer, onContinue }: { correct: boolean; explanation: string; streakCount: number; insight?: string | null; userAnswer?: string; correctAnswer?: string; onContinue: () => void }) {
   const message = correct ? getCorrectMessage(streakCount) : getWrongMessage();
-
+  const accent = correct ? "text-primary" : "text-destructive";
   return (
-    <div className={`fixed bottom-0 left-0 right-0 z-50 p-5 animate-slide-up ${correct ? "bg-primary/10 border-t-2 border-primary" : "bg-destructive/10 border-t-2 border-destructive"}`}>
-      <div className="max-w-lg mx-auto flex items-start gap-3">
-        <div className="shrink-0">
-          <Mascot mood={correct ? "celebrate" : "wave"} size="sm" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className={`text-body font-bold ${correct ? "text-primary" : "text-destructive"}`}>
-            {message}
-          </p>
-          <p className="text-small text-foreground/80 mt-1">{explanation}</p>
-          {/* Show insight if available */}
-          {insight && (
-            <p className="text-xs text-primary/80 mt-2 italic">💡 {insight}</p>
+    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-foreground/30 animate-fade-in">
+      <div className={`bg-background rounded-t-3xl border-t-4 ${correct ? "border-primary" : "border-destructive"} max-h-[85vh] overflow-y-auto animate-slide-up`}>
+        <div className="max-w-lg mx-auto px-5 pt-5 pb-6">
+          <div className="flex items-center gap-3">
+            <Mascot mood={correct ? "celebrate" : "wave"} size="sm" />
+            <div>
+              <p className={`text-[22px] font-extrabold ${accent}`}>{correct ? "정답이에요!" : "아쉬워요"}</p>
+              <p className="text-small text-muted-foreground">{message}</p>
+            </div>
+          </div>
+
+          {correctAnswer && (
+            <div className="mt-4 rounded-2xl bg-muted p-4">
+              <p className="text-xs font-bold text-muted-foreground">정답</p>
+              <p className="text-[18px] font-extrabold text-foreground mt-1 break-keep">{correctAnswer}</p>
+              {!correct && userAnswer && (
+                <p className="text-small text-muted-foreground mt-2">내가 고른 답: <span className="text-destructive font-semibold">{userAnswer}</span></p>
+              )}
+            </div>
           )}
+
+          <div className="mt-4">
+            <p className="text-xs font-bold text-muted-foreground mb-1.5">왜 그럴까요?</p>
+            <p className="text-[16px] text-foreground leading-[1.75] break-keep">{explanation}</p>
+          </div>
+
+          {insight && (
+            <div className="mt-4 rounded-2xl bg-accent p-4">
+              <p className="text-xs font-bold text-accent-foreground mb-1">기억할 한 줄</p>
+              <p className="text-[15px] font-semibold text-foreground leading-relaxed break-keep">{insight}</p>
+            </div>
+          )}
+
+          <button
+            onClick={onContinue}
+            autoFocus
+            className={`w-full mt-6 py-4 rounded-2xl font-bold text-body press-effect ${correct ? "bg-primary text-primary-foreground" : "bg-destructive text-destructive-foreground"}`}
+          >
+            계속하기
+          </button>
         </div>
-        <button
-          onClick={onContinue}
-          className={`shrink-0 px-6 py-3 rounded-xl font-bold text-small ${correct ? "bg-primary text-primary-foreground" : "bg-destructive text-destructive-foreground"}`}
-        >
-          계속하기
-        </button>
       </div>
     </div>
   );
@@ -207,6 +228,9 @@ export default function DailyLessonPage() {
 
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const baseKeysRef = useRef<string[]>([]);
+  const serverRecentRef = useRef<Set<string>>(new Set());
+  const holdingNamesRef = useRef<string[]>([]);
+  const [lastAnswerInfo, setLastAnswerInfo] = useState<{ user: string; correct: string } | null>(null);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [quizStreak, setQuizStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
@@ -241,7 +265,7 @@ export default function DailyLessonPage() {
 
   // PX Layer 2 — 3단 루틴
   // phase: "warmup" → "quiz" → "sentence"
-  const [phase, setPhase] = useState<"warmup" | "quiz" | "sentence">("warmup");
+  const [phase, setPhase] = useState<"warmup" | "pick" | "quiz" | "sentence">("warmup");
   const [warmupQuestion] = useState<WarmupQuestion>(() => getTodayWarmup());
   const [difficultyBoost, setDifficultyBoost] = useState(0);
 
@@ -296,6 +320,7 @@ export default function DailyLessonPage() {
           .eq("user_id", user.id).gte("day", since).lt("day", todayKey());
         past?.forEach((r) => serverRecent.add(r.question_key));
       } catch { /* 폴백 */ }
+      serverRecentRef.current = serverRecent;
       const baseQuiz = getDailyQuizSet(qc, lvl + boost, exp, user.id, serverRecent);
       baseKeysRef.current = baseQuiz.map(questionKey);
       // Will personalize after holdings load
@@ -308,6 +333,7 @@ export default function DailyLessonPage() {
         setHoldings(h);
         // Personalize quiz with holdings
         const holdingNames = h.map(holding => holding.company_name_kr);
+        holdingNamesRef.current = holdingNames;
         setQuizQuestions(prev => prev.map(q => personalizeQuiz(q, holdingNames)));
         
         const question = await selectQuestion(h, { userId: user.id });
@@ -333,14 +359,14 @@ export default function DailyLessonPage() {
   // 진행도: 워밍업(1) + 본질퀴즈(quizCount) + 원칙재확인(1)
   const totalSteps = 1 + quizCount + 1;
   const currentStep =
-    phase === "warmup" ? 1
+    phase === "warmup" || phase === "pick" ? 1
       : phase === "sentence" ? 1 + quizCount + 1
       : 1 + currentQuizIndex + 1;
 
   const handleWarmupComplete = useCallback((correct: boolean) => {
     // 워밍업 결과도 적응형 난이도에 반영
     recordQuizResult(correct);
-    setPhase("quiz");
+    setPhase("pick");
   }, []);
 
   const handleQuizAnswer = useCallback(
@@ -377,6 +403,13 @@ export default function DailyLessonPage() {
         }, { onConflict: "user_id,day,question_key", ignoreDuplicates: true }).then(({ error }) => {
           if (error) console.warn("[quiz_attempts] save failed", error.message);
         });
+      }
+      {
+        const fmt2 = (v: unknown) =>
+          q.format === "ox" ? (v ? "O (맞다)" : "X (틀리다)")
+            : q.format === "multiple_choice" ? String(q.options[v as number] ?? v)
+            : String(v);
+        setLastAnswerInfo({ user: fmt2(userAnswer), correct: fmt2(q.format === "multiple_choice" ? q.correctIndex : q.answer) });
       }
       setLastCorrect(correct);
       setLastExplanation(q.explanation);
@@ -663,6 +696,22 @@ export default function DailyLessonPage() {
       )}
 
       <div className="flex-1 flex flex-col px-4 max-w-lg mx-auto w-full relative">
+        {phase === "pick" && (
+          <QuizPicker
+            count={quizCount}
+            onStart={({ category, difficulty }) => {
+              if (category || difficulty) {
+                const set = getChosenQuizSet(quizCount, { category, difficulty }, user?.id, serverRecentRef.current);
+                baseKeysRef.current = set.map(questionKey);
+                const names = holdingNamesRef.current;
+                setQuizQuestions(names.length ? set.map((q) => personalizeQuiz(q, names)) : set);
+                setQuizCount(set.length);
+              }
+              setCurrentQuizIndex(0);
+              setPhase("quiz");
+            }}
+          />
+        )}
         {/* Motivation message before quiz starts */}
         {phase === "quiz" && !inSentenceStep && currentQuizIndex === 0 && !showFeedback && (
           <div className="bg-accent/30 rounded-xl px-4 py-3 mb-2 flex items-center gap-2 animate-fade-in">
@@ -690,11 +739,12 @@ export default function DailyLessonPage() {
               const t = toneClasses[cat.tone];
               return (
                 <div className="flex items-center justify-center gap-2 mb-2 animate-fade-in">
+                  <span className="text-xs font-extrabold text-foreground tabular-nums">Q{currentQuizIndex + 1}/{quizCount}</span>
                   <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${t.bg} ${t.fg}`}>
                     <CategoryIcon category={q.category} size={12} />
                     {cat.name}
                   </span>
-                  <span className="text-[10px] text-muted-foreground">| {getQuizWhyItMatters(q.category)}</span>
+                  
                 </div>
               );
             })()}
@@ -766,6 +816,8 @@ export default function DailyLessonPage() {
           explanation={lastExplanation}
           streakCount={quizStreak}
           insight={currentInsight}
+          userAnswer={lastAnswerInfo?.user}
+          correctAnswer={lastAnswerInfo?.correct}
           onContinue={handleContinue}
         />
       )}

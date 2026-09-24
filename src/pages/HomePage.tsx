@@ -139,6 +139,12 @@ export default function HomePage() {
     return () => { supabase.removeChannel(channel); };
   }, [user]);
 
+  // 8시 알림을 눌러 들어오면 오늘의 레슨으로 바로 안내
+  const fromReminder = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "reminder";
+  useEffect(() => {
+    if (!loading && fromReminder && !todayDone) navigate("/lesson", { replace: true });
+  }, [loading, fromReminder, todayDone, navigate]);
+
   if (loading) {
     return <Layout><HomeSkeleton /></Layout>;
   }

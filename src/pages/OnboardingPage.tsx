@@ -126,7 +126,32 @@ export default function OnboardingPage() {
   const [customName, setCustomName] = useState("");
   const [previewAnswer, setPreviewAnswer] = useState<boolean | null>(null);
   // 매번 랜덤 OX 문제 — 컴포넌트 마운트 시 한번만 결정 (재가입/재방문 시 신선)
-  const previewQuestion = useMemo(() => pickRandomPreviewQuestion(), []);
+  const [previewQuestion, setPreviewQuestion] = useState<OXQuestion>(() => pickRandomPreviewQuestion());
+  // 이번 주 AI가 새로 만든 철학 문제가 있으면 그걸로 교체 (없으면 기존 순환 문제)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("weekly_questions")
+        .select("category, statement, answer, explanation, insight, week_start")
+        .order("week_start", { ascending: false })
+        .limit(3);
+      if (cancelled || !data || data.length === 0) return;
+      const latestWeek = data[0].week_start;
+      const pool = data.filter((d) => d.week_start === latestWeek);
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      setPreviewQuestion({
+        format: "ox",
+        category: pick.category as OXQuestion["category"],
+        difficulty: "beginner",
+        statement: pick.statement,
+        answer: pick.answer,
+        explanation: pick.explanation,
+        ...(pick.insight ? { insight: pick.insight } : {}),
+      } as OXQuestion);
+    })();
+    return () => { cancelled = true; };
+  }, []);
   const isCorrect = previewAnswer !== null && previewAnswer === previewQuestion.answer;
   const previewCategory = categoryLabels[previewQuestion.category];
   const [saving, setSaving] = useState(false);

@@ -7,9 +7,9 @@ import { toast } from "sonner";
 
 export const REMINDER_ASK_FLAG = "ppuri:ask-reminder";
 // 푸시 발송 서버 키(공개키). 설정되면 기기 구독까지 저장한다.
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
+export const VAPID_PUBLIC_KEY = "BOet9F74PEoNgFsqJnCItXA2lbCRrJ-1sQDPcHNFJwG5BHMx6Rd-AnQFkDyCykoxoOga1aPLtvPT-ZEQBMEw2dM";
 
-function canUseServiceWorker() {
+export function canUseServiceWorker() {
   if (!("serviceWorker" in navigator)) return false;
   let inIframe = false;
   try { inIframe = window.self !== window.top; } catch { inIframe = true; }
@@ -24,7 +24,7 @@ function urlBase64ToUint8Array(base64: string) {
   return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
 }
 
-async function trySubscribe(): Promise<PushSubscriptionJSON | null> {
+export async function trySubscribe(): Promise<PushSubscriptionJSON | null> {
   if (!VAPID_PUBLIC_KEY || !canUseServiceWorker() || !("PushManager" in window)) return null;
   try {
     const reg = await navigator.serviceWorker.register("/sw.js");
@@ -76,10 +76,11 @@ export function ReminderPrompt() {
       try { permission = await Notification.requestPermission(); } catch { permission = "error"; }
     }
     const sub = permission === "granted" ? await trySubscribe() : null;
-    await save(permission === "granted", permission, sub);
+    await save(permission === "granted" && !!sub, permission, sub);
     setBusy(false);
     close();
     if (permission === "granted") toast.success("매일 저녁 8시에 도토리가 찾아갈게요 🌰");
+    else if (!canUseServiceWorker()) toast("미리보기 화면에선 알림을 켤 수 없어요. 게시된 앱에서 다시 시도해 주세요.");
     else toast("알림이 꺼져 있어요. 설정에서 언제든 켤 수 있어요.");
   };
 

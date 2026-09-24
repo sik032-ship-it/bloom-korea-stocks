@@ -420,6 +420,39 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_questions: {
+        Row: {
+          answer: boolean
+          category: string
+          created_at: string
+          explanation: string
+          id: string
+          insight: string | null
+          statement: string
+          week_start: string
+        }
+        Insert: {
+          answer: boolean
+          category: string
+          created_at?: string
+          explanation: string
+          id?: string
+          insight?: string | null
+          statement: string
+          week_start: string
+        }
+        Update: {
+          answer?: boolean
+          category?: string
+          created_at?: string
+          explanation?: string
+          id?: string
+          insight?: string | null
+          statement?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
