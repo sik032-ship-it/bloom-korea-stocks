@@ -94,7 +94,7 @@ function OXQuiz({ statement, onAnswer }: { statement: string; onAnswer: (correct
  <button onClick={() => { setSelected(true); onAnswer(true); }} disabled={selected !== null}
  className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all active:scale-90 ${selected === true ? "border-primary bg-primary/10 text-primary scale-110 animate-pop-in" : "border-border hover:border-primary/50 text-foreground hover:scale-105"} disabled:cursor-default`}></button>
  <button onClick={() => { setSelected(false); onAnswer(false); }} disabled={selected !== null}
- className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all ${selected === false ? "border-destructive bg-destructive/10 text-destructive scale-110" : "border-border hover:border-destructive/50 text-foreground hover:scale-105"} disabled:cursor-default`}></button>
+ className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all active:scale-90 ${selected === false ? "border-destructive bg-destructive/10 text-destructive scale-110 animate-pop-in" : "border-border hover:border-destructive/50 text-foreground hover:scale-105"} disabled:cursor-default`}></button>
  </div>
  </div>
  );
