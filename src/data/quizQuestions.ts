@@ -478,3 +478,36 @@ export function personalizeQuiz(question: QuizQuestion, holdingNames: string[]):
   
   return q;
 }
+
+// ── 사용자가 고른 주제·난이도로 출제 ──
+// 같은 날·같은 선택이면 같은 세트(시드), 최근 14일 출제분은 뒤로 밀고, 세트 내 중복은 없음.
+export function countQuestions(category?: QuizCategory | null, difficulty?: Difficulty | null): number {
+  return allQuestions.filter(
+    (q) => (!category || q.category === category) && (!difficulty || q.difficulty === difficulty),
+  ).length;
+}
+
+export function getChosenQuizSet(
+  count: number,
+  opts: { category?: QuizCategory | null; difficulty?: Difficulty | null },
+  userId?: string | null,
+  extraRecent?: Set<string>,
+): QuizQuestion[] {
+  const pool = allQuestions.filter(
+    (q) => (!opts.category || q.category === opts.category) && (!opts.difficulty || q.difficulty === opts.difficulty),
+  );
+  const recent = getRecentQuestionKeys();
+  extraRecent?.forEach((k) => recent.add(k));
+  const rand = seededRandom(dailySeed(userId) ^ hashChoice(`${opts.category ?? "all"}|${opts.difficulty ?? "all"}`));
+  const fresh = seededShuffle(pool.filter((q) => !recent.has(questionKey(q))), rand);
+  const seen = seededShuffle(pool.filter((q) => recent.has(questionKey(q))), rand);
+  const set = [...fresh, ...seen].slice(0, count);
+  recordServedQuestions(set.map(questionKey));
+  return set;
+}
+
+function hashChoice(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  return h >>> 0;
+}
