@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { PpuriButton } from "@/components/PpuriButton";
 import { LEGENDARY_BARGAINS, findClosestBargain } from "@/data/legendaryBargains";
+import { useLivePrices, liveBargain } from "@/lib/livePrices";
 import { CuteIcon } from "@/components/CuteIcon";
 
 interface FutureValueSimulatorProps {
@@ -92,7 +93,8 @@ export const FutureValueSimulator: React.FC<FutureValueSimulatorProps> = ({ tick
  const fmt = (v: number) => (yearly?.unit === "USD" ? `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : formatKRWFromKRW(v));
  const fmtCompare = (v: number) => (yearly?.unit === "USD" ? `≈ ${formatKRW(v)}` : "");
 
- const legendCase = findClosestBargain(ticker) ?? LEGENDARY_BARGAINS[0];
+ const livePrices = useLivePrices();
+ const legendCase = liveBargain(findClosestBargain(ticker) ?? LEGENDARY_BARGAINS[0], livePrices);
 
  const multipleVsPrincipal = final && final.principal > 0 ? final.longTerm / final.principal : 0;
  const gainVsShortTerm = final ? final.longTerm - final.shortTerm : 0;

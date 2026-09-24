@@ -5,7 +5,8 @@ import { PpuriCard } from "@/components/PpuriCard";
 import { PpuriButton } from "@/components/PpuriButton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { BIG_TECH, dcaFutureValue, type BigTechRecord } from "@/data/bigTechHistory";
+import { BIG_TECH as BASE_BIG_TECH, dcaFutureValue, type BigTechRecord } from "@/data/bigTechHistory";
+import { useLivePrices, liveBigTech } from "@/lib/livePrices";
 import { CuteIcon } from "@/components/CuteIcon";
 
 type Mode = "lump" | "dca";
@@ -38,6 +39,9 @@ export default function TimeMachinePage() {
  if (data) setOwnedTickers(data.map((h) => h.ticker));
  });
  }, [user]);
+
+ const livePrices = useLivePrices();
+ const BIG_TECH = useMemo(() => BASE_BIG_TECH.map((b) => liveBigTech(b, livePrices)), [livePrices]);
 
  const calc = (b: BigTechRecord) => {
  const past = period === 10 ? b.price10yAgo : b.price20yAgo;
@@ -72,7 +76,7 @@ export default function TimeMachinePage() {
  const bMul = b.priceToday / (period === 10 ? b.price10yAgo : b.price20yAgo);
  return bMul - aMul;
  });
- }, [period, ownedTickers]);
+ }, [period, ownedTickers, BIG_TECH]);
 
  return (
  <Layout>
@@ -220,7 +224,7 @@ export default function TimeMachinePage() {
 
  <p className="text-[11px] text-foreground italic">"{b.story}"</p>
  <p className="text-[10px] text-muted-foreground mt-1">
- {period === 10 ? "2016.4" : "2006.4"} ${(period === 10 ? b.price10yAgo : b.price20yAgo).toFixed(2)} → 오늘 ${b.priceToday}
+ {period === 10 ? "2016.4" : "2006.4"} ${(period === 10 ? b.price10yAgo : b.price20yAgo).toFixed(2)} → 오늘 ${b.priceToday.toFixed(2)}
  {" · "}출처: {b.source}
  </p>
  </PpuriCard>

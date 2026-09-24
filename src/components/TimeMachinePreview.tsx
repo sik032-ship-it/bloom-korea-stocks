@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BIG_TECH } from "@/data/bigTechHistory";
+import { useLivePrices, liveBigTech } from "@/lib/livePrices";
 import { PpuriCard } from "@/components/PpuriCard";
 import { CuteIcon } from "@/components/CuteIcon";
 
@@ -19,12 +20,14 @@ interface Props {
 
 export function TimeMachinePreview({ holdingsTickers = [] }: Props) {
   const navigate = useNavigate();
-  const [pick, setPick] = useState(() => getDailyPick(holdingsTickers));
+  let [pick, setPick] = useState(() => getDailyPick(holdingsTickers));
 
   useEffect(() => {
     setPick(getDailyPick(holdingsTickers));
   }, [holdingsTickers.join(",")]);
 
+  const prices = useLivePrices();
+  pick = liveBigTech(pick, prices);
   const krw1000 = 10_000_000; // 1,000만원 기준
   const todayValueKRW = krw1000 * (pick.priceToday / pick.price10yAgo);
   const ownedHint = holdingsTickers.includes(pick.ticker);

@@ -3,8 +3,11 @@ import { ArrowLeft } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { PpuriCard } from "@/components/PpuriCard";
 import { LEGENDARY_BARGAINS } from "@/data/legendaryBargains";
+import { useLivePrices, liveBargain, latestAsOf } from "@/lib/livePrices";
 
 export default function LegendsPage() {
+  const prices = useLivePrices();
+  const asOf = latestAsOf(prices);
   return (
     <Layout>
       <div className="flex items-center gap-2">
@@ -13,9 +16,9 @@ export default function LegendsPage() {
         </Link>
         <h1 className="text-display text-foreground">역사 속 헐값 카드</h1>
       </div>
-      <p className="text-small text-muted-foreground">당시엔 아무도 싸다고 하지 않았던 순간들이에요.</p>
+      <p className="text-small text-muted-foreground">당시엔 아무도 싸다고 하지 않았던 순간들이에요.{asOf && ` 오늘 가격은 ${asOf} 종가 기준, 매주 자동 갱신돼요.`}</p>
       <div className="space-y-3">
-        {LEGENDARY_BARGAINS.map((b) => (
+        {LEGENDARY_BARGAINS.map((raw) => liveBargain(raw, prices)).map((b) => (
           <PpuriCard key={b.id}>
             <div className="flex items-start justify-between gap-3">
               <div>

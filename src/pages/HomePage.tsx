@@ -11,7 +11,6 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { HomeSkeleton } from "@/components/HomeSkeleton";
 import { TimeMachinePreview } from "@/components/TimeMachinePreview";
 import { WelcomeOverlay } from "@/components/WelcomeOverlay";
-import { RichMindsetCard } from "@/components/RichMindsetCard";
 import { Big4Cards } from "@/components/Big4Cards";
 import { CrisisTriggerModal } from "@/components/CrisisTriggerModal";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
@@ -316,8 +315,6 @@ export default function HomePage() {
           <p className="text-xs text-muted-foreground mt-2">다음 단계까지 꾸준히 한 문장씩</p>
         </PpuriCard>
 
-        {/* 부자처럼 생각하기 — 매일 30초 마인드셋 카드 (복리식 누적) */}
-        <RichMindsetCard />
 
         {/* Big 4 앵커 종목 — 우리의 4그루 나무 (10계명 매일 상기) */}
         <Big4Cards />
