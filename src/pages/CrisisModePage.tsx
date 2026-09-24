@@ -166,7 +166,7 @@ const scenarios: CrisisScenario[] = [
  icon: DollarSign,
  iconColor: "#F59E0B",
  description: "소비자 물가가 전년 대비 9% 올랐습니다.\n투자 수익률은 물가를 따라가지 못하고 있어요.",
- historicalContext: "2022년 미국 CPI는 9.1%까지 올랐어요. 1970년대 이후 최고치였고, 금·에너지·실물자산이 강세를 보였어요.",
+ historicalContext: "2022년 미국 CPI는 9.1%까지 올랐어요. 1981년 이후 약 40년 만의 최고치였고, 금·에너지·실물자산이 강세를 보였어요.",
  steps: [
  {
  situation: "현금의 실질 가치가 매달 줄어듭니다. 은행 이자 3%는 인플레 9%를 못 따라갑니다.",
