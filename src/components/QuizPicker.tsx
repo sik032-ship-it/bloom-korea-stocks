@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Target } from "lucide-react";
+import type { WeaknessProfile } from "@/lib/weaknessCoach";
 import { categoryLabels, toneClasses } from "@/data/quizQuestions";
 import { countQuestions } from "@/data/quizQuestions";
 import { CategoryIcon } from "@/components/CategoryIcon";
@@ -21,10 +22,11 @@ const TONE_GROUPS: { tone: "growth" | "wisdom" | "caution" | "truth"; title: str
 
 interface Props {
   count: number;
-  onStart: (choice: { category: QuizCategory | null; difficulty: Difficulty | null }) => void;
+  onStart: (choice: { category: QuizCategory | null; difficulty: Difficulty | null; coach?: boolean }) => void;
+  coach?: WeaknessProfile | null;
 }
 
-export function QuizPicker({ count, onStart }: Props) {
+export function QuizPicker({ count, onStart, coach }: Props) {
   const [category, setCategory] = useState<QuizCategory | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
 
@@ -35,6 +37,24 @@ export function QuizPicker({ count, onStart }: Props) {
     <div className="flex-1 flex flex-col animate-slide-up pb-28">
       <h2 className="text-[22px] font-extrabold text-foreground mt-2 leading-snug">오늘은 어떤 문제를 풀까요?</h2>
       <p className="text-small text-muted-foreground mt-1">주제와 난이도를 고르면 {count}문제를 골라드려요.</p>
+
+      {coach?.ready && (coach.weakest.length > 0 || coach.reviewKeys.length > 0) && (
+        <button
+          onClick={() => onStart({ category: null, difficulty: null, coach: true })}
+          className="mt-5 w-full flex items-center gap-3 rounded-2xl border-2 border-primary bg-primary/10 p-4 text-left press-effect"
+        >
+          <span className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+            <Target className="w-5 h-5" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-body font-extrabold text-foreground">내 약점 집중 코칭</span>
+            <span className="block text-xs text-muted-foreground mt-0.5 truncate">
+              {coach.weakest.length > 0 ? coach.weakest.map((w) => categoryLabels[w.category].name).join(" · ") : "오답 다시 풀기"}
+              {coach.reviewKeys.length > 0 ? ` + 오답 ${coach.reviewKeys.length}개` : ""}
+            </span>
+          </span>
+        </button>
+      )}
 
       <p className="text-small font-bold text-foreground mt-6 mb-2">난이도</p>
       <div className="grid grid-cols-4 gap-2">

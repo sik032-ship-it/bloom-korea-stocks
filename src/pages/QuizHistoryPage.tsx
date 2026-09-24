@@ -6,6 +6,8 @@ import { Layout } from "@/components/Layout";
 import { PpuriCard } from "@/components/PpuriCard";
 import { QuizStatsDashboard } from "@/components/QuizStatsDashboard";
 import { todayKey } from "@/utils/dailySeed";
+import { WeaknessReport } from "@/components/WeaknessReport";
+import { buildWeaknessProfile, fetchCoachAttempts, type WeaknessProfile } from "@/lib/weaknessCoach";
 
 interface Attempt {
   id: string;
@@ -26,6 +28,12 @@ export default function QuizHistoryPage() {
   const [totals, setTotals] = useState({ all: 0, correct: 0 });
   const [loading, setLoading] = useState(true);
   const [openDay, setOpenDay] = useState<string | null>(null);
+  const [coach, setCoach] = useState<WeaknessProfile | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchCoachAttempts(user.id).then((a) => setCoach(buildWeaknessProfile(a)));
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -101,6 +109,7 @@ export default function QuizHistoryPage() {
         <p className="text-xs text-muted-foreground mt-2">칸이 진할수록 정답을 많이 맞힌 날이에요.</p>
       </PpuriCard>
 
+      {coach && <WeaknessReport profile={coach} />}
       <QuizStatsDashboard attempts={rows} />
 
       {loading ? (
