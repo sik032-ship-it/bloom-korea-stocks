@@ -224,7 +224,7 @@ export default function HomePage() {
             <Mascot level={userLevel} size="md" mood={greeting.mood} />
             <div className="flex-1 min-w-0">
               <p className="text-[22px] font-extrabold text-foreground leading-tight tracking-tight">
-                {displayName}님, {todayDone ? "오늘도 해냈어요" : "안녕하세요"}
+                {todayDone ? "오늘도 해냈어요" : "오늘도 1분, 시작해볼까요?"}
               </p>
               <p className="text-small text-muted-foreground mt-1 line-clamp-2 whitespace-pre-line">{greeting.text}</p>
             </div>
