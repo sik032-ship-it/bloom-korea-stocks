@@ -16,6 +16,9 @@ import { Big4Cards } from "@/components/Big4Cards";
 import { StayDashboard } from "@/components/StayDashboard";
 import { CrisisTriggerModal } from "@/components/CrisisTriggerModal";
 import { getProgressToNextLevel } from "@/utils/levelSystem";
+import { CuteIcon } from "@/components/CuteIcon";
+import acornImg from "@/assets/acorn.png";
+import mascotAcorn from "@/assets/mascot-acorn.png";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -195,7 +198,7 @@ export default function HomePage() {
                 onClick={() => setShowStreakBroken(false)}
                 className="text-xs text-primary font-medium mt-2 hover:underline"
               >
-                알겠어요, 다시 시작! 💪
+                알겠어요, 다시 시작!
               </button>
             </div>
           </div>
@@ -205,7 +208,7 @@ export default function HomePage() {
         {/* 🛡️ Streak Freeze 사용 알림 */}
         {showFreezeUsed && (
           <div className="bg-primary/5 border-2 border-primary/30 rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
-            <span className="text-2xl">🛡️</span>
+            <CuteIcon emoji="🛡️" size="md" />
             <div className="flex-1">
               <p className="text-small text-foreground font-bold mb-1">
                 스트릭 보호권을 사용했어요!
@@ -218,7 +221,7 @@ export default function HomePage() {
                 onClick={() => setShowFreezeUsed(false)}
                 className="text-xs text-primary font-medium mt-2 hover:underline"
               >
-                고마워요! 오늘은 꼭 할게요 💪
+                고마워요! 오늘은 꼭 할게요
               </button>
             </div>
           </div>
@@ -243,7 +246,7 @@ export default function HomePage() {
                   <p className="text-xs font-bold text-primary tracking-wider">TODAY · DONE</p>
                   <p className="text-[26px] font-extrabold text-foreground leading-tight mt-1">오늘의 씨앗 심기 완료</p>
                 </div>
-                <span className="text-5xl" aria-hidden>🌳</span>
+                <img src={mascotAcorn} alt="" className="w-16 h-16 object-contain" width={64} height={64} aria-hidden />
               </div>
               <div className="mt-4 flex items-end justify-between">
                 <div>
@@ -267,8 +270,8 @@ export default function HomePage() {
               <p className="text-xs font-bold tracking-wider opacity-90">TODAY'S LESSON · 3분</p>
               <p className="text-[26px] font-extrabold leading-tight mt-1">오늘의 레슨 시작하기</p>
               <p className="text-small opacity-90 mt-1">퀴즈 몇 문제 + 나의 원칙 한 문장</p>
-              <span className="inline-flex mt-4 items-center gap-1 rounded-full bg-primary-foreground/20 px-3 py-1.5 text-small font-bold">
-                🌰 지금 시작 →
+              <span className="inline-flex mt-4 items-center gap-1.5 rounded-full bg-primary-foreground/20 px-3 py-1.5 text-small font-bold">
+                <img src={acornImg} alt="" className="w-4 h-4 object-contain" width={16} height={16} /> 지금 시작 →
               </span>
             </button>
           )}
@@ -282,7 +285,7 @@ export default function HomePage() {
             { icon: "🏆", value: profile?.longest_streak || 0, label: "최장 기록", tone: "bg-tone-wisdom-bg text-tone-wisdom-fg" },
           ].map((s) => (
             <div key={s.label} className={`rounded-2xl p-3.5 ${s.tone}`}>
-              <span className="text-lg" aria-hidden>{s.icon}</span>
+              <CuteIcon emoji={s.icon} size="sm" className="bg-transparent" />
               <p className="text-[26px] font-extrabold tabular-nums leading-none mt-1">{s.value}</p>
               <p className="text-xs font-medium mt-1 opacity-80">{s.label}</p>
             </div>
@@ -298,7 +301,7 @@ export default function HomePage() {
           <div className="h-3 bg-muted rounded-full overflow-hidden">
             <div className="h-full bg-gradient-hero rounded-full transition-all duration-700" style={{ width: `${progress.percent}%` }} />
           </div>
-          <p className="text-xs text-muted-foreground mt-2">다음 단계까지 꾸준히 한 문장씩 🌱</p>
+          <p className="text-xs text-muted-foreground mt-2">다음 단계까지 꾸준히 한 문장씩</p>
         </PpuriCard>
 
         {/* 부자처럼 생각하기 — 매일 30초 마인드셋 카드 (복리식 누적) */}
