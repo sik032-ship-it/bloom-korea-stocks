@@ -10,7 +10,7 @@ const DIFFS: { id: Difficulty | null; label: string; desc: string }[] = [
   { id: null, label: "추천", desc: "내 수준에 맞게" },
   { id: "beginner", label: "입문", desc: "처음이라면" },
   { id: "intermediate", label: "중급", desc: "기본은 알아요" },
-  { id: "advanced", label: "심화", desc: "깊게 생각하기" },
+  { id: "advanced", label: "심화", desc: "실전에서 안 흔들리기" },
 ];
 
 const TONE_GROUPS: { tone: "growth" | "wisdom" | "caution" | "truth"; title: string }[] = [
@@ -87,7 +87,7 @@ export function QuizPicker({ count, onStart, coach }: Props) {
         <Sparkles className="w-5 h-5 text-primary" />
         <div>
           <p className="text-small font-bold text-foreground">골고루 섞기</p>
-          <p className="text-xs text-muted-foreground">여러 주제를 한 번에 연습해요</p>
+          <p className="text-xs text-muted-foreground">기업·인내·위기·거장의 지혜를 함께 연습해요</p>
         </div>
       </button>
 
