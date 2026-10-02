@@ -3,20 +3,20 @@
 // 미니멀 라인 일러스트 + 한 줄 인용 + 10계명 태그 + 행동 CTA.
 
 import { ReactNode } from "react";
-import buffettImg from "@/assets/mentor-buffett.png";
-import lynchImg from "@/assets/mentor-lynch.png";
 import { cn } from "@/utils/cn";
+import { MentorMonogram } from "@/components/MentorMonogram";
 
 export type MentorId = "buffett" | "lynch";
 
-const MENTORS: Record<MentorId, { image: string; name: string; title: string }> = {
+// 초상권 보호: 실존 인물 얼굴 이미지는 사용하지 않고 이니셜 배지만 표시
+const MENTORS: Record<MentorId, { initials: string; name: string; title: string }> = {
   buffett: {
-    image: buffettImg,
+    initials: "WB",
     name: "워렌 버핏",
     title: "버크셔 해서웨이 회장",
   },
   lynch: {
-    image: lynchImg,
+    initials: "PL",
     name: "피터 린치",
     title: "마젤란 펀드 전 운용역",
   },
@@ -61,16 +61,7 @@ export function MentorCard({
     >
       {/* 인물 일러스트 (우측 상단, 카드 분위기 압도하지 않도록) */}
       <div className="flex items-start gap-4">
-        <div className="shrink-0 w-24 h-24 rounded-full bg-white flex items-center justify-center overflow-hidden ring-2 ring-tone-growth-fg/20 shadow-card">
-          <img
-            src={m.image}
-            alt={`${m.name} 초상`}
-            width={192}
-            height={192}
-            loading="lazy"
-            className="w-full h-full object-cover object-top scale-105"
-          />
-        </div>
+        <MentorMonogram initials={m.initials} className="shrink-0 w-16 h-16 text-xl" />
         <div className="flex-1 min-w-0 pt-0.5">
           <p className="text-xs font-bold text-tone-growth-fg leading-none">{m.name}</p>
           <p className="text-[10px] text-muted-foreground mt-0.5">{m.title}</p>
@@ -88,6 +79,8 @@ export function MentorCard({
         {quote}
         <span className="text-tone-growth-fg/40 text-2xl leading-none align-bottom ml-1">”</span>
       </blockquote>
+
+      <p className="mt-2 text-[10px] text-muted-foreground">※ {m.name}의 공개 발언 요지를 쉽게 풀어쓴 표현이에요.</p>
 
       {footnote && (
         <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{footnote}</p>

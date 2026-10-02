@@ -180,11 +180,7 @@ export default function OnboardingPage() {
  // Drain any abandonment/step events that didn't make it last session
  useEffect(() => {
  if (!user) return;
- void flushQueue().then((res) => {
- if (res.sent > 0 || res.dropped > 0) {
- console.info("[onboarding_events] flushed queue", res);
- }
- });
+ void flushQueue();
  }, [user]);
 
  // Track abandonment when user leaves before completion.

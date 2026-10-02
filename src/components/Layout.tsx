@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Home, BarChart3, PenLine, BookOpen, Settings } from "lucide-react";
 import { StreakDisplay } from "@/components/StreakDisplay";
 import mascotWave from "@/assets/mascot-wave.png";
+import { LegalNotice } from "@/components/LegalNotice";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -36,6 +37,7 @@ export const Layout = ({ children, currentStreak = 0, longestStreak = 0 }: Layou
 
       <main className="max-w-lg mx-auto px-4 py-6 space-y-5 pb-24">
         {children}
+        <LegalNotice />
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-md border-t border-border z-10">
