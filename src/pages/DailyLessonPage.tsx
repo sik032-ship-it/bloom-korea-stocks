@@ -11,6 +11,7 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { QuestionBadge } from "@/components/QuestionBadge";
 import { LevelUpModal } from "@/components/LevelUpModal";
 import { RewardPeakSequence } from "@/components/RewardPeakSequence";
+import { QuestGrowthCelebration } from "@/components/QuestGrowthCelebration";
 import { WarmupPrompt, getTodayWarmup, type WarmupQuestion } from "@/components/WarmupPrompt";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
 import { didTreeGrow } from "@/utils/treeGrowth";
@@ -263,6 +264,13 @@ export default function DailyLessonPage() {
  const [oldTotal, setOldTotal] = useState(0);
  const [showConfetti, setShowConfetti] = useState(false);
  const [showRewardPeak, setShowRewardPeak] = useState(false);
+ const [showQuestGrowth, setShowQuestGrowth] = useState(false);
+ const [questMapCompleted, setQuestMapCompleted] = useState(false);
+ const [questStageCompleted, setQuestStageCompleted] = useState(false);
+ const todayAttemptKeysRef = useRef(new Set<string>());
+ const dailyQuestKeysRef = useRef(new Set<string>());
+ const dailyQuestTotalRef = useRef(DEFAULT_QUIZ_COUNT);
+ const pendingQuizSaveRef = useRef<Promise<void>>(Promise.resolve());
  const [alreadyDone, setAlreadyDone] = useState(false);
  const [loading, setLoading] = useState(true);
  const [currentStreak, setCurrentStreak] = useState(0);
@@ -312,6 +320,7 @@ export default function DailyLessonPage() {
  const exp = profile?.experience_level ?? null;
  const goal = profile?.daily_goal ?? 1;
  const qc = quizCountForGoal(goal);
+ dailyQuestTotalRef.current = qc;
  const streak = profile?.current_streak || 0;
  // 동적 난이도: 정답률 + 스트릭 → boost
  const boost = getDifficultyBoost(streak);
@@ -333,16 +342,22 @@ export default function DailyLessonPage() {
  } catch { /* 폴백 */ }
  serverRecentRef.current = serverRecent;
  const dailyQuiz = getDailyQuizSet(qc, lvl + boost, exp, user.id, serverRecent);
+ dailyQuestKeysRef.current = new Set(dailyQuiz.map(questionKey));
+ const { data: todayAttempts } = await supabase
+ .from("quiz_attempts").select("question_key")
+ .eq("user_id", user.id).eq("day", todayKey());
+ todayAttemptKeysRef.current = new Set(todayAttempts?.map((attempt) => attempt.question_key) ?? []);
  const boundedStage = Math.min(Number.isFinite(questStage) ? questStage : 0, Math.max(0, dailyQuiz.length - 1));
  const baseQuiz = questEntry
-   ? [...dailyQuiz.slice(boundedStage), ...dailyQuiz.slice(0, boundedStage)]
+   ? [dailyQuiz[boundedStage]]
    : dailyQuiz;
  baseKeysRef.current = baseQuiz.map(questionKey);
  // Will personalize after holdings load
- setQuizQuestions(baseQuiz);
+ setQuizQuestions(baseQuiz.filter((question): question is QuizQuestion => Boolean(question)));
 
  // 홈 스테이지에서 들어오면 선택한 노드의 문제를 첫 문제로 보여준다.
  if (questEntry) {
+   setQuizCount(1);
    setCurrentQuizIndex(0);
    setPhase("quiz");
  }
@@ -410,7 +425,7 @@ export default function DailyLessonPage() {
  : q.format === "multiple_choice" ? String(q.options[v as number] ?? v)
  : String(v);
  const correctVal = q.format === "multiple_choice" ? q.correctIndex : q.answer;
- void supabase.from("quiz_attempts").upsert({
+ pendingQuizSaveRef.current = Promise.resolve(supabase.from("quiz_attempts").upsert({
  user_id: user.id,
  day: todayKey(),
  question_key: baseKeysRef.current[currentQuizIndex] ?? questionKey(q),
@@ -421,8 +436,12 @@ export default function DailyLessonPage() {
  correct_answer: fmt(correctVal),
  is_correct: correct,
  explanation: q.explanation,
- }, { onConflict: "user_id,day,question_key", ignoreDuplicates: true }).then(({ error }) => {
- if (error) console.warn("[quiz_attempts] save failed", error.message);
+ }, { onConflict: "user_id,day,question_key", ignoreDuplicates: true })).then(({ error }) => {
+ if (error) {
+   console.warn("[quiz_attempts] save failed", error.message);
+   return;
+ }
+ todayAttemptKeysRef.current.add(baseKeysRef.current[currentQuizIndex] ?? questionKey(q));
  });
  }
  {
@@ -448,8 +467,49 @@ export default function DailyLessonPage() {
  [quizQuestions, currentQuizIndex, quizStreak, user]
  );
 
- const handleContinue = () => {
+ const awardQuestMapCompletion = async () => {
+ if (!user || alreadyDone) return false;
+ const { data: profile, error: profileErr } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+ if (profileErr) throw profileErr;
+ if (!profile || profile.last_sentence_date === todayKey()) return false;
+ const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+ const newStreak = profile.last_sentence_date === yesterday ? profile.current_streak + 1 : 1;
+ const total = profile.total_sentences + 1;
+ const newLevel = getLevelForCount(total);
+ setOldTotal(profile.total_sentences);
+ setNewTotal(total);
+ const { error: updateError } = await supabase.from("profiles").update({
+ total_sentences: total,
+ current_streak: newStreak,
+ longest_streak: Math.max(profile.longest_streak, newStreak),
+ last_sentence_date: todayKey(),
+ current_level: newLevel.level,
+ }).eq("id", user.id);
+ if (updateError) throw updateError;
+ return true;
+ };
+
+ const handleContinue = async () => {
  setShowFeedback(false);
+ if (questEntry) {
+   await pendingQuizSaveRef.current;
+   const completedDailyStages = [...dailyQuestKeysRef.current].filter((key) => todayAttemptKeysRef.current.has(key)).length;
+   const mapComplete = completedDailyStages >= dailyQuestTotalRef.current;
+   setQuestStageCompleted(true);
+   setQuestMapCompleted(mapComplete);
+   if (mapComplete) {
+     try {
+       const rewarded = await awardQuestMapCompletion();
+       if (rewarded) setShowRewardPeak(true);
+     } catch (error) {
+       console.error("[quest] completion reward failed", error);
+       toast({ variant: "destructive", title: "성장 저장에 실패했어요", description: "잠시 후 마지막 퀘스트를 다시 완료해 주세요." });
+       return;
+     }
+   }
+   setCompleted(true);
+   return;
+ }
  if (currentQuizIndex + 1 < quizCount) {
  setCurrentQuizIndex(currentQuizIndex + 1);
  } else {
@@ -572,16 +632,20 @@ export default function DailyLessonPage() {
  <RewardPeakSequence
  message={isRepeat ? "복습으로 더 단단해졌어요" : "오늘의 한 걸음을 심었어요"}
  subMessage={isRepeat ? "반복은 실력의 뿌리예요 " : "내일도 함께 도토리를 모아봐요 "}
- onDone={() => setShowRewardPeak(false)}
+ onDone={() => {
+   setShowRewardPeak(false);
+   if (questMapCompleted && newTotal > oldTotal) setShowQuestGrowth(true);
+ }}
  />
  )}
+ {showQuestGrowth && <QuestGrowthCelebration oldCount={oldTotal} newCount={newTotal} onDone={() => navigate("/")} />}
  {showConfetti && <Confetti recycle={false} numberOfPieces={400} />}
  {showLevelUp && <LevelUpModal oldLevel={oldTotal} newLevel={newTotal} onClose={() => setShowLevelUp(false)} />}
 
  <Mascot mood="celebrate" size="xl" className="mb-3 animate-float" />
- <h1 className="text-display text-foreground mb-1">{isRepeat ? "복습 완료! " : "레슨 완료! "}</h1>
+ <h1 className="text-display text-foreground mb-1">{questStageCompleted ? (questMapCompleted ? "오늘의 숲길 완주!" : `퀘스트 ${questStage + 1} 완료!`) : isRepeat ? "복습 완료! " : "레슨 완료! "}</h1>
  <p className="text-small text-muted-foreground mb-6">
- {isRepeat ? "복습은 실력을 단단하게 해줘요" : "오늘도 한 걸음 성장했어요"}
+ {questStageCompleted ? (questMapCompleted ? "모든 스테이지를 끝내 나무가 자라요" : "맵으로 돌아가 다음 스테이지에 도전해요") : isRepeat ? "복습은 실력을 단단하게 해줘요" : "오늘도 한 걸음 성장했어요"}
  </p>
 
  {/* XP Card */}
@@ -655,7 +719,7 @@ export default function DailyLessonPage() {
  onClick={() => navigate("/")}
  className="w-full max-w-sm py-4 rounded-2xl bg-primary text-primary-foreground font-bold shadow-button hover:opacity-95 transition-all press-effect animate-cta-breathe"
  >
- 홈에서 성장 보기
+ {questStageCompleted && !questMapCompleted ? "퀘스트 맵으로 돌아가기" : "홈에서 성장 보기"}
  </button>
  <button
  onClick={() => navigate("/holdings")}
