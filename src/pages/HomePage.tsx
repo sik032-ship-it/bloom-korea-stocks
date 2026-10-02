@@ -259,7 +259,7 @@ export default function HomePage() {
           total={dailyQuizTotal}
           done={todayDone}
           userLevel={userLevel}
-          onStart={() => navigate("/lesson?quest=1")}
+          onStart={(stage, mode) => navigate(`/lesson?quest=${stage}&mode=${mode}`)}
         />
 
         {todayDone && (
