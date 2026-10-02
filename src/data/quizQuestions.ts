@@ -8,11 +8,6 @@ import type {
   MultipleChoiceQuestion,
   FillBlankQuestion,
 } from "@/data/quizTypes";
-import { big4Questions } from "@/data/quizPacks/big4";
-import { strategyQuestions } from "@/data/quizPacks/strategy";
-import { commandmentQuestions } from "@/data/quizPacks/commandments";
-import { psychologyPlusQuestions } from "@/data/quizPacks/psychologyPlus";
-import { depthPackQuestions } from "@/data/quizPacks/depth";
 import { philosophyAdvancedQuestions } from "@/data/quizPacks/philosophyAdvanced";
 import { philosophyFoundationQuestions } from "@/data/quizPacks/philosophyFoundation";
 import { dailySeed, seededRandom, seededShuffle, todayKey } from "@/utils/dailySeed";
@@ -289,25 +284,6 @@ const whereNotWhenQuestions: QuizQuestion[] = [
   { format: "fill_blank", difficulty: "intermediate", category: "where_not_when", sentence: "버핏의 이상적인 보유 기간은 ___이다.", answer: "영원", hints: ["영원", "영원히", "forever"], explanation: "좋은 회사를 골랐다면 팔 이유를 찾기 어려워요.", insight: "사는 것보다 \"안 파는 것\"이 100배 어려워요." },
   { format: "ox", difficulty: "advanced", category: "where_not_when", statement: "시간은 좋은 기업의 편이고, 평범한 기업의 적이다", answer: true, explanation: "10계명 #8. 좋은 기업은 시간이 갈수록 가치가 누적, 평범한 기업은 경쟁에 깎여요.", insight: "시간을 누구의 편으로 만들지 — 그게 종목 선택의 본질이에요." },
 ];
-
-// Combine all questions
-// 앱 철학을 직접 가르치는 검수 완료 팩만 실제 출제 풀에 포함한다.
-// 위 배열들은 이전 풀이 이력의 키 호환을 위해 남겨두되 신규 출제에서는 제외한다.
-const philosophyCoreQuestions: QuizQuestion[] = [
-  ...big4Questions,
-  ...strategyQuestions,
-  ...commandmentQuestions,
-  ...psychologyPlusQuestions,
-  ...depthPackQuestions,
-];
-
-const OFF_MISSION_PATTERN = /ROIC|FCF|PER|value trap|가치 함정|CDO|CPI|PCE|FOMC|S&P|환율|금리|닷컴버블|금융위기|시스코/i;
-
-function questionText(question: QuizQuestion): string {
-  if (question.format === "ox") return question.statement;
-  if (question.format === "multiple_choice") return question.question;
-  return question.sentence;
-}
 
 // 모든 난이도는 검수된 PPURI 철학 문항만 노출한다. 위의 구형 풀은 기록 복원 호환용으로만 남긴다.
 export const allQuestions: QuizQuestion[] = [
