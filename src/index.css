@@ -59,6 +59,8 @@
     --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
     --shadow-card-hover: 0 4px 12px -2px rgb(0 0 0 / 0.08);
     --shadow-button: 0 4px 12px rgba(88, 204, 2, 0.25);
+    --shadow-stage: 0 7px 0 hsl(105 80% 32%), 0 12px 22px hsl(105 90% 30% / 0.2);
+    --shadow-stage-muted: 0 6px 0 hsl(220 10% 80%);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -156,6 +158,49 @@
   0% { transform: scale(1); }
   50% { transform: scale(0.95); }
   100% { transform: scale(1); }
+}
+
+@keyframes quest-pulse {
+  0%, 100% { box-shadow: var(--shadow-stage), 0 0 0 0 hsl(var(--primary) / 0.28); }
+  50% { box-shadow: var(--shadow-stage), 0 0 0 12px hsl(var(--primary) / 0); }
+}
+
+.quest-map {
+  background: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--accent) / 0.45) 100%);
+}
+
+.quest-path-shadow,
+.quest-path-dots {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.quest-path-shadow {
+  stroke: hsl(var(--border));
+  stroke-width: 12;
+}
+
+.quest-path-dots {
+  stroke: hsl(var(--primary) / 0.3);
+  stroke-width: 5;
+  stroke-dasharray: 1 20;
+}
+
+.quest-node {
+  box-shadow: var(--shadow-stage-muted);
+}
+
+.quest-node-active {
+  box-shadow: var(--shadow-stage);
+  animation: quest-pulse 2.2s ease-in-out infinite;
+}
+
+.quest-node-complete {
+  box-shadow: 0 5px 0 hsl(var(--primary) / 0.25);
+}
+
+.quest-chest {
+  box-shadow: var(--shadow-stage-muted);
 }
 
 /* PX: 보상 피크 — 마스코트 점프 */

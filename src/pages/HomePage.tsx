@@ -17,6 +17,7 @@ import { getProgressToNextLevel } from "@/utils/levelSystem";
 import { CuteIcon } from "@/components/CuteIcon";
 import { CountUp } from "@/components/CountUp";
 import GrowingTree from "@/components/GrowingTree";
+import { TodayQuestPath } from "@/components/TodayQuestPath";
 import acornImg from "@/assets/acorn.png";
 import mascotAcorn from "@/assets/mascot-acorn.png";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
@@ -51,6 +52,7 @@ export default function HomePage() {
   const [showFreezeUsed, setShowFreezeUsed] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [timeUntilTomorrow, setTimeUntilTomorrow] = useState(() => formatTimeUntilTomorrow());
+  const [todayQuizAttempts, setTodayQuizAttempts] = useState(0);
 
   // 완료 후 "다음 레슨까지 X시간 Y분" 카운트다운 — 1분마다 갱신
   useEffect(() => {
@@ -65,13 +67,14 @@ export default function HomePage() {
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      const [{ data: profileData }, { data: holdingsData }] = await Promise.all([
+      const today = new Date().toISOString().split("T")[0];
+      const [{ data: profileData }, { data: holdingsData }, { count: attemptCount }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).single(),
         supabase.from("holdings").select("*").eq("user_id", user.id).eq("is_active", true).is("deleted_at", null),
+        supabase.from("quiz_attempts").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("day", today),
       ]);
 
       if (profileData) {
-        const today = new Date().toISOString().split("T")[0];
         const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
         const p = profileData as Profile & { streak_freezes?: number | null };
 
@@ -122,6 +125,7 @@ export default function HomePage() {
         }
       }
       if (holdingsData) setHoldings(holdingsData);
+      setTodayQuizAttempts(attemptCount ?? 0);
       setLoading(false);
     };
     fetchData();
@@ -171,6 +175,8 @@ export default function HomePage() {
 
   const streakBrokenMsg = showStreakBroken ? getStreakBrokenMessage(previousStreak) : null;
   const progress = getProgressToNextLevel(profile?.total_sentences || 0);
+  const dailyGoal = profile?.daily_goal ?? 1;
+  const dailyQuizTotal = dailyGoal >= 5 ? 7 : dailyGoal >= 3 ? 5 : 3;
 
   const dismissWelcome = (start: boolean) => {
     if (user) localStorage.setItem(`ppuri:welcome-seen:${user.id}`, "1");
@@ -235,8 +241,8 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* 히어로: 인사 한 줄 + 오늘의 한 가지 행동 */}
-        <section aria-labelledby="today-cta" className="pt-1">
+        {/* 인사 + 오늘의 퀘스트 지도 */}
+        <section className="pt-1">
           <div className="flex items-center gap-3 mb-4">
             <div className="animate-float"><Mascot level={userLevel} size="md" mood={greeting.mood} /></div>
             <div className="flex-1 min-w-0">
@@ -247,43 +253,25 @@ export default function HomePage() {
             </div>
           </div>
 
-          {todayDone ? (
-            <div className="rounded-3xl bg-gradient-done border border-primary/20 p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-primary tracking-wider">TODAY · DONE</p>
-                  <p className="text-[26px] font-extrabold text-foreground leading-tight mt-1">오늘의 씨앗 심기 완료</p>
-                </div>
-                <img src={mascotAcorn} alt="" className="w-16 h-16 object-contain" width={64} height={64} aria-hidden />
-              </div>
-              <div className="mt-4 flex items-end justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">다음 레슨까지</p>
-                  <p className="text-[28px] font-extrabold text-foreground tabular-nums leading-none mt-1">{timeUntilTomorrow}</p>
-                </div>
-                <button
-                  onClick={() => navigate("/quiz-history")}
-                  className="px-4 py-2.5 rounded-xl bg-card border border-border text-small font-bold text-foreground press-effect"
-                >
-                  오늘 푼 문제 보기
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              id="today-cta"
-              onClick={() => navigate("/lesson")}
-              className="w-full text-left rounded-3xl bg-gradient-hero shadow-hero p-5 text-primary-foreground press-effect animate-cta-breathe"
-            >
-              <p className="text-xs font-bold tracking-wider opacity-90">TODAY'S LESSON · 3분</p>
-              <p className="text-[26px] font-extrabold leading-tight mt-1">오늘의 레슨 시작하기</p>
-              <p className="text-small opacity-90 mt-1">퀴즈 몇 문제 + 나의 원칙 한 문장</p>
-              <span className="inline-flex mt-4 items-center gap-1.5 rounded-full bg-primary-foreground/20 px-3 py-1.5 text-small font-bold">
-                <img src={acornImg} alt="" className="w-4 h-4 object-contain" width={16} height={16} /> 지금 시작 →
-              </span>
-            </button>
-          )}
         </section>
+
+        <TodayQuestPath
+          completed={todayQuizAttempts}
+          total={dailyQuizTotal}
+          done={todayDone}
+          userLevel={userLevel}
+          onStart={() => navigate("/lesson?quest=1")}
+        />
+
+        {todayDone && (
+          <div className="flex items-center justify-between rounded-xl bg-gradient-done px-4 py-3">
+            <div>
+              <p className="text-xs text-muted-foreground">다음 퀘스트까지</p>
+              <p className="mt-0.5 text-lg font-extrabold text-foreground tabular-nums">{timeUntilTomorrow}</p>
+            </div>
+            <button onClick={() => navigate("/quiz-history")} className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-bold text-foreground press-effect">오늘의 기록</button>
+          </div>
+        )}
 
         <GrowingTree sentences={profile?.total_sentences || 0} />
 
