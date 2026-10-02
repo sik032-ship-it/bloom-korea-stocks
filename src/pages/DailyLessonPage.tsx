@@ -268,6 +268,7 @@ export default function DailyLessonPage() {
  const [questMapCompleted, setQuestMapCompleted] = useState(false);
  const [questStageCompleted, setQuestStageCompleted] = useState(false);
  const todayAttemptKeysRef = useRef(new Set<string>());
+ const dailyQuestKeysRef = useRef(new Set<string>());
  const dailyQuestTotalRef = useRef(DEFAULT_QUIZ_COUNT);
  const [alreadyDone, setAlreadyDone] = useState(false);
  const [loading, setLoading] = useState(true);
@@ -340,6 +341,7 @@ export default function DailyLessonPage() {
  } catch { /* 폴백 */ }
  serverRecentRef.current = serverRecent;
  const dailyQuiz = getDailyQuizSet(qc, lvl + boost, exp, user.id, serverRecent);
+ dailyQuestKeysRef.current = new Set(dailyQuiz.map(questionKey));
  const { data: todayAttempts } = await supabase
  .from("quiz_attempts").select("question_key")
  .eq("user_id", user.id).eq("day", todayKey());
@@ -486,7 +488,8 @@ export default function DailyLessonPage() {
  const handleContinue = async () => {
  setShowFeedback(false);
  if (questEntry) {
-   const mapComplete = todayAttemptKeysRef.current.size >= dailyQuestTotalRef.current;
+   const completedDailyStages = [...dailyQuestKeysRef.current].filter((key) => todayAttemptKeysRef.current.has(key)).length;
+   const mapComplete = completedDailyStages >= dailyQuestTotalRef.current;
    setQuestStageCompleted(true);
    setQuestMapCompleted(mapComplete);
    if (mapComplete) {
