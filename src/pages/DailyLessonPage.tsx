@@ -270,6 +270,7 @@ export default function DailyLessonPage() {
  const todayAttemptKeysRef = useRef(new Set<string>());
  const dailyQuestKeysRef = useRef(new Set<string>());
  const dailyQuestTotalRef = useRef(DEFAULT_QUIZ_COUNT);
+ const pendingQuizSaveRef = useRef<Promise<void>>(Promise.resolve());
  const [alreadyDone, setAlreadyDone] = useState(false);
  const [loading, setLoading] = useState(true);
  const [currentStreak, setCurrentStreak] = useState(0);
@@ -424,7 +425,7 @@ export default function DailyLessonPage() {
  : q.format === "multiple_choice" ? String(q.options[v as number] ?? v)
  : String(v);
  const correctVal = q.format === "multiple_choice" ? q.correctIndex : q.answer;
- void supabase.from("quiz_attempts").upsert({
+ pendingQuizSaveRef.current = supabase.from("quiz_attempts").upsert({
  user_id: user.id,
  day: todayKey(),
  question_key: baseKeysRef.current[currentQuizIndex] ?? questionKey(q),
@@ -436,9 +437,12 @@ export default function DailyLessonPage() {
  is_correct: correct,
  explanation: q.explanation,
  }, { onConflict: "user_id,day,question_key", ignoreDuplicates: true }).then(({ error }) => {
- if (error) console.warn("[quiz_attempts] save failed", error.message);
- });
+ if (error) {
+   console.warn("[quiz_attempts] save failed", error.message);
+   return;
+ }
  todayAttemptKeysRef.current.add(baseKeysRef.current[currentQuizIndex] ?? questionKey(q));
+ });
  }
  {
  const fmt2 = (v: unknown) =>
@@ -488,6 +492,7 @@ export default function DailyLessonPage() {
  const handleContinue = async () => {
  setShowFeedback(false);
  if (questEntry) {
+   await pendingQuizSaveRef.current;
    const completedDailyStages = [...dailyQuestKeysRef.current].filter((key) => todayAttemptKeysRef.current.has(key)).length;
    const mapComplete = completedDailyStages >= dailyQuestTotalRef.current;
    setQuestStageCompleted(true);
