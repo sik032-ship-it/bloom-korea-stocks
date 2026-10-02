@@ -4,6 +4,7 @@ import { Sparkles } from "lucide-react";
 import { getLevelForCount } from "@/utils/levelSystem";
 import { Mascot } from "@/components/Mascot";
 import { PpuriButton } from "@/components/PpuriButton";
+import { didTreeGrow, getTreeStage } from "@/utils/treeGrowth";
 
 interface LevelUpModalProps {
   oldLevel: number;
@@ -16,6 +17,9 @@ export const LevelUpModal = ({ oldLevel, newLevel, onClose }: LevelUpModalProps)
   const [phase, setPhase] = useState<"old" | "transition" | "new">("old");
   const oldInfo = getLevelForCount(oldLevel);
   const newInfo = getLevelForCount(newLevel);
+  const treeGrew = didTreeGrow(oldLevel, newLevel);
+  const oldTree = getTreeStage(oldLevel);
+  const newTree = getTreeStage(newLevel);
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase("transition"), 800);
@@ -35,7 +39,7 @@ export const LevelUpModal = ({ oldLevel, newLevel, onClose }: LevelUpModalProps)
           ))}
         </div>
 
-        <h2 className="text-display text-foreground mb-4">레벨 업!</h2>
+        <h2 className="text-display text-foreground mb-4">{treeGrew ? "나무가 자랐어요!" : "레벨 업!"}</h2>
 
         {/* Mascot evolution */}
         <div className="flex items-center justify-center gap-4 mb-6 min-h-[140px]">
@@ -43,8 +47,12 @@ export const LevelUpModal = ({ oldLevel, newLevel, onClose }: LevelUpModalProps)
           <div className={`flex flex-col items-center transition-all duration-700 ${
             phase === "old" ? "opacity-100 scale-100" : "opacity-30 scale-75"
           }`}>
-            <Mascot level={oldInfo.level} size="lg" />
-            <span className="text-xs text-muted-foreground mt-1 font-medium">{oldInfo.name}</span>
+            {treeGrew ? (
+              <img src={oldTree.img} alt={`${oldTree.name} 이전 모습`} className="w-28 h-28 object-contain" />
+            ) : (
+              <Mascot level={oldInfo.level} size="lg" />
+            )}
+            <span className="text-xs text-muted-foreground mt-1 font-medium">{treeGrew ? oldTree.name : oldInfo.name}</span>
           </div>
 
           {/* Arrow */}
@@ -58,8 +66,12 @@ export const LevelUpModal = ({ oldLevel, newLevel, onClose }: LevelUpModalProps)
           <div className={`flex flex-col items-center transition-all duration-700 ${
             phase === "new" ? "opacity-100 scale-110" : phase === "transition" ? "opacity-60 scale-90" : "opacity-20 scale-75"
           }`}>
-            <Mascot level={newInfo.level} size="lg" />
-            <span className="text-xs text-primary mt-1 font-bold">{newInfo.name}</span>
+            {treeGrew ? (
+              <img src={newTree.img} alt={`${newTree.name} 새 모습`} className={phase === "new" ? "w-28 h-28 object-contain animate-tree-grow" : "w-28 h-28 object-contain"} />
+            ) : (
+              <Mascot level={newInfo.level} size="lg" />
+            )}
+            <span className="text-xs text-primary mt-1 font-bold">{treeGrew ? newTree.name : newInfo.name}</span>
           </div>
         </div>
 
@@ -67,10 +79,10 @@ export const LevelUpModal = ({ oldLevel, newLevel, onClose }: LevelUpModalProps)
         {phase === "new" && (
           <div className="animate-fade-in">
             <p className="text-body text-primary font-bold mb-1">
-              {newInfo.name} 레벨 달성!
+              {treeGrew ? `${newTree.name}로 성장!` : `${newInfo.name} 레벨 달성!`}
             </p>
             <p className="text-small text-muted-foreground mb-6">
-              꾸준한 투자 공부가 결실을 맺고 있어요!
+              {treeGrew ? "심은 문장들이 모여 뿌리와 가지가 자랐어요." : "꾸준한 투자 공부가 결실을 맺고 있어요!"}
             </p>
           </div>
         )}

@@ -13,6 +13,7 @@ import { LevelUpModal } from "@/components/LevelUpModal";
 import { RewardPeakSequence } from "@/components/RewardPeakSequence";
 import { WarmupPrompt, getTodayWarmup, type WarmupQuestion } from "@/components/WarmupPrompt";
 import { getLevelForCount, isLevelUp } from "@/utils/levelSystem";
+import { didTreeGrow } from "@/utils/treeGrowth";
 import { QuizPicker } from "@/components/QuizPicker";
 import { buildWeaknessProfile, fetchCoachAttempts, getCoachQuizSet, type WeaknessProfile } from "@/lib/weaknessCoach";
 import { getDailyQuizSet, getChosenQuizSet, personalizeQuiz, questionKey, type QuizQuestion } from "@/data/quizQuestions";
@@ -477,7 +478,7 @@ export default function DailyLessonPage() {
  const total = profile.total_sentences + 1;
  setOldTotal(profile.total_sentences);
  setNewTotal(total);
- if (isLevelUp(profile.total_sentences, total)) setShowLevelUp(true);
+ if (isLevelUp(profile.total_sentences, total) || didTreeGrow(profile.total_sentences, total)) setShowLevelUp(true);
  const newLevel = getLevelForCount(total);
  const { error: updErr } = await supabase.from("profiles").update({
  total_sentences: total, current_streak: newStreak, longest_streak: newLongest,
