@@ -13,6 +13,11 @@ describe("PPURI philosophy quiz guardrails", () => {
     advanced.forEach((question) => expect(textOf(question)).not.toMatch(forbidden));
   });
 
+  it("removes jargon and macro trivia from every playable difficulty", () => {
+    const forbidden = /ROIC|FCF|PER|value trap|가치 함정|CDO|CPI|PCE|FOMC|S&P|환율|금리|닷컴버블|금융위기|시스코/i;
+    allQuestions.forEach((question) => expect(textOf(question)).not.toMatch(forbidden));
+  });
+
   it("builds a balanced advanced set from distinct training tracks", () => {
     localStorage.clear();
     const set = getChosenQuizSet(5, { category: null, difficulty: "advanced" }, "philosophy-test-user");

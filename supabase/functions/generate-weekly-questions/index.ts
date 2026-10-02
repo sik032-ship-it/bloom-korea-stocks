@@ -7,7 +7,7 @@ import { z } from "npm:zod";
 import { createLovableAiGatewayRunIdFetch, getLovableAiGatewayRunId } from "../_shared/run-id.ts";
 
 // 주제 순회: 매주 3개 주제를 연속 블록으로 돌려 5주 구간 안에 전체 13개 주제를 커버
-const ALL_CATEGORIES = ["brand_moat", "cash_flow", "humility", "judgment", "legend_wisdom", "no_bottom_fishing", "risk", "where_not_when", "strategy", "psychology", "crisis", "us_market", "big4_basics"] as const;
+const ALL_CATEGORIES = ["brand_moat", "cash_flow", "humility", "judgment", "legend_wisdom", "no_bottom_fishing", "risk", "where_not_when", "strategy", "psychology", "crisis", "big4_basics"] as const;
 
 type Category = typeof ALL_CATEGORIES[number];
 type GeneratedQuestion = { category: Category; statement: string; answer: boolean; explanation: string; insight: string };

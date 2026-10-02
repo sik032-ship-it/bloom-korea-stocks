@@ -300,9 +300,21 @@ const philosophyCoreQuestions: QuizQuestion[] = [
   ...depthPackQuestions,
 ];
 
+const OFF_MISSION_PATTERN = /ROIC|FCF|PER|value trap|가치 함정|CDO|CPI|PCE|FOMC|S&P|환율|금리|닷컴버블|금융위기|시스코/i;
+
+function questionText(question: QuizQuestion): string {
+  if (question.format === "ox") return question.statement;
+  if (question.format === "multiple_choice") return question.question;
+  return question.sentence;
+}
+
 // 심화는 금융용어 시험이 아니라 좋은 기업을 오래 보유하는 실전 판단 훈련만 노출한다.
 export const allQuestions: QuizQuestion[] = [
-  ...philosophyCoreQuestions.filter((question) => question.difficulty !== "advanced" && question.category !== "us_market"),
+  ...philosophyCoreQuestions.filter((question) =>
+    question.difficulty !== "advanced"
+    && question.category !== "us_market"
+    && !OFF_MISSION_PATTERN.test(questionText(question)),
+  ),
   ...philosophyAdvancedQuestions,
 ];
 
