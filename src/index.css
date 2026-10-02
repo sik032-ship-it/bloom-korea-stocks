@@ -360,6 +360,6 @@
 .animate-nav-hop { animation: nav-hop 0.35s ease-out; }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-wiggle, .animate-pop-in, .animate-nav-hop, .animate-tree-breathe, .animate-tree-grow { animation: none; }
+  .animate-wiggle, .animate-pop-in, .animate-nav-hop, .animate-tree-breathe, .animate-tree-grow, .quest-node-active { animation: none; }
   .progress-shine::after { animation: none; }
 }

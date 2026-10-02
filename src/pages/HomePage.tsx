@@ -19,7 +19,6 @@ import { CountUp } from "@/components/CountUp";
 import GrowingTree from "@/components/GrowingTree";
 import { TodayQuestPath } from "@/components/TodayQuestPath";
 import acornImg from "@/assets/acorn.png";
-import mascotAcorn from "@/assets/mascot-acorn.png";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import type { Database } from "@/integrations/supabase/types";
 
