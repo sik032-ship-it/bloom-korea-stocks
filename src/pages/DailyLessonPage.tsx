@@ -270,7 +270,9 @@ export default function DailyLessonPage() {
  const [totalSentences, setTotalSentences] = useState(0);
  const [quizCount, setQuizCount] = useState(DEFAULT_QUIZ_COUNT);
  const [experienceLevel, setExperienceLevel] = useState<string | null>(null);
- const questEntry = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("quest") === "1";
+ const questParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+ const questStage = Math.max(0, Number.parseInt(questParams?.get("quest") ?? "0", 10) - 1);
+ const questEntry = questParams?.has("quest") ?? false;
 
  // PX Layer 2 — 3단 루틴
  // phase: "warmup" → "quiz" → "sentence"
@@ -330,19 +332,18 @@ export default function DailyLessonPage() {
  past?.forEach((r) => serverRecent.add(r.question_key));
  } catch { /* 폴백 */ }
  serverRecentRef.current = serverRecent;
- const baseQuiz = getDailyQuizSet(qc, lvl + boost, exp, user.id, serverRecent);
+ const dailyQuiz = getDailyQuizSet(qc, lvl + boost, exp, user.id, serverRecent);
+ const boundedStage = Math.min(Number.isFinite(questStage) ? questStage : 0, Math.max(0, dailyQuiz.length - 1));
+ const baseQuiz = questEntry
+   ? [...dailyQuiz.slice(boundedStage), ...dailyQuiz.slice(0, boundedStage)]
+   : dailyQuiz;
  baseKeysRef.current = baseQuiz.map(questionKey);
  // Will personalize after holdings load
  setQuizQuestions(baseQuiz);
 
- // 홈 스테이지에서 들어오면 이미 푼 노드 다음 문제부터 바로 이어간다.
+ // 홈 스테이지에서 들어오면 선택한 노드의 문제를 첫 문제로 보여준다.
  if (questEntry) {
-   const { count: completedToday } = await supabase
-     .from("quiz_attempts")
-     .select("id", { count: "exact", head: true })
-     .eq("user_id", user.id)
-     .eq("day", today);
-   setCurrentQuizIndex(Math.min(completedToday ?? 0, Math.max(0, qc - 1)));
+   setCurrentQuizIndex(0);
    setPhase("quiz");
  }
 
@@ -367,7 +368,7 @@ export default function DailyLessonPage() {
  setLoading(false);
  };
  load();
- }, [user, questEntry]);
+ }, [user, questEntry, questStage]);
 
  // Auto-complete when no holdings and sentence step reached
  useEffect(() => {
