@@ -425,7 +425,7 @@ export default function DailyLessonPage() {
  : q.format === "multiple_choice" ? String(q.options[v as number] ?? v)
  : String(v);
  const correctVal = q.format === "multiple_choice" ? q.correctIndex : q.answer;
- pendingQuizSaveRef.current = supabase.from("quiz_attempts").upsert({
+ pendingQuizSaveRef.current = Promise.resolve(supabase.from("quiz_attempts").upsert({
  user_id: user.id,
  day: todayKey(),
  question_key: baseKeysRef.current[currentQuizIndex] ?? questionKey(q),
@@ -436,7 +436,7 @@ export default function DailyLessonPage() {
  correct_answer: fmt(correctVal),
  is_correct: correct,
  explanation: q.explanation,
- }, { onConflict: "user_id,day,question_key", ignoreDuplicates: true }).then(({ error }) => {
+ }, { onConflict: "user_id,day,question_key", ignoreDuplicates: true })).then(({ error }) => {
  if (error) {
    console.warn("[quiz_attempts] save failed", error.message);
    return;
