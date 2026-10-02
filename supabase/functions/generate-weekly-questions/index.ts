@@ -66,7 +66,11 @@ const PHILOSOPHY = `PPURI 투자 10계명과 철학:
 9. 특정 종목의 매수·매도를 권유하지 않는다.
 10. 사실과 숫자는 정확해야 한다. 틀린 통계·지어낸 인용은 금지.`;
 
-async function reviewQuestions(lovable: ReturnType<typeof createOpenAI>, qs: { statement: string; answer: boolean; explanation: string; insight?: string | null }[]) {
+async function reviewQuestions(
+  lovable: ReturnType<typeof createOpenAI>,
+  qs: { statement: string; answer: boolean; explanation: string; insight?: string | null }[],
+  existingStatements: string[] = [],
+) {
   const result = streamText({
     model: lovable.responses("openai/gpt-6-astra"),
     output: Output.object({ schema: ReviewSchema }),
@@ -83,6 +87,9 @@ ${PHILOSOPHY}
 - 정답이 모호해 O와 X 모두 가능하다
 - 해설이 정답과 모순된다
 reason은 한국어 한 문장. 모든 문제에 대해 index(0부터)를 포함해 답하세요.
+
+최근 출제 문제(핵심 교훈까지 겹치면 중복 처리):
+${existingStatements.length ? existingStatements.map((statement) => `- ${statement}`).join("\n") : "(없음)"}
 
 ${qs.map((q, i) => `[${i}] ${q.statement} / 정답: ${q.answer ? "O" : "X"} / 해설: ${q.explanation}`).join("\n")}`,
     providerOptions: { openai: { forceReasoning: true, reasoningEffort: "medium", store: false, include: ["reasoning.encrypted_content"] } },
@@ -162,7 +169,7 @@ ${avoid || "(없음)"}`,
     });
     const out = await result.output;
     // 2차: 10계명 기준 철학 검수 → 통과한 문제만, 주제별 1개씩 우선 채택
-    const reviews = await reviewQuestions(lovable, out.questions);
+    const reviews = await reviewQuestions(lovable, out.questions, (recent ?? []).map((row) => row.statement));
     const passed = out.questions
       .map((q, i) => ({ q, r: reviews.find((x) => x.index === i) }))
       .filter((x) => x.r?.pass && !recentKeys.has(normalized(x.q.statement)));
