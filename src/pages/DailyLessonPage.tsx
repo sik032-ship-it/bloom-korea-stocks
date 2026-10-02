@@ -270,6 +270,7 @@ export default function DailyLessonPage() {
  const [totalSentences, setTotalSentences] = useState(0);
  const [quizCount, setQuizCount] = useState(DEFAULT_QUIZ_COUNT);
  const [experienceLevel, setExperienceLevel] = useState<string | null>(null);
+ const questEntry = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("quest") === "1";
 
  // PX Layer 2 — 3단 루틴
  // phase: "warmup" → "quiz" → "sentence"
@@ -334,6 +335,17 @@ export default function DailyLessonPage() {
  // Will personalize after holdings load
  setQuizQuestions(baseQuiz);
 
+ // 홈 스테이지에서 들어오면 이미 푼 노드 다음 문제부터 바로 이어간다.
+ if (questEntry) {
+   const { count: completedToday } = await supabase
+     .from("quiz_attempts")
+     .select("id", { count: "exact", head: true })
+     .eq("user_id", user.id)
+     .eq("day", today);
+   setCurrentQuizIndex(Math.min(completedToday ?? 0, Math.max(0, qc - 1)));
+   setPhase("quiz");
+ }
+
  const { data: h } = await supabase
  .from("holdings").select("*").eq("user_id", user.id).eq("is_active", true).is("deleted_at", null);
 
@@ -355,7 +367,7 @@ export default function DailyLessonPage() {
  setLoading(false);
  };
  load();
- }, [user]);
+ }, [user, questEntry]);
 
  // Auto-complete when no holdings and sentence step reached
  useEffect(() => {
