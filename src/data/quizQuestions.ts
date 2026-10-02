@@ -290,31 +290,19 @@ const whereNotWhenQuestions: QuizQuestion[] = [
 ];
 
 // Combine all questions
-const legacyQuestions: QuizQuestion[] = [
-  ...riskQuestions,
-  ...psychologyQuestions,
-  ...crisisQuestions,
-  ...judgmentQuestions,
-  ...philosophyQuestions,
-  ...usMarketQuestions,
-  ...legendWisdomQuestions,
-  ...humilityQuestions,
-  ...noBottomFishingQuestions,
-  ...cashFlowQuestions,
-  ...brandMoatQuestions,
-  ...whereNotWhenQuestions,
-  // --- 확장 팩 (10계명 · Big 4 · 실행 전략 · 심리 심화) ---
+// 앱 철학을 직접 가르치는 검수 완료 팩만 실제 출제 풀에 포함한다.
+// 위 배열들은 이전 풀이 이력의 키 호환을 위해 남겨두되 신규 출제에서는 제외한다.
+const philosophyCoreQuestions: QuizQuestion[] = [
   ...big4Questions,
   ...strategyQuestions,
   ...commandmentQuestions,
   ...psychologyPlusQuestions,
-  // --- 콘텐츠 심화 팩 (얇은 주제 보강: 바닥 예측 금지 · 머무름 · 겸손 · 해자 · 현금흐름 · 매크로 · 위기) ---
   ...depthPackQuestions,
 ];
 
 // 심화는 금융용어 시험이 아니라 좋은 기업을 오래 보유하는 실전 판단 훈련만 노출한다.
 export const allQuestions: QuizQuestion[] = [
-  ...legacyQuestions.filter((question) => question.difficulty !== "advanced" && question.category !== "us_market"),
+  ...philosophyCoreQuestions.filter((question) => question.difficulty !== "advanced" && question.category !== "us_market"),
   ...philosophyAdvancedQuestions,
 ];
 
@@ -495,7 +483,7 @@ export function getChosenQuizSet(
   let set: QuizQuestion[];
   if (!opts.category) {
     const tracks = seededShuffle<QuizCategory[]>([
-      ["big4_basics", "brand_moat"],
+      ["big4_basics", "brand_moat", "us_market"],
       ["cash_flow", "risk"],
       ["where_not_when", "strategy"],
       ["crisis", "no_bottom_fishing"],

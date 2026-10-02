@@ -58,7 +58,7 @@ export const categoryLabels: Record<QuizCategory, { name: string; icon: string; 
   psychology:        { name: "심리 조절",        icon: "brain",        tone: "caution" },
   crisis:            { name: "위기 대처",        icon: "shield",       tone: "caution" },
   judgment:          { name: "판단력",           icon: "scale",        tone: "wisdom"  },
-  us_market:         { name: "미국주식·매크로",  icon: "trending-up",  tone: "truth"   },
+  us_market:         { name: "미국 우량기업",    icon: "trending-up",  tone: "truth"   },
   legend_wisdom:     { name: "레전드의 지혜",    icon: "sparkles",     tone: "wisdom"  },
   humility:          { name: "겸손·능력의 원",   icon: "scan-eye",     tone: "wisdom"  },
   no_bottom_fishing: { name: "바닥 예측 금지",   icon: "target",       tone: "caution" },

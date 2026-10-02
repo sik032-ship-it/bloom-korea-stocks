@@ -105,7 +105,7 @@ reason은 한국어 한 문장. 모든 문제에 대해 index(0부터)를 포함
 ${existingStatements.length ? existingStatements.map((statement) => `- ${statement}`).join("\n") : "(없음)"}
 
 ${qs.map((q, i) => `[${i}] ${q.statement} / 정답: ${q.answer ? "O" : "X"} / 해설: ${q.explanation}`).join("\n")}`,
-    providerOptions: { openai: { forceReasoning: true, reasoningEffort: "medium", store: false, include: ["reasoning.encrypted_content"] } },
+      providerOptions: { openai: { forceReasoning: true, reasoningEffort: "medium", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } },
   });
   return (await result.output).reviews;
 }
