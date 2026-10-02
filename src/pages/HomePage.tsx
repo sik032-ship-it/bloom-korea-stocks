@@ -20,6 +20,9 @@ import GrowingTree from "@/components/GrowingTree";
 import { TodayQuestPath } from "@/components/TodayQuestPath";
 import acornImg from "@/assets/acorn.png";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
+import { getDailyQuizSet, questionKey } from "@/data/quizQuestions";
+import { getDifficultyBoost } from "@/utils/difficultyAdaptation";
+import { todayKey } from "@/utils/dailySeed";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -66,11 +69,13 @@ export default function HomePage() {
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      const today = new Date().toISOString().split("T")[0];
-      const [{ data: profileData }, { data: holdingsData }, { count: attemptCount }] = await Promise.all([
+      const today = todayKey();
+      const since = new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10);
+      const [{ data: profileData }, { data: holdingsData }, { data: todayAttempts }, { data: recentAttempts }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).single(),
         supabase.from("holdings").select("*").eq("user_id", user.id).eq("is_active", true).is("deleted_at", null),
-        supabase.from("quiz_attempts").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("day", today),
+        supabase.from("quiz_attempts").select("question_key").eq("user_id", user.id).eq("day", today),
+        supabase.from("quiz_attempts").select("question_key").eq("user_id", user.id).gte("day", since).lt("day", today),
       ]);
 
       if (profileData) {
@@ -124,7 +129,20 @@ export default function HomePage() {
         }
       }
       if (holdingsData) setHoldings(holdingsData);
-      setTodayQuizAttempts(attemptCount ?? 0);
+      if (profileData) {
+        const goal = profileData.daily_goal ?? 1;
+        const questTotal = goal >= 5 ? 7 : goal >= 3 ? 5 : 3;
+        const recentKeys = new Set(recentAttempts?.map((attempt) => attempt.question_key) ?? []);
+        const dailyKeys = new Set(getDailyQuizSet(
+          questTotal,
+          (profileData.current_level || 1) + getDifficultyBoost(profileData.current_streak || 0),
+          profileData.experience_level,
+          user.id,
+          recentKeys,
+        ).map(questionKey));
+        const completedStages = new Set(todayAttempts?.map((attempt) => attempt.question_key).filter((key) => dailyKeys.has(key)) ?? []);
+        setTodayQuizAttempts(completedStages.size);
+      }
       setLoading(false);
     };
     fetchData();
