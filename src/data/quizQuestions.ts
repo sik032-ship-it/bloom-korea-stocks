@@ -14,6 +14,7 @@ import { commandmentQuestions } from "@/data/quizPacks/commandments";
 import { psychologyPlusQuestions } from "@/data/quizPacks/psychologyPlus";
 import { depthPackQuestions } from "@/data/quizPacks/depth";
 import { philosophyAdvancedQuestions } from "@/data/quizPacks/philosophyAdvanced";
+import { philosophyFoundationQuestions } from "@/data/quizPacks/philosophyFoundation";
 import { dailySeed, seededRandom, seededShuffle, todayKey } from "@/utils/dailySeed";
 import { getRecentQuestionKeys, recordServedQuestions, readDailySet, writeDailySet } from "@/utils/quizHistory";
 
@@ -308,13 +309,9 @@ function questionText(question: QuizQuestion): string {
   return question.sentence;
 }
 
-// 심화는 금융용어 시험이 아니라 좋은 기업을 오래 보유하는 실전 판단 훈련만 노출한다.
+// 모든 난이도는 검수된 PPURI 철학 문항만 노출한다. 위의 구형 풀은 기록 복원 호환용으로만 남긴다.
 export const allQuestions: QuizQuestion[] = [
-  ...philosophyCoreQuestions.filter((question) =>
-    question.difficulty !== "advanced"
-    && question.category !== "us_market"
-    && !OFF_MISSION_PATTERN.test(questionText(question)),
-  ),
+  ...philosophyFoundationQuestions,
   ...philosophyAdvancedQuestions,
 ];
 
