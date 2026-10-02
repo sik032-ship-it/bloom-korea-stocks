@@ -430,16 +430,20 @@ export default function OnboardingPage() {
  {previewAnswer === null ? (
  <div className="grid grid-cols-2 gap-3">
  <button
+ type="button"
+ aria-label="O, 맞다"
  onClick={() => setPreviewAnswer(true)}
- className="py-6 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-accent transition-all text-3xl font-bold press-effect"
+ className="py-6 rounded-xl border-2 border-border bg-card text-primary hover:border-primary/40 hover:bg-accent transition-all text-4xl font-black press-effect"
  >
- <br /><span className="text-small">맞다</span>
+ O<br /><span className="text-small text-foreground">맞다</span>
  </button>
  <button
+ type="button"
+ aria-label="X, 아니다"
  onClick={() => setPreviewAnswer(false)}
- className="py-6 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-accent transition-all text-3xl font-bold press-effect"
+ className="py-6 rounded-xl border-2 border-border bg-card text-destructive hover:border-destructive/40 hover:bg-accent transition-all text-4xl font-black press-effect"
  >
- <br /><span className="text-small">아니다</span>
+ X<br /><span className="text-small text-foreground">아니다</span>
  </button>
  </div>
  ) : (
