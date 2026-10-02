@@ -95,10 +95,14 @@ function OXQuiz({ statement, onAnswer }: { statement: string; onAnswer: (correct
  <p className="text-[20px] font-bold text-foreground text-center leading-[1.6] break-keep">{statement}</p>
  </div>
  <div className="flex gap-6">
- <button onClick={() => { setSelected(true); onAnswer(true); }} disabled={selected !== null}
- className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all active:scale-90 ${selected === true ? "border-primary bg-primary/10 text-primary scale-110 animate-pop-in" : "border-border hover:border-primary/50 text-foreground hover:scale-105"} disabled:cursor-default`}></button>
- <button onClick={() => { setSelected(false); onAnswer(false); }} disabled={selected !== null}
- className={`w-28 h-28 rounded-2xl border-4 text-4xl font-black transition-all active:scale-90 ${selected === false ? "border-destructive bg-destructive/10 text-destructive scale-110 animate-pop-in" : "border-border hover:border-destructive/50 text-foreground hover:scale-105"} disabled:cursor-default`}></button>
+ <button type="button" aria-label="O, 맞다" onClick={() => { setSelected(true); onAnswer(true); }} disabled={selected !== null}
+ className={`w-28 h-28 rounded-2xl border-4 text-5xl font-black transition-all active:scale-90 ${selected === true ? "border-primary bg-primary/10 text-primary scale-110 animate-pop-in" : "border-border bg-card hover:border-primary/50 text-primary hover:scale-105"} disabled:cursor-default`}>
+ O
+ </button>
+ <button type="button" aria-label="X, 틀리다" onClick={() => { setSelected(false); onAnswer(false); }} disabled={selected !== null}
+ className={`w-28 h-28 rounded-2xl border-4 text-5xl font-black transition-all active:scale-90 ${selected === false ? "border-destructive bg-destructive/10 text-destructive scale-110 animate-pop-in" : "border-border bg-card hover:border-destructive/50 text-destructive hover:scale-105"} disabled:cursor-default`}>
+ X
+ </button>
  </div>
  </div>
  );
