@@ -13,6 +13,7 @@ import { strategyQuestions } from "@/data/quizPacks/strategy";
 import { commandmentQuestions } from "@/data/quizPacks/commandments";
 import { psychologyPlusQuestions } from "@/data/quizPacks/psychologyPlus";
 import { depthPackQuestions } from "@/data/quizPacks/depth";
+import { philosophyAdvancedQuestions } from "@/data/quizPacks/philosophyAdvanced";
 import { dailySeed, seededRandom, seededShuffle, todayKey } from "@/utils/dailySeed";
 import { getRecentQuestionKeys, recordServedQuestions, readDailySet, writeDailySet } from "@/utils/quizHistory";
 
@@ -289,7 +290,7 @@ const whereNotWhenQuestions: QuizQuestion[] = [
 ];
 
 // Combine all questions
-export const allQuestions: QuizQuestion[] = [
+const legacyQuestions: QuizQuestion[] = [
   ...riskQuestions,
   ...psychologyQuestions,
   ...crisisQuestions,
@@ -309,6 +310,12 @@ export const allQuestions: QuizQuestion[] = [
   ...psychologyPlusQuestions,
   // --- 콘텐츠 심화 팩 (얇은 주제 보강: 바닥 예측 금지 · 머무름 · 겸손 · 해자 · 현금흐름 · 매크로 · 위기) ---
   ...depthPackQuestions,
+];
+
+// 심화는 금융용어 시험이 아니라 좋은 기업을 오래 보유하는 실전 판단 훈련만 노출한다.
+export const allQuestions: QuizQuestion[] = [
+  ...legacyQuestions.filter((question) => question.difficulty !== "advanced"),
+  ...philosophyAdvancedQuestions,
 ];
 
 export type ExperienceLevel = "완전 초보" | "조금 해봤어요" | "1년 이상 투자 중" | "베테랑 투자자";
@@ -455,31 +462,10 @@ export function getRandomQuiz(): QuizQuestion {
 
 // Personalize quiz questions with user's holdings
 export function personalizeQuiz(question: QuizQuestion, holdingNames: string[]): QuizQuestion {
-  if (holdingNames.length === 0) return question;
-  const name = holdingNames[Math.floor(Math.random() * holdingNames.length)];
-  
-  const q = { ...question };
-  
-  // Replace generic stock references with user's holding
-  const replacements: [RegExp, string][] = [
-    [/특정 종목/g, name],
-    [/OO 주식/g, `${name} 주식`],
-    [/한 종목/g, name],
-    [/어떤 기업/g, name],
-  ];
-  
-  if (q.format === "ox") {
-    const ox = q as OXQuestion;
-    replacements.forEach(([regex, rep]) => { ox.statement = ox.statement.replace(regex, rep); });
-  } else if (q.format === "multiple_choice") {
-    const mc = q as MultipleChoiceQuestion;
-    replacements.forEach(([regex, rep]) => { mc.question = mc.question.replace(regex, rep); });
-  } else if (q.format === "fill_blank") {
-    const fb = q as FillBlankQuestion;
-    replacements.forEach(([regex, rep]) => { fb.sentence = fb.sentence.replace(regex, rep); });
-  }
-  
-  return q;
+  // 보유 종목명을 문장에 기계적으로 끼우면 기업 맥락이 왜곡된다.
+  // 개인화는 출제 순서에만 사용하고, 검수된 문제 문장은 그대로 보존한다.
+  void holdingNames;
+  return question;
 }
 
 // ── 사용자가 고른 주제·난이도로 출제 ──
@@ -502,9 +488,37 @@ export function getChosenQuizSet(
   const recent = getRecentQuestionKeys();
   extraRecent?.forEach((k) => recent.add(k));
   const rand = seededRandom(dailySeed(userId) ^ hashChoice(`${opts.category ?? "all"}|${opts.difficulty ?? "all"}`));
-  const fresh = seededShuffle(pool.filter((q) => !recent.has(questionKey(q))), rand);
-  const seen = seededShuffle(pool.filter((q) => recent.has(questionKey(q))), rand);
-  const set = [...fresh, ...seen].slice(0, count);
+  const orderedPool = [
+    ...seededShuffle(pool.filter((q) => !recent.has(questionKey(q))), rand),
+    ...seededShuffle(pool.filter((q) => recent.has(questionKey(q))), rand),
+  ];
+  let set: QuizQuestion[];
+  if (!opts.category) {
+    const tracks: QuizCategory[][] = [
+      ["big4_basics", "brand_moat"],
+      ["cash_flow", "risk"],
+      ["where_not_when", "strategy"],
+      ["crisis", "no_bottom_fishing"],
+      ["legend_wisdom", "humility"],
+      ["psychology", "judgment"],
+    ];
+    const chosen = new Set<string>();
+    set = [];
+    for (let index = 0; set.length < count && index < tracks.length; index++) {
+      const track = tracks[index];
+      const match = orderedPool.find((question) => track.includes(question.category) && !chosen.has(questionKey(question)));
+      if (match) {
+        set.push(match);
+        chosen.add(questionKey(match));
+      }
+    }
+    for (const question of orderedPool) {
+      if (set.length >= count) break;
+      if (!chosen.has(questionKey(question))) set.push(question);
+    }
+  } else {
+    set = orderedPool.slice(0, count);
+  }
   recordServedQuestions(set.map(questionKey));
   return set;
 }
