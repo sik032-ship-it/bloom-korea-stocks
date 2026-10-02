@@ -21,6 +21,9 @@ export default function SettingsPage() {
  const [saving, setSaving] = useState(false);
  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
  const [exporting, setExporting] = useState(false);
+ const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+ const [deleteText, setDeleteText] = useState("");
+ const [deleting, setDeleting] = useState(false);
 
  useEffect(() => {
  if (!user) return;
@@ -80,6 +83,23 @@ export default function SettingsPage() {
 
  const handleLogout = async () => {
  await signOut();
+ navigate("/auth");
+ };
+
+ const handleDeleteAccount = async () => {
+ if (deleteText.trim() !== "탈퇴" || deleting) return;
+ setDeleting(true);
+ const { error } = await supabase.functions.invoke("delete-account", { body: {} });
+ if (error) {
+ toast.error("탈퇴 처리에 실패했어요. 잠시 후 다시 시도해주세요.");
+ setDeleting(false);
+ return;
+ }
+ try {
+ Object.keys(localStorage).filter((k) => k.startsWith("ppuri")).forEach((k) => localStorage.removeItem(k));
+ } catch { /* ignore */ }
+ await signOut();
+ toast.success("탈퇴가 완료되었어요. 그동안 함께해주셔서 고마워요.");
  navigate("/auth");
  };
 
@@ -144,6 +164,13 @@ export default function SettingsPage() {
  <PpuriButton variant="secondary" fullWidth onClick={handleExport} disabled={exporting}>
  {exporting ? "내보내는 중..." : " 데이터 내보내기 (JSON)"}
  </PpuriButton>
+ <button
+ type="button"
+ onClick={() => { setDeleteText(""); setShowDeleteConfirm(true); }}
+ className="w-full py-2.5 text-small text-destructive hover:underline"
+ >
+ 회원 탈퇴 (모든 데이터 영구 삭제)
+ </button>
  </div>
  </PpuriCard>
 
@@ -185,6 +212,35 @@ export default function SettingsPage() {
  className="flex-1 h-11 rounded-md bg-destructive text-destructive-foreground font-semibold"
  >
  로그아웃
+ </button>
+ </div>
+ </div>
+ </div>
+ )}
+
+ {showDeleteConfirm && (
+ <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm">
+ <div className="bg-card rounded-lg p-6 mx-6 max-w-sm w-full animate-bounce-in">
+ <p className="text-title text-foreground mb-2 text-center">정말 탈퇴하시겠어요?</p>
+ <p className="text-small text-muted-foreground mb-4">
+ 프로필, 보유 종목, 문장, 퀴즈 기록, 알림 설정이 즉시 영구 삭제되며 되돌릴 수 없어요. 계속하려면 아래에 <b className="text-foreground">탈퇴</b>를 입력해주세요.
+ </p>
+ <input
+ value={deleteText}
+ onChange={(e) => setDeleteText(e.target.value)}
+ placeholder="탈퇴"
+ className="w-full h-11 px-3 mb-4 rounded-md bg-input border border-border text-small focus:outline-none focus:ring-2 focus:ring-ring"
+ />
+ <div className="flex gap-3">
+ <PpuriButton variant="ghost" fullWidth onClick={() => setShowDeleteConfirm(false)} disabled={deleting}>
+ 취소
+ </PpuriButton>
+ <button
+ onClick={handleDeleteAccount}
+ disabled={deleteText.trim() !== "탈퇴" || deleting}
+ className="flex-1 h-11 rounded-md bg-destructive text-destructive-foreground font-semibold disabled:opacity-50"
+ >
+ {deleting ? "삭제 중..." : "영구 삭제"}
  </button>
  </div>
  </div>

@@ -121,7 +121,7 @@ export const LEGENDARY_BARGAINS: LegendaryBargain[] = [
     buyPriceLabel: "약 $13/주 (분할조정)",
     todayPriceLabel: "약 $82",
     multiplier: 6.3,
-    story: "1990년 캘리포니아 부동산 위기로 웰스파고 주가가 폭락했어요. 버핏은 '은행은 시장이 가장 두려워할 때 사야 한다'며 약 $2.89억을 투자했습니다.",
+    story: "1990년 캘리포니아 부동산 위기로 웰스파고 주가가 폭락했어요. 버핏은 시장의 공포 속에서도 사업의 가치를 따져 약 $2.89억을 투자했습니다.",
     lesson: "위기 속 1등 기업 — 이 공식은 100년째 유효합니다.",
     category: "finance",
     source: "Berkshire 연차서한 1990, USA Today",

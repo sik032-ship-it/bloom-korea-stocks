@@ -4,8 +4,9 @@
 import React from "react";
 import { Quote } from "lucide-react";
 import { toneClasses, type CategoryTone } from "@/data/quizQuestions";
-import mentorBuffett from "@/assets/mentor-buffett.png";
-import mentorLynch from "@/assets/mentor-lynch.png";
+// 초상권 보호: 실존 인물 얼굴 이미지는 사용하지 않음
+const mentorBuffett: string | undefined = undefined;
+const mentorLynch: string | undefined = undefined;
 
 type Mentor = "buffett" | "lynch" | "munger" | null;
 
