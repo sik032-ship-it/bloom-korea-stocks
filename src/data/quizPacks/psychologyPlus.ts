@@ -12,7 +12,6 @@ export const psychologyPlusQuestions: QuizQuestion[] = [
   // FOMO
   { format: "ox", difficulty: "beginner", category: "psychology", statement: "남이 돈을 벌었다는 소식은 투자 정보가 아니라 감정 자극이다", answer: true, explanation: "FOMO는 원칙을 무너뜨리는 가장 흔한 경로예요.", insight: "부러움은 분석이 아니에요." },
   { format: "multiple_choice", difficulty: "beginner", category: "psychology", question: "급등 뉴스를 봤을 때 우리 원칙에 맞는 행동은?", options: ["내 원칙 안의 회사인지 먼저 확인한다", "일단 소액이라도 산다", "레버리지로 따라간다", "리딩방에 가입한다"], correctIndex: 0, explanation: "원칙 밖의 급등은 그냥 지나가는 남의 일이에요.", insight: "놓친 기회보다 지킨 원칙이 오래 남아요." },
-  { format: "ox", difficulty: "intermediate", category: "psychology", statement: "급등한 종목을 늦게 따라 사면 통계적으로 불리한 진입이 되기 쉽다", answer: true, explanation: "성과 추종 편향이에요. 항상 늦게, 비싸게 사게 돼요.", insight: "추격 매수는 남의 수익을 내 손실로 바꾸는 기술이에요." },
   { format: "fill_blank", difficulty: "beginner", category: "psychology", sentence: "놓칠까 봐 두려운 마음을 ___라고 부른다.", answer: "FOMO", hints: ["FOMO", "포모"], explanation: "이름을 붙이면 감정과 거리를 둘 수 있어요.", insight: "감정에 이름을 붙이는 순간 통제력이 생겨요." },
   { format: "multiple_choice", difficulty: "advanced", category: "psychology", question: "FOMO를 구조적으로 줄이는 가장 좋은 방법은?", options: ["살 회사 목록을 미리 4개로 좁혀둔다", "더 많은 종목을 관찰한다", "알림을 더 많이 켠다", "매일 인기 종목을 확인한다"], correctIndex: 0, explanation: "선택지를 줄이면 유혹도 줄어요. 앵커 종목 전략의 심리적 이점이에요.", insight: "좁은 원 안에 있으면 흔들릴 일도 적어요." },
 
@@ -24,12 +23,8 @@ export const psychologyPlusQuestions: QuizQuestion[] = [
   { format: "fill_blank", difficulty: "intermediate", category: "psychology", sentence: "감정을 느끼는 것은 자연스럽다. 문제는 감정에 따른 ___이다.", answer: "행동", hints: ["행동", "반응"], explanation: "우리가 훈련하는 것은 감정 제거가 아니라 행동 통제예요.", insight: "느껴도 되지만, 누르지는 마세요." },
 
   // 손실 회피 · 자기 관찰
-  { format: "ox", difficulty: "beginner", category: "psychology", statement: "손실의 고통은 같은 크기 이익의 기쁨보다 크게 느껴진다", answer: true, explanation: "카너먼의 손실 회피예요. 약 2배 이상으로 느껴져요.", insight: "이 비대칭을 알면 내 패닉을 미리 예측할 수 있어요." },
-  { format: "multiple_choice", difficulty: "intermediate", category: "psychology", question: "매수 가격에 집착하는 심리를 무엇이라 하나요?", options: ["앵커링", "레버리지", "리밸런싱", "헤지"], correctIndex: 0, explanation: "시장은 내 매수가를 몰라요. 중요한 건 지금의 사업 가치예요.", insight: "지금 이 가격에 다시 살 것인가 — 이게 올바른 질문이에요." },
-  { format: "ox", difficulty: "intermediate", category: "psychology", statement: "수익이 난 종목을 빨리 팔고 손실 종목을 오래 붙잡는 경향이 있다", answer: true, explanation: "처분 효과예요. 결과적으로 좋은 회사를 먼저 잃게 돼요.", insight: "승자를 팔고 패자를 남기면 포트폴리오가 나빠집니다." },
   { format: "multiple_choice", difficulty: "advanced", category: "psychology", question: "투자 일지가 심리 편향을 줄여주는 이유는?", options: ["결정 당시의 이유가 남아 사후 합리화를 막기 때문", "수익률을 계산해주기 때문", "세금 신고에 쓰기 때문", "종목을 추천해주기 때문"], correctIndex: 0, explanation: "우리가 매일 한 문장을 남기는 이유예요.", insight: "기록은 나에게 정직해지는 가장 싼 도구예요." },
   { format: "ox", difficulty: "advanced", category: "psychology", statement: "연속으로 수익을 낸 직후가 오히려 위험한 순간일 수 있다", answer: true, explanation: "하우스 머니 효과로 위험을 과소평가하게 돼요.", insight: "이겼을 때 더 조심하세요." },
-  { format: "fill_blank", difficulty: "advanced", category: "psychology", sentence: "그레이엄: 투자의 가장 큰 적은 시장이 아니라 자기 자신의 ___이다.", answer: "감정", hints: ["감정", "마음"], explanation: "시장을 이기려 하기 전에 나를 이겨야 해요.", insight: "자기 통제가 유일하게 통제 가능한 변수예요." },
   { format: "multiple_choice", difficulty: "beginner", category: "psychology", question: "주가 확인 빈도를 줄이면 어떤 효과가 있나요?", options: ["충동적 매매가 줄어든다", "수익률이 즉시 2배가 된다", "세금이 사라진다", "배당이 늘어난다"], correctIndex: 0, explanation: "확인은 행동을 부르고, 행동은 비용을 부릅니다.", insight: "좋은 투자는 대체로 지루해요." },
   { format: "ox", difficulty: "beginner", category: "psychology", statement: "투자에서 지루함을 느낀다면 대체로 잘하고 있는 신호다", answer: true, explanation: "짜릿함을 찾는 순간 투자는 도박에 가까워져요.", insight: "재미는 게임에서 찾고, 투자는 조용히 두세요." },
   { format: "multiple_choice", difficulty: "intermediate", category: "psychology", question: "포트폴리오가 한 달 언더퍼폼했을 때 위험한 반응은?", options: ["최근 오른 종목으로 전략을 갈아엎는다", "투자 논거를 점검한다", "기록을 남긴다", "아무것도 하지 않는다"], correctIndex: 0, explanation: "한 달로 전략을 판단할 수 없어요.", insight: "짧은 성과로 긴 전략을 바꾸면 항상 늦습니다." },
