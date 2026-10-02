@@ -57,6 +57,7 @@ export function TodayQuestPath({ completed, total, done, userLevel, onStart }: T
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     const map = mapRef.current;
     if (!map) return;
+    if ((event.target as HTMLElement).closest("button")) return;
     dragRef.current = { pointerId: event.pointerId, y: event.clientY, scrollTop: map.scrollTop, moved: false };
     map.setPointerCapture(event.pointerId);
   };
