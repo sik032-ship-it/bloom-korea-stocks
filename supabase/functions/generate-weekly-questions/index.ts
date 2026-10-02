@@ -4,6 +4,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createOpenAI } from "npm:@ai-sdk/openai";
 import { streamText, Output } from "npm:ai";
 import { z } from "npm:zod";
+import { createLovableAiGatewayRunIdFetch, getLovableAiGatewayRunId } from "../_shared/run-id.ts";
 
 // 주제 순회: 매주 3개 주제를 연속 블록으로 돌려 5주 구간 안에 전체 13개 주제를 커버
 const ALL_CATEGORIES = ["brand_moat", "cash_flow", "humility", "judgment", "legend_wisdom", "no_bottom_fishing", "risk", "where_not_when", "strategy", "psychology", "crisis", "us_market", "big4_basics"] as const;
@@ -66,6 +67,14 @@ const PHILOSOPHY = `PPURI 투자 10계명과 철학:
 9. 특정 종목의 매수·매도를 권유하지 않는다.
 10. 사실과 숫자는 정확해야 한다. 틀린 통계·지어낸 인용은 금지.`;
 
+const TRAINING_PILLARS = `모든 문제는 아래 행동 훈련 중 하나여야 한다:
+- 좋은 기업 알아보기: 고객 습관·브랜드·전환 비용·반복 사용
+- 기업의 돈 이해하기: 현금흐름·적은 부채·적은 자본으로 버는 힘
+- 오래 머무르기: 가격과 사업 구분·복리·불필요한 매매 거절
+- 폭락장에서 행동하기: 사업 훼손 확인·구간 계획·생활 안전 우선
+- 유혹 거절하기: FOMO·테마·복잡한 상품·모르는 기업 패스
+- 버핏·피터 린치처럼 생각하기: 이름이나 명언 암기가 아닌 실제 선택`;
+
 async function reviewQuestions(
   lovable: ReturnType<typeof createOpenAI>,
   qs: { statement: string; answer: boolean; explanation: string; insight?: string | null }[],
@@ -76,6 +85,7 @@ async function reviewQuestions(
     output: Output.object({ schema: ReviewSchema }),
     prompt: `당신은 PPURI 앱의 엄격한 콘텐츠 검수자입니다.
 ${PHILOSOPHY}
+${TRAINING_PILLARS}
 
 아래 OX 문제 각각을 검수하세요. 다음 중 하나라도 해당하면 pass=false:
 - 정답(O/X)이 우리 철학과 반대 방향을 가르친다 (예: 단타·타이밍·레버리지를 긍정)
@@ -83,6 +93,9 @@ ${PHILOSOPHY}
 - 특정 종목 매수/매도 권유
 - Big 4(MSFT·GOOGL·AMZN·AAPL) 외 특정 종목을 학습·추천 대상으로 소개한다. 역사적 경고 사례도 특정 종목명 대신 일반 표현을 쓴다
 - 복잡한 금융상품·수학 모형·단기 시장 지표를 알아야 풀 수 있다
+- 금융 용어나 역사적 숫자를 외워야 풀 수 있다
+- 실제 상황에서 취할 행동이 아니라 인물·용어·수치를 맞히는 지식 시험이다
+- 버핏 또는 피터 린치의 철학, 10계명, Big 4의 사업 이해 중 어느 것과도 연결되지 않는다
 - 아래 기존 문제와 표현이나 핵심 교훈이 중복된다
 - 정답이 모호해 O와 X 모두 가능하다
 - 해설이 정답과 모순된다
@@ -116,14 +129,17 @@ Deno.serve(async (req) => {
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const week = mondayKST();
   const focus = weeklyCategories(week);
+  const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(req));
   const lovable = createOpenAI({
     baseURL: "https://ai.gateway.lovable.dev/v1",
     apiKey: key,
     headers: { "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
+    fetch: runIdFetch.fetch,
   });
 
   // 이미 저장된 문제 재검수 모드: 철학과 맞지 않는 문제는 삭제
   const mode = new URL(req.url).searchParams.get("mode") ?? req.headers.get("x-mode");
+  if (mode && mode !== "review") return json({ error: "invalid mode" }, 400);
   if (mode === "review") {
     const { data: existing } = await admin.from("weekly_questions").select("id, statement, answer, explanation, insight");
     if (!existing?.length) return json({ ok: true, reviewed: 0 });
@@ -155,17 +171,21 @@ Deno.serve(async (req) => {
       output: Output.object({ schema: Schema }),
       prompt: `당신은 한국 초보 미국주식 투자자를 위한 행동투자 교육 앱 PPURI의 문제 출제자입니다.
 우리 철학: 좋은 기업(MSFT·GOOGL·AMZN·AAPL 같은 10년 뒤에도 쓸 제품을 파는 회사)을 너무 비싸게 사지 않고, 산 뒤 아무것도 하지 않는다. 복잡한 금융상품·유행 신기술 투기 금지. 현금흐름이 진실. 바닥 예측 금지. 시장 타이밍이 아니라 '어디에' 머무를지.
+${TRAINING_PILLARS}
 이번 주 출제 주제는 아래 3개이며, 각 주제에서 2문제씩 총 6개 후보를 만드세요(검수 후 3개만 채택). 문제의 category 필드에 해당 주제를 그대로 적으세요.
 ${focus.map((c, i) => `${i + 1}. ${c}`).join("\n")}
-처음 앱을 켠 사람이 "아하!" 하고 생각이 뒤집히는 OX 문제를 만드세요.
+처음 앱을 켠 사람이 "아하!" 하고 생각이 뒤집히는 OX 문제를 만드세요. 심화는 어려운 용어가 아니라 흔들리는 실제 상황에서 원칙을 적용하는 깊이입니다.
 - statement: 한 문장, 40자 내외, 흔한 오해를 담아 답이 X인 문제를 최소 2개
-- explanation: 2문장, 쉬운 한국어, 구체적 사례/숫자 1개
+- explanation: 2문장, 초보도 이해하는 쉬운 한국어. 마지막 문장은 오늘 할 행동으로 마무리
 - insight: 기억할 한 줄(25자 내외)
 - 특정 종목 매수·매도 권유 금지
 - Big 4 외 종목명, 복잡한 금융상품, 단기 지표를 문제 소재로 쓰지 마세요
+- 인물·용어·연도·수치 암기 문제 금지. 실제 선택이나 판단을 물으세요
+- 각 문제에 10계명 또는 버핏·피터 린치의 원칙이 눈에 보이게 등장해야 합니다
 이미 낸 문제와 겹치지 마세요:
 ${avoid || "(없음)"}`,
-      providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", store: false, include: ["reasoning.encrypted_content"] } },
+      abortSignal: req.signal,
+      providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } },
     });
     const out = await result.output;
     // 2차: 10계명 기준 철학 검수 → 통과한 문제만, 주제별 1개씩 우선 채택

@@ -314,7 +314,7 @@ const legacyQuestions: QuizQuestion[] = [
 
 // 심화는 금융용어 시험이 아니라 좋은 기업을 오래 보유하는 실전 판단 훈련만 노출한다.
 export const allQuestions: QuizQuestion[] = [
-  ...legacyQuestions.filter((question) => question.difficulty !== "advanced"),
+  ...legacyQuestions.filter((question) => question.difficulty !== "advanced" && question.category !== "us_market"),
   ...philosophyAdvancedQuestions,
 ];
 
@@ -494,14 +494,14 @@ export function getChosenQuizSet(
   ];
   let set: QuizQuestion[];
   if (!opts.category) {
-    const tracks: QuizCategory[][] = [
+    const tracks = seededShuffle<QuizCategory[]>([
       ["big4_basics", "brand_moat"],
       ["cash_flow", "risk"],
       ["where_not_when", "strategy"],
       ["crisis", "no_bottom_fishing"],
       ["legend_wisdom", "humility"],
       ["psychology", "judgment"],
-    ];
+    ], seededRandom(dailySeed(userId) ^ 0x51f15e));
     const chosen = new Set<string>();
     set = [];
     for (let index = 0; set.length < count && index < tracks.length; index++) {
@@ -516,6 +516,7 @@ export function getChosenQuizSet(
       if (set.length >= count) break;
       if (!chosen.has(questionKey(question))) set.push(question);
     }
+    set = seededShuffle(set, rand);
   } else {
     set = orderedPool.slice(0, count);
   }
