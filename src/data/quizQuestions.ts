@@ -398,21 +398,25 @@ export function getDailyQuizSet(
 
   for (let i = 0; i < count; i++) {
     const targetCategory = rotated[i % rotated.length];
-    const basePool = allQuestions.filter(
-      (q) => q.category === targetCategory && difficulties.includes(q.difficulty),
-    );
-    let notChosen = basePool.filter((q) => !chosenKeys.has(questionKey(q)));
-    // 해당 카테고리가 소진되면 다른 카테고리에서 보충 — 하루 세트 내 중복은 절대 없음
-    if (notChosen.length === 0) {
-      notChosen = allQuestions.filter(
-        (q) => difficulties.includes(q.difficulty) && !chosenKeys.has(questionKey(q)),
-      );
+    const isOpen = (q: QuizQuestion) => !chosenKeys.has(questionKey(q));
+    const isFresh = (q: QuizQuestion) => isOpen(q) && !recent.has(questionKey(q));
+    // 우선순위: 최근 14일 미출제를 최우선 — 같은 카테고리·레벨 → 같은 레벨 다른 카테고리
+    // → 같은 카테고리 인접 난이도 → 전체 미출제 → (풀이 정말 마른 경우에만) 재출제
+    const tiers: ((q: QuizQuestion) => boolean)[] = [
+      (q) => isFresh(q) && q.category === targetCategory && difficulties.includes(q.difficulty),
+      (q) => isFresh(q) && difficulties.includes(q.difficulty),
+      (q) => isFresh(q) && q.category === targetCategory,
+      (q) => isFresh(q),
+      (q) => isOpen(q) && q.category === targetCategory && difficulties.includes(q.difficulty),
+      (q) => isOpen(q) && difficulties.includes(q.difficulty),
+      (q) => isOpen(q),
+    ];
+    let pick: QuizQuestion[] = [];
+    for (const tier of tiers) {
+      pick = allQuestions.filter(tier);
+      if (pick.length > 0) break;
     }
-    if (notChosen.length === 0) notChosen = allQuestions.filter((q) => !chosenKeys.has(questionKey(q)));
-    if (notChosen.length === 0) break;
-    // 1순위: 최근 14일 미출제 · 2순위: 이번 세트 내 미중복 · 3순위: 전체
-    const fresh = notChosen.filter((q) => !recent.has(questionKey(q)));
-    const pick = fresh.length > 0 ? fresh : notChosen;
+    if (pick.length === 0) break;
 
     const shuffled = seededShuffle(pick, rand);
     const picked = shuffled[0];
