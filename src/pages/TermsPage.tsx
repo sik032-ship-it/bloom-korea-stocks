@@ -55,6 +55,20 @@ export default function TermsPage() {
         </section>
 
         <section>
+          <h2 className="text-lg font-bold mb-2">제5조의2 (투자자문업·유사투자자문업 아님)</h2>
+          <p className="text-small text-muted-foreground leading-relaxed">
+            서비스는 「자본시장과 금융투자업에 관한 법률」상 투자자문업 또는 유사투자자문업을 영위하지 않으며, 이용자 개인에게 특정 종목·시기·가격에 관한 개별 조언을 제공하지 않습니다. 퀴즈·해설·인물 카드의 인용은 교육 목적의 의역이며 출처를 함께 표기합니다.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-bold mb-2">제5조의3 (지식재산권 및 상표)</h2>
+          <p className="text-small text-muted-foreground leading-relaxed">
+            서비스 콘텐츠의 저작권은 서비스에 있습니다. 앱에 표시되는 기업명·티커·로고는 각 소유자의 상표이며 식별 목적으로만 사용되고, 서비스와 제휴·후원 관계를 뜻하지 않습니다.
+          </p>
+        </section>
+
+        <section>
           <h2 className="text-lg font-bold mb-2">제6조 (계정 해지)</h2>
           <p className="text-small text-muted-foreground leading-relaxed">
             이용자는 언제든지 설정 페이지에서 계정을 삭제할 수 있어요. 해지 시 작성한 데이터는 지체 없이 파기되며, 관련 법령에 따라 보관이 필요한 정보(결제·접속 기록 등)는 해당 법정 기간 동안 분리 보관 후 파기됩니다.
@@ -75,6 +89,13 @@ export default function TermsPage() {
             <li><strong className="text-foreground">운영 형태:</strong> 개인 개발자 운영</li>
             <li><strong className="text-foreground">문의 이메일:</strong> support@ppuri.app</li>
           </ul>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-bold mb-2">제9조 (준거법 및 관할)</h2>
+          <p className="text-small text-muted-foreground leading-relaxed">
+            본 약관은 대한민국 법률을 따르며, 분쟁 발생 시 「민사소송법」에 따른 관할 법원을 관할 법원으로 합니다.
+          </p>
         </section>
 
         <p className="text-xs text-muted-foreground pt-4 border-t border-border">
