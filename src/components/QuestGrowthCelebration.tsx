@@ -12,64 +12,119 @@ interface QuestGrowthCelebrationProps {
   onDone: () => void;
 }
 
+type Phase = "level" | "seed" | "grown";
+
 export function QuestGrowthCelebration({ oldCount, newCount, onDone }: QuestGrowthCelebrationProps) {
-  const [view, setView] = useState<"level" | "tree">("level");
+  const [phase, setPhase] = useState<Phase>("level");
+  const [progress, setProgress] = useState(() => getTreeProgress(oldCount));
   const oldLevel = getLevelForCount(oldCount);
   const newLevel = getLevelForCount(newCount);
   const levelUp = newLevel.level > oldLevel.level;
   const oldTree = getTreeStage(oldCount);
   const newTree = getTreeStage(newCount);
   const treeGrew = didTreeGrow(oldCount, newCount);
-  const treeProgress = getTreeProgress(newCount);
+  const targetProgress = getTreeProgress(newCount);
+  const width = typeof window !== "undefined" ? window.innerWidth : 390;
+  const height = typeof window !== "undefined" ? window.innerHeight : 844;
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setView("tree"), 1500);
-    return () => window.clearTimeout(timer);
+    const t1 = window.setTimeout(() => setPhase("seed"), 1700);
+    const t2 = window.setTimeout(() => setPhase("grown"), 2500);
+    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
   }, []);
 
+  useEffect(() => {
+    if (phase !== "grown") return;
+    // 성장한 단계는 0%부터, 같은 단계는 기존 진행도에서 이어서 채움
+    if (treeGrew) setProgress(0);
+    const t = window.setTimeout(() => setProgress(targetProgress), 120);
+    return () => window.clearTimeout(t);
+  }, [phase, treeGrew, targetProgress]);
+
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-foreground/40 px-5 backdrop-blur-sm">
-      <Confetti recycle={false} numberOfPieces={320} />
-      <section className="w-full max-w-sm overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-card-hover" aria-label="퀘스트 완주 성장 결과">
-        <div className="bg-primary px-5 py-4 text-center text-primary-foreground">
+    <div
+      className="fixed inset-0 z-[80] flex items-end justify-center bg-foreground/45 backdrop-blur-sm animate-fade-in sm:items-center sm:px-5"
+      role="dialog"
+      aria-modal="true"
+      aria-label="퀘스트 완주 성장 결과"
+    >
+      <Confetti width={width} height={height} recycle={false} numberOfPieces={width < 480 ? 160 : 300} gravity={0.25} />
+      <section className="growth-sheet w-full max-w-lg overflow-hidden rounded-t-3xl border border-primary/20 bg-card shadow-card-hover sm:max-w-sm sm:rounded-2xl">
+        <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-primary-foreground/60 sm:hidden" aria-hidden />
+        <div className="bg-primary px-5 pb-4 pt-3 text-center text-primary-foreground">
           <p className="text-xs font-extrabold opacity-90">오늘의 숲길 완주</p>
-          <h2 className="mt-1 text-[24px] font-extrabold">도토리와 성장 1칸 획득!</h2>
+          <h2 className="mt-1 text-[22px] font-extrabold leading-tight break-keep">도토리와 성장 1칸 획득!</h2>
         </div>
 
-        <div className="p-6 text-center">
-          {view === "level" ? (
-            <div className="animate-scale-pop">
+        <div className="px-6 pt-6 text-center" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
+          {/* 단계 표시 */}
+          <div className="mb-4 flex justify-center gap-1.5" aria-hidden>
+            {(["level", "seed", "grown"] as Phase[]).map((p, i) => (
+              <span
+                key={p}
+                className={`h-1.5 rounded-full transition-all duration-500 ${
+                  ["level", "seed", "grown"].indexOf(phase) >= i ? "w-6 bg-primary" : "w-1.5 bg-muted"
+                }`}
+              />
+            ))}
+          </div>
+
+          {phase === "level" ? (
+            <div key="level" className="animate-scale-pop min-h-[300px]">
               <div className="mb-3 flex justify-center gap-2 text-tone-caution-fg" aria-hidden>
-                <Sparkles /><Sparkles /><Sparkles />
+                <Sparkles className="animate-twinkle" /><Sparkles className="animate-twinkle [animation-delay:200ms]" /><Sparkles className="animate-twinkle [animation-delay:400ms]" />
               </div>
               <Mascot level={newLevel.level} size="xl" className="animate-reward-jump" />
-              <p className="mt-3 text-xl font-extrabold text-foreground">
+              {levelUp && (
+                <p className="mt-3 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold text-primary">
+                  Lv.{oldLevel.level} → Lv.{newLevel.level}
+                </p>
+              )}
+              <p className="mt-2 text-xl font-extrabold leading-snug text-foreground break-keep">
                 {levelUp ? `${newLevel.name} 레벨 달성!` : `${newLevel.name} 레벨이 더 단단해졌어요`}
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">모든 스테이지를 끝내 성장 경험치가 쌓였어요.</p>
+              <p className="mt-1 text-sm text-muted-foreground break-keep">모든 스테이지를 끝내 성장 경험치가 쌓였어요.</p>
             </div>
           ) : (
-            <div className="animate-fade-in">
-              <div className="relative mx-auto h-48 w-48">
-                <img
-                  src={newTree.img}
-                  alt={`${newTree.name}로 자란 나무`}
-                  className={`h-full w-full object-contain ${treeGrew ? "animate-tree-grow" : "animate-tree-breathe"}`}
-                />
-                <span className="absolute right-1 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-button">
-                  <Check className="h-5 w-5" strokeWidth={3} />
-                </span>
+            <div key="tree" className="min-h-[300px]">
+              <div className="relative mx-auto h-44 w-44">
+                <span className="growth-glow absolute inset-4 rounded-full bg-primary/20 blur-2xl" aria-hidden />
+                {phase === "seed" ? (
+                  <img src={oldTree.img} alt={`${oldTree.name}`} className="growth-shake relative h-full w-full object-contain" />
+                ) : (
+                  <>
+                    <img
+                      src={newTree.img}
+                      alt={`${newTree.name}로 자란 나무`}
+                      className={`relative h-full w-full object-contain ${treeGrew ? "animate-tree-grow" : "animate-tree-breathe"}`}
+                    />
+                    <span className="animate-pop-in absolute right-1 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-button [animation-delay:600ms]">
+                      <Check className="h-5 w-5" strokeWidth={3} />
+                    </span>
+                  </>
+                )}
               </div>
-              <p className="text-xl font-extrabold text-foreground">
-                {treeGrew ? `${oldTree.name}에서 ${newTree.name}로 성장!` : `${newTree.name}가 한 뼘 자랐어요`}
+              <p className="mt-2 text-xl font-extrabold leading-snug text-foreground break-keep" aria-live="polite">
+                {phase === "seed"
+                  ? "나무가 자라는 중..."
+                  : treeGrew ? `${oldTree.name}에서 ${newTree.name}로 성장!` : `${newTree.name}가 한 뼘 자랐어요`}
               </p>
               <div className="mt-4 h-3 overflow-hidden rounded-full bg-muted">
-                <div className="h-full rounded-full bg-primary progress-shine transition-all duration-700" style={{ width: `${treeProgress}%` }} />
+                <div
+                  className="h-full rounded-full bg-primary progress-shine transition-[width] duration-1000 ease-out"
+                  style={{ width: `${progress}%` }}
+                />
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground break-keep">
                 {newTree.next === null ? "울창한 숲을 완성했어요" : `다음 성장까지 ${newTree.next - newCount}번 남았어요`}
               </p>
-              <Button type="button" size="lg" onClick={onDone} className="press-effect mt-5 h-14 w-full rounded-xl text-base font-extrabold shadow-button">
+              <Button
+                type="button"
+                size="lg"
+                onClick={onDone}
+                disabled={phase !== "grown"}
+                className="press-effect mt-5 h-14 w-full rounded-xl text-base font-extrabold shadow-button transition-opacity"
+              >
                 자란 나무 보러 가기 <ArrowRight />
               </Button>
             </div>
