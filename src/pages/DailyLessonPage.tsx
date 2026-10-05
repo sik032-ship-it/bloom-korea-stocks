@@ -29,6 +29,7 @@ import {
 } from "@/utils/mascotDialogue";
 import { categoryLabels, toneClasses } from "@/data/quizQuestions";
 import { isAnswerCorrect } from "@/utils/quizMatch";
+import { getQuizSources, QUIZ_EXPLAINER, QUIZ_DISCLAIMER } from "@/utils/quizSource";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import {
  recordQuizResult,
@@ -207,6 +208,10 @@ function FeedbackBanner({ correct, explanation, streakCount, insight, userAnswer
  <div className="mt-4">
  <p className="text-xs font-bold text-muted-foreground mb-1.5">왜 그럴까요?</p>
  <p className="text-[16px] text-foreground leading-[1.75] break-keep">{explanation}</p>
+ <div className="mt-3 rounded-xl border border-border p-3 text-xs text-muted-foreground space-y-1" data-testid="quiz-source">
+ <p><span className="font-bold text-foreground">출처:</span> {getQuizSources(`${explanation} ${insight ?? ""}`).join(" · ")}</p>
+ <p><span className="font-bold text-foreground">해설:</span> {QUIZ_EXPLAINER}</p>
+ </div>
  </div>
 
  {insight && (
@@ -215,6 +220,8 @@ function FeedbackBanner({ correct, explanation, streakCount, insight, userAnswer
  <p className="text-[15px] font-semibold text-foreground leading-relaxed break-keep">{insight}</p>
  </div>
  )}
+
+ <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground break-keep" data-testid="quiz-disclaimer">※ {QUIZ_DISCLAIMER}</p>
 
  <button
  onClick={onContinue}
