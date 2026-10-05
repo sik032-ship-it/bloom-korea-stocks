@@ -407,3 +407,21 @@
   .animate-wiggle, .animate-pop-in, .animate-nav-hop, .animate-tree-breathe, .animate-tree-grow, .animate-mascot-hop, .animate-twinkle, .quest-node-active, .quest-particles svg, .quest-particles img { animation: none; }
   .progress-shine::after { animation: none; }
 }
+
+@keyframes growth-sheet-up {
+  0% { transform: translateY(100%); }
+  70% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+.growth-sheet { animation: growth-sheet-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes growth-shake {
+  0%, 100% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-3deg) scale(1.03); }
+  75% { transform: rotate(3deg) scale(1.03); }
+}
+.growth-shake { animation: growth-shake 0.4s ease-in-out infinite; }
+@keyframes growth-glow { 0%,100% { opacity: .5; transform: scale(.9); } 50% { opacity: 1; transform: scale(1.1); } }
+.growth-glow { animation: growth-glow 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .growth-sheet, .growth-shake, .growth-glow { animation: none; }
+}
