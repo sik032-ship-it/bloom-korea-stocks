@@ -1,4 +1,5 @@
 import { ReminderPrompt } from "@/components/ReminderPrompt";
+import { QuestGrowthCelebration } from "@/components/QuestGrowthCelebration";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -201,8 +202,11 @@ export default function HomePage() {
     if (start) navigate("/lesson");
   };
 
+  const devGrowthPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).has("previewGrowth");
+
   return (
     <Layout currentStreak={streak} longestStreak={profile?.longest_streak || 0}>
+      {devGrowthPreview && <QuestGrowthCelebration oldCount={4} newCount={5} onDone={() => navigate("/")} />}
       <ReminderPrompt />
       {showWelcome && (
         <WelcomeOverlay
