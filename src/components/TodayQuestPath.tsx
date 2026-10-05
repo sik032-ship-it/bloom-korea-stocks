@@ -180,7 +180,7 @@ export function TodayQuestPath({ completed, total, done, userLevel, onStart }: T
                   </div>
 
                   {isActive && (
-                    <div className={`absolute top-7 flex items-center ${index % 2 === 0 ? "right-0 flex-row" : "left-0 flex-row-reverse"}`} aria-hidden>
+                    <div className={`absolute top-[4.5rem] flex items-center ${index % 2 === 0 ? "right-0 flex-row" : "left-0 flex-row-reverse"}`} aria-hidden>
                       <Mascot level={userLevel} size="sm" className="animate-mascot-hop" />
                       <span className="max-w-24 rounded-xl border border-border bg-card px-2 py-1 text-center text-[10px] font-bold leading-tight text-foreground shadow-card">
                         {encouragements[index % encouragements.length]}
