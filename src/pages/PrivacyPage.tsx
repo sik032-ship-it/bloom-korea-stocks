@@ -56,7 +56,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-lg font-bold mb-2">3. 보유 및 이용 기간</h2>
           <p className="text-small text-muted-foreground leading-relaxed mb-2">
-            회원 탈퇴 또는 수집·이용 목적 달성 시 개인정보를 지체 없이 파기합니다. 다만, 아래 관련 법령에 따라 일정 기간 보관해야 하는 정보는 해당 기간 동안 분리 보관 후 파기합니다.
+            회원 탈퇴 또는 수집·이용 목적 달성 시 개인정보를 지체 없이 파기합니다. 탈퇴는 [설정 → 회원 탈퇴]에서 직접 할 수 있으며, 실행 즉시 계정·프로필·보유 종목·문장·퀴즈 기록·알림 설정이 영구 삭제됩니다. 다만, 아래 관련 법령에 따라 일정 기간 보관해야 하는 정보는 해당 기간 동안 분리 보관 후 파기합니다.
           </p>
           <ul className="text-small text-muted-foreground leading-relaxed list-disc pl-5 space-y-1">
             <li><strong className="text-foreground">계약 또는 청약철회 등에 관한 기록:</strong> 5년 (전자상거래법)</li>
