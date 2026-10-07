@@ -22,6 +22,7 @@ import { TodayQuestPath } from "@/components/TodayQuestPath";
 import acornImg from "@/assets/acorn.png";
 import { getHomeGreeting, getStreakBrokenMessage } from "@/utils/mascotDialogue";
 import { getDailyQuizSet, questionKey } from "@/data/quizQuestions";
+import { ensureWeeklyQuestions } from "@/lib/weeklyQuiz";
 import { getDifficultyBoost } from "@/utils/difficultyAdaptation";
 import { todayKey } from "@/utils/dailySeed";
 import type { Database } from "@/integrations/supabase/types";
@@ -134,6 +135,7 @@ export default function HomePage() {
         const goal = profileData.daily_goal ?? 1;
         const questTotal = goal >= 5 ? 7 : goal >= 3 ? 5 : 3;
         const recentKeys = new Set(recentAttempts?.map((attempt) => attempt.question_key) ?? []);
+        await ensureWeeklyQuestions();
         const dailyKeys = new Set(getDailyQuizSet(
           questTotal,
           (profileData.current_level || 1) + getDifficultyBoost(profileData.current_streak || 0),

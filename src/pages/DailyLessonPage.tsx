@@ -18,6 +18,7 @@ import { didTreeGrow } from "@/utils/treeGrowth";
 import { QuizPicker } from "@/components/QuizPicker";
 import { buildWeaknessProfile, fetchCoachAttempts, getCoachQuizSet, type WeaknessProfile } from "@/lib/weaknessCoach";
 import { getDailyQuizSet, getChosenQuizSet, personalizeQuiz, questionKey, type QuizQuestion } from "@/data/quizQuestions";
+import { ensureWeeklyQuestions } from "@/lib/weeklyQuiz";
 import { todayKey } from "@/utils/dailySeed";
 import {
  getCorrectMessage,
@@ -352,6 +353,7 @@ export default function DailyLessonPage() {
  past?.forEach((r) => serverRecent.add(r.question_key));
  } catch { /* 폴백 */ }
  serverRecentRef.current = serverRecent;
+ await ensureWeeklyQuestions();
  const dailyQuiz = getDailyQuizSet(qc, lvl + boost, exp, user.id, serverRecent);
  dailyQuestKeysRef.current = new Set(dailyQuiz.map(questionKey));
  const { data: todayAttempts } = await supabase
