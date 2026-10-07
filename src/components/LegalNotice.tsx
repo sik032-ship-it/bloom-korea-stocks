@@ -11,10 +11,10 @@ export function LegalNotice() {
       <p>
         표시된 기업명·로고·상표는 각 기업의 자산이며 식별 목적으로만 사용됩니다. 투자자 인용은 공개 발언의 요지를 쉽게 풀어쓴 것으로, 해당 인물은 본 서비스와 관련이 없습니다.
       </p>
-      <p>
-        <Link to="/terms" className="underline underline-offset-2">이용약관</Link>
+      <p className="flex items-center gap-1">
+        <Link to="/terms" className="inline-flex min-h-11 items-center underline underline-offset-2">이용약관</Link>
         {" · "}
-        <Link to="/privacy" className="underline underline-offset-2">개인정보 처리방침</Link>
+        <Link to="/privacy" className="inline-flex min-h-11 items-center underline underline-offset-2">개인정보 처리방침</Link>
       </p>
     </footer>
   );

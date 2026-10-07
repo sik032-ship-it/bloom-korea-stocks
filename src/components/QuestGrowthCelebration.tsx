@@ -3,7 +3,7 @@ import Confetti from "react-confetti";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Mascot } from "@/components/Mascot";
-import { getLevelForCount } from "@/utils/levelSystem";
+import { getLevelForCount, getProgressToNextLevel } from "@/utils/levelSystem";
 import { didTreeGrow, getTreeProgress, getTreeStage } from "@/utils/treeGrowth";
 
 interface QuestGrowthCelebrationProps {
@@ -24,8 +24,16 @@ export function QuestGrowthCelebration({ oldCount, newCount, onDone }: QuestGrow
   const newTree = getTreeStage(newCount);
   const treeGrew = didTreeGrow(oldCount, newCount);
   const targetProgress = getTreeProgress(newCount);
+  const lvProg = getProgressToNextLevel(newCount);
+  const [lvWidth, setLvWidth] = useState(() => getProgressToNextLevel(oldCount).percent);
   const width = typeof window !== "undefined" ? window.innerWidth : 390;
   const height = typeof window !== "undefined" ? window.innerHeight : 844;
+
+  useEffect(() => {
+    const t = setTimeout(() => setLvWidth(levelUp ? 0 : lvProg.percent), 500);
+    const t2 = setTimeout(() => setLvWidth(lvProg.percent), 1100);
+    return () => { clearTimeout(t); clearTimeout(t2); };
+  }, [levelUp, lvProg.percent]);
 
   useEffect(() => {
     const t1 = window.setTimeout(() => setPhase("seed"), 1700);
@@ -75,15 +83,18 @@ export function QuestGrowthCelebration({ oldCount, newCount, onDone }: QuestGrow
                 <Sparkles className="animate-twinkle" /><Sparkles className="animate-twinkle [animation-delay:200ms]" /><Sparkles className="animate-twinkle [animation-delay:400ms]" />
               </div>
               <Mascot level={newLevel.level} size="xl" className="animate-reward-jump" />
-              {levelUp && (
-                <p className="mt-3 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold text-primary">
-                  Lv.{oldLevel.level} → Lv.{newLevel.level}
-                </p>
-              )}
+              <p className="mt-3 inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-extrabold text-primary" data-testid="growth-level">
+                {levelUp ? `Lv.${oldLevel.level} → Lv.${newLevel.level}` : `Lv.${newLevel.level} ${newLevel.name}`}
+              </p>
               <p className="mt-2 text-xl font-extrabold leading-snug text-foreground break-keep">
                 {levelUp ? `${newLevel.name} 레벨 달성!` : `${newLevel.name} 레벨이 더 단단해졌어요`}
               </p>
-              <p className="mt-1 text-sm text-muted-foreground break-keep">모든 스테이지를 끝내 성장 경험치가 쌓였어요.</p>
+              <div className="mx-auto mt-4 max-w-xs">
+                <div className="h-2.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${lvWidth}%` }} /></div>
+                <p className="mt-2 text-sm text-muted-foreground break-keep">
+                  {lvProg.next === lvProg.current ? "최고 레벨이에요" : `다음 레벨까지 퀘스트 완주 ${lvProg.next - lvProg.current}번`}
+                </p>
+              </div>
             </div>
           ) : (
             <div key="tree" className="min-h-[300px]">
@@ -116,7 +127,7 @@ export function QuestGrowthCelebration({ oldCount, newCount, onDone }: QuestGrow
                 />
               </div>
               <p className="mt-2 text-sm text-muted-foreground break-keep">
-                {newTree.next === null ? "울창한 숲을 완성했어요" : `다음 성장까지 ${newTree.next - newCount}번 남았어요`}
+                {newTree.next === null ? "울창한 숲을 완성했어요" : `다음 성장까지 퀘스트 완주 ${newTree.next - newCount}번`}
               </p>
               <Button
                 type="button"

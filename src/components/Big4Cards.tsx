@@ -92,6 +92,7 @@ const TICKER_TONE: Record<Big4["ticker"], string> = {
 
 export function Big4Cards() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [scrollIdx, setScrollIdx] = useState(0);
   const open = openIdx !== null ? BIG4[openIdx] : null;
 
   return (
@@ -103,9 +104,10 @@ export function Big4Cards() {
             10년 뒤에도 사람들이 쓸 회사. 우리는 이 4개에 머문다.
           </p>
         </div>
-        <span className="text-xs text-muted-foreground tracking-widest uppercase">tap</span>
+        <span className="text-xs font-bold text-muted-foreground" aria-hidden>밀어서 보기 →</span>
       </div>
-      <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory">
+      <div className="relative">
+      <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 pr-10 snap-x snap-mandatory" onScroll={(e) => setScrollIdx(Math.min(BIG4.length - 1, Math.round(e.currentTarget.scrollLeft / 156)))}>
         {BIG4.map((c, i) => (
           <button
             key={c.ticker}
@@ -119,6 +121,11 @@ export function Big4Cards() {
             </p>
           </button>
         ))}
+      </div>
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-background to-transparent" aria-hidden />
+      </div>
+      <div className="mt-1 flex justify-center gap-1.5" aria-hidden>
+        {BIG4.map((c, i) => <span key={c.ticker} className={`h-1.5 rounded-full transition-all ${i === scrollIdx ? "w-4 bg-primary" : "w-1.5 bg-muted-foreground/30"}`} />)}
       </div>
 
       {open && (
