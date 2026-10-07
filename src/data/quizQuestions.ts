@@ -23,6 +23,7 @@ export type {
   CategoryTone,
 } from "@/data/quizTypes";
 export { categoryLabels, toneClasses } from "@/data/quizTypes";
+import { categoryLabels as categoryLabelsRef } from "@/data/quizTypes";
 
 
 // ===== 위험 이해 (Risk) =====
@@ -291,6 +292,16 @@ export const allQuestions: QuizQuestion[] = [
   ...philosophyAdvancedQuestions,
 ];
 
+// ── 주간 AI 생성 문항 (DB weekly_questions) — 앱 시작 시 registerWeeklyQuestions로 주입 ──
+let weeklyPool: QuizQuestion[] = [];
+export function registerWeeklyQuestions(rows: { category: string; statement: string; answer: boolean; explanation: string; insight: string | null }[]) {
+  const staticKeys = new Set(allQuestions.map((q) => q.format === "ox" ? q.statement : ""));
+  weeklyPool = rows
+    .filter((r) => r.category in categoryLabelsRef && r.statement && !staticKeys.has(r.statement))
+    .map((r) => ({ format: "ox", difficulty: "intermediate", category: r.category as QuizCategory, statement: r.statement, answer: r.answer, explanation: r.explanation, insight: r.insight ?? "", source: "weekly" }) as unknown as QuizQuestion);
+}
+export function getWeeklyPool(): QuizQuestion[] { return weeklyPool; }
+
 export type ExperienceLevel = "완전 초보" | "조금 해봤어요" | "1년 이상 투자 중" | "베테랑 투자자";
 
 // 문항 고유 키 (중복 출제 방지 이력용)
@@ -406,7 +417,7 @@ export function getDailyQuizSet(
   // 카테고리 순서도 하루마다 살짝 회전시켜 첫 문항이 고정되지 않게
   const rotated = seededShuffle(categories, seededRandom(dailySeed(userId) ^ 0x9e3779b9));
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; result.length < count && i < count * 4; i++) {
     const targetCategory = rotated[i % rotated.length];
     const isOpen = (q: QuizQuestion) => !chosenKeys.has(questionKey(q));
     const isFresh = (q: QuizQuestion) => isOpen(q) && !recent.has(questionKey(q));
