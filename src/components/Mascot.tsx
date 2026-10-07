@@ -67,11 +67,11 @@ export const Mascot = ({
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); setPet((n) => n + 1); }}
-        className="mascot-pet relative cursor-pointer select-none rounded-full bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        aria-label="다람쥐 쓰다듬기"
+      <span
+        role="img"
+        onClick={() => setPet((n) => n + 1)}
+        className="mascot-pet relative inline-block cursor-pointer select-none"
+        aria-label={level ? `${LEVEL_NAMES[levelIdx]} 다람쥐` : "뿌리 다람쥐"}
       >
       <span className="mascot-shadow" aria-hidden />
       {pet > 0 && (
@@ -90,7 +90,7 @@ export const Mascot = ({
         height={512}
         onAnimationEnd={(e) => { if (e.animationName === "mascot-boing") setPet(0); }}
       />
-      </button>
+      </span>
       {showLevelTag && level && (
         <span className="mt-1 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold">
           {LEVEL_TITLES[levelIdx]}
