@@ -1,3 +1,4 @@
+import { useState } from "react";
 import mascotDefault from "@/assets/mascot-default.png";
 import mascotCelebrate from "@/assets/mascot-celebrate.png";
 import mascotThinking from "@/assets/mascot-thinking.png";
@@ -61,16 +62,35 @@ export const Mascot = ({
 }: MascotProps) => {
   const imgSrc = level ? levelImages[Math.min(6, Math.max(1, level))] : mascotImages[mood];
   const levelIdx = level ? Math.min(6, Math.max(1, level)) - 1 : 0;
+  const [pet, setPet] = useState(0);
+  const delay = `${(imgSrc.length % 7) * -0.4}s`;
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setPet((n) => n + 1); }}
+        className="mascot-pet relative cursor-pointer select-none rounded-full bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        aria-label="다람쥐 쓰다듬기"
+      >
+      <span className="mascot-shadow" aria-hidden />
+      {pet > 0 && (
+        <span key={pet} className="mascot-hearts pointer-events-none absolute -top-2 left-1/2" aria-hidden>
+          <span>💚</span><span>🌰</span><span>✨</span>
+        </span>
+      )}
       <img
+        key={`m${pet}`}
+        style={{ animationDelay: pet ? "0s" : delay }}
+        draggable={false}
         src={imgSrc}
         alt={level ? `${LEVEL_NAMES[levelIdx]} 다람쥐` : "뿌리 다람쥐"}
-        className={`${sizeMap[size]} object-contain`}
+        className={`${sizeMap[size]} object-contain ${pet ? "mascot-boing" : "mascot-alive"}`}
         width={512}
         height={512}
+        onAnimationEnd={(e) => { if (e.animationName === "mascot-boing") setPet(0); }}
       />
+      </button>
       {showLevelTag && level && (
         <span className="mt-1 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold">
           {LEVEL_TITLES[levelIdx]}

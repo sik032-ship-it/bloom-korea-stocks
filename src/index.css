@@ -425,3 +425,40 @@
 @media (prefers-reduced-motion: reduce) {
   .growth-sheet, .growth-shake, .growth-glow { animation: none; }
 }
+
+/* ── 살아있는 다람쥐: 숨쉬기·두리번·꼬리 흔들림 + 쓰다듬기 반응 ── */
+.mascot-alive { transform-origin: 50% 100%; animation: mascot-idle 3.6s ease-in-out infinite; }
+.mascot-boing { transform-origin: 50% 100%; animation: mascot-boing 0.7s cubic-bezier(.3,1.6,.5,1) both; }
+.mascot-shadow { position:absolute; left:20%; right:20%; bottom:2%; height:8%; border-radius:9999px; background:hsl(var(--foreground)/.12); filter:blur(2px); animation: mascot-shadow 3.6s ease-in-out infinite; }
+.mascot-hearts span { position:absolute; font-size:14px; animation: mascot-heart 0.9s ease-out forwards; }
+.mascot-hearts span:nth-child(2){ animation-delay:.08s; --hx:-18px } .mascot-hearts span:nth-child(3){ animation-delay:.16s; --hx:18px }
+@keyframes mascot-idle {
+  0%,100% { transform: translateY(0) rotate(0) scale(1,1); }
+  20% { transform: translateY(-3%) rotate(-3deg) scale(.98,1.03); }
+  40% { transform: translateY(0) rotate(0) scale(1.03,.97); }
+  55% { transform: translateY(-1%) rotate(4deg) scale(1,1.01); }
+  70% { transform: translateY(0) rotate(0) scale(1,1); }
+  85% { transform: translateY(-2%) rotate(-1deg) scale(.99,1.02); }
+}
+@keyframes mascot-shadow { 0%,100%{transform:scaleX(1);opacity:1} 20%,85%{transform:scaleX(.85);opacity:.7} }
+@keyframes mascot-boing {
+  0% { transform: scale(1,1); } 20% { transform: scale(1.15,.82); } 45% { transform: translateY(-22%) scale(.9,1.12) rotate(-6deg); }
+  70% { transform: translateY(0) scale(1.08,.92) rotate(4deg); } 100% { transform: scale(1,1); }
+}
+@keyframes mascot-heart { 0%{transform:translate(-50%,0) scale(.4);opacity:0} 30%{opacity:1} 100%{transform:translate(calc(-50% + var(--hx,0px)),-36px) scale(1.1);opacity:0} }
+
+/* ── 시간 머신 워프 ── */
+.tm-warp { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.tm-warp i { position:absolute; left:50%; top:50%; width:20px; height:20px; border-radius:9999px; border:2px solid hsl(var(--primary)/.6); transform:translate(-50%,-50%) scale(0); animation: tm-ring 1.1s ease-out infinite; }
+.tm-warp i:nth-child(2){animation-delay:.2s} .tm-warp i:nth-child(3){animation-delay:.4s} .tm-warp i:nth-child(4){animation-delay:.6s}
+.tm-warp b { position:absolute; top:50%; height:2px; width:40px; background:linear-gradient(90deg,transparent,hsl(var(--primary)/.7)); animation: tm-streak .5s linear infinite; }
+@keyframes tm-ring { to { transform:translate(-50%,-50%) scale(18); opacity:0; } }
+@keyframes tm-streak { from { transform:translateX(-60px); opacity:0 } 50%{opacity:1} to { transform:translateX(420px); opacity:0 } }
+.tm-shake { animation: tm-shake .12s linear infinite; }
+@keyframes tm-shake { 0%,100%{transform:translate(0,0)} 25%{transform:translate(1px,-1px)} 75%{transform:translate(-1px,1px)} }
+.tm-arrive { animation: tm-arrive .5s cubic-bezier(.3,1.5,.5,1) both; }
+@keyframes tm-arrive { from { transform:scale(.85); opacity:0; filter:blur(4px) } to { transform:none; opacity:1; filter:none } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot-alive,.mascot-boing,.mascot-shadow,.mascot-hearts span,.tm-warp i,.tm-warp b,.tm-shake,.tm-arrive { animation:none !important; }
+}

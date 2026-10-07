@@ -20,7 +20,6 @@ export default function SettingsPage() {
  const [displayName, setDisplayName] = useState("");
  const [saving, setSaving] = useState(false);
  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
- const [exporting, setExporting] = useState(false);
  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
  const [deleteText, setDeleteText] = useState("");
  const [deleting, setDeleting] = useState(false);
@@ -51,34 +50,6 @@ export default function SettingsPage() {
  if (error) toast.error("저장 실패");
  else toast.success("닉네임이 변경되었어요");
  setSaving(false);
- };
-
- const handleExport = async () => {
- if (!user) return;
- setExporting(true);
- const [{ data: profileData }, { data: holdingsData }, { data: sentencesData }] =
- await Promise.all([
- supabase.from("profiles").select("*").eq("id", user.id).single(),
- supabase.from("holdings").select("*").eq("user_id", user.id).is("deleted_at", null),
- supabase.from("sentences").select("*").eq("user_id", user.id).is("deleted_at", null).order("created_at", { ascending: false }),
- ]);
-
- const exportData = {
- exported_at: new Date().toISOString(),
- profile: profileData,
- holdings: holdingsData,
- sentences: sentencesData,
- };
-
- const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
- const url = URL.createObjectURL(blob);
- const a = document.createElement("a");
- a.href = url;
- a.download = `ppuri-export-${new Date().toISOString().split("T")[0]}.json`;
- a.click();
- URL.revokeObjectURL(url);
- toast.success("데이터가 다운로드되었어요");
- setExporting(false);
  };
 
  const handleLogout = async () => {
@@ -161,9 +132,6 @@ export default function SettingsPage() {
  <PpuriCard>
  <p className="text-small font-semibold text-foreground mb-3"> 데이터 & 개인정보</p>
  <div className="space-y-2">
- <PpuriButton variant="secondary" fullWidth onClick={handleExport} disabled={exporting}>
- {exporting ? "내보내는 중..." : " 데이터 내보내기 (JSON)"}
- </PpuriButton>
  <button
  type="button"
  onClick={() => { setDeleteText(""); setShowDeleteConfirm(true); }}
