@@ -67,25 +67,25 @@ export function TodayProgress({ userId, totalSentences, currentStreak, todayDone
           <TrendingUp size={14} className="text-primary" />
           <p className="text-small font-bold text-foreground">오늘의 성장</p>
         </div>
-        <span className="text-[10px] text-muted-foreground">{streakText}</span>
+        <span className="text-xs text-muted-foreground">{streakText}</span>
       </div>
 
       {/* Delta chips */}
       <div className="flex flex-wrap gap-2">
         {todayCount > 0 && (
-          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold">
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
             <ArrowUp size={10} />
             문장 +{todayCount}
           </div>
         )}
         {skillDelta > 0 && (
-          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#8B5CF6]/10 text-[#8B5CF6] text-[11px] font-semibold">
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#8B5CF6]/10 text-[#8B5CF6] text-xs font-semibold">
             <ArrowUp size={10} />
             스킬 +{skillDelta}
           </div>
         )}
         {currentStreak > 0 && (
-          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tone-caution-bg text-tone-caution-fg text-[11px] font-semibold">
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tone-caution-bg text-tone-caution-fg text-xs font-semibold">
             <Flame size={11} strokeWidth={2.4} fill="currentColor" fillOpacity={0.25} /> {currentStreak}일
           </div>
         )}
@@ -96,9 +96,9 @@ export function TodayProgress({ userId, totalSentences, currentStreak, todayDone
         <div className="bg-accent/50 rounded-xl px-3 py-2.5 flex items-start gap-2">
           <Sparkles size={13} className="text-primary shrink-0 mt-0.5" />
           {loading ? (
-            <p className="text-[11px] text-muted-foreground animate-pulse">인사이트 분석 중...</p>
+            <p className="text-xs text-muted-foreground animate-pulse">인사이트 분석 중...</p>
           ) : (
-            <p className="text-[11px] text-foreground leading-relaxed">{insight}</p>
+            <p className="text-xs text-foreground leading-relaxed">{insight}</p>
           )}
         </div>
       )}

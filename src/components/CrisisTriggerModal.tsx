@@ -62,7 +62,7 @@ function CrisisModalInner({
         {/* 위기 헤더 — 사실만 차분히 */}
         <div className="bg-tone-caution-bg border border-tone-caution-fg/20 rounded-t-2xl px-5 py-3 flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold text-tone-caution-fg tracking-wide">
+            <p className="text-xs font-bold text-tone-caution-fg tracking-wide">
               가격 알림
             </p>
             <p className="text-small text-foreground font-bold mt-0.5">

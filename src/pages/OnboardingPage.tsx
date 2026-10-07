@@ -611,7 +611,7 @@ export default function OnboardingPage() {
  </div>
  </div>
  {s.anchor && (
- <span className="text-[10px] font-bold text-primary shrink-0">앵커</span>
+ <span className="text-xs font-bold text-primary shrink-0">앵커</span>
  )}
  </button>
  ))}

@@ -94,27 +94,27 @@ export function GrowthComparison({ records }: GrowthComparisonProps) {
         <div className="flex items-center gap-3">
           {/* Before */}
           <div className="flex-1 bg-muted rounded-xl p-3 text-center">
-            <p className="text-[10px] text-muted-foreground mb-1">{timeLabel}</p>
+            <p className="text-xs text-muted-foreground mb-1">{timeLabel}</p>
             <p className="text-lg font-black text-muted-foreground">{comparison.earlyScore}점</p>
             <div className="mt-1.5 bg-background rounded-lg px-2 py-1">
-              <p className="text-[10px] font-semibold text-muted-foreground">{comparison.earlyBehavior}</p>
+              <p className="text-xs font-semibold text-muted-foreground">{comparison.earlyBehavior}</p>
             </div>
           </div>
 
           {/* Arrow */}
           <div className="flex flex-col items-center gap-1">
             <ArrowRight size={16} className={comparison.totalChange >= 0 ? "text-primary" : "text-destructive"} />
-            <span className={`text-[10px] font-bold ${comparison.totalChange >= 0 ? "text-primary" : "text-destructive"}`}>
+            <span className={`text-xs font-bold ${comparison.totalChange >= 0 ? "text-primary" : "text-destructive"}`}>
               {comparison.totalChange >= 0 ? "+" : ""}{comparison.totalChange}
             </span>
           </div>
 
           {/* After */}
           <div className="flex-1 bg-primary/5 border border-primary/20 rounded-xl p-3 text-center">
-            <p className="text-[10px] text-primary mb-1">현재</p>
+            <p className="text-xs text-primary mb-1">현재</p>
             <p className="text-lg font-black text-primary">{comparison.lateScore}점</p>
             <div className="mt-1.5 bg-primary/10 rounded-lg px-2 py-1">
-              <p className="text-[10px] font-semibold text-primary">{comparison.lateBehavior}</p>
+              <p className="text-xs font-semibold text-primary">{comparison.lateBehavior}</p>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@ export function GrowthComparison({ records }: GrowthComparisonProps) {
         {comparison.totalChange > 0 && (
           <div className="mt-4 bg-primary/5 rounded-xl p-3 flex items-start gap-2">
             <Sparkles size={12} className="text-primary mt-0.5 shrink-0" />
-            <p className="text-[11px] text-foreground leading-relaxed">
+            <p className="text-xs text-foreground leading-relaxed">
               {comparison.totalChange >= 20
                 ? `대단해요! 위기 상황에서 '${comparison.earlyBehavior}'에서 '${comparison.lateBehavior}'으로 성장했어요. 진짜 투자 체질이 바뀌고 있어요!`
                 : `조금씩 성장하고 있어요. 꾸준히 연습하면 위기에서 흔들리지 않는 투자자가 될 수 있어요!`
@@ -140,14 +140,14 @@ export function GrowthComparison({ records }: GrowthComparisonProps) {
             {comparison.repeatedScenarios.slice(0, 3).map(s => (
               <div key={s.id} className="flex items-center gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-medium text-foreground truncate">{s.title}</p>
+                  <p className="text-xs font-medium text-foreground truncate">{s.title}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] text-muted-foreground">{s.first.score_percentage}점</span>
+                    <span className="text-xs text-muted-foreground">{s.first.score_percentage}점</span>
                     <ArrowRight size={10} className="text-muted-foreground" />
-                    <span className="text-[10px] font-bold text-foreground">{s.latest.score_percentage}점</span>
+                    <span className="text-xs font-bold text-foreground">{s.latest.score_percentage}점</span>
                   </div>
                 </div>
-                <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                <div className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                   s.change > 0 ? "bg-primary/10 text-primary" : s.change === 0 ? "bg-muted text-muted-foreground" : "bg-destructive/10 text-destructive"
                 }`}>
                   {s.change > 0 ? "+" : ""}{s.change}점

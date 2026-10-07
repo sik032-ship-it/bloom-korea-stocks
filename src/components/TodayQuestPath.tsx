@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, ChevronUp, Leaf, LockKeyhole, Play, RotateCcw, Sparkles, Star, TreePine, Trophy } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
+import { getLevelForCount, getProgressToNextLevel } from "@/utils/levelSystem";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -16,6 +17,7 @@ interface TodayQuestPathProps {
   total: number;
   done: boolean;
   userLevel: number;
+  totalCount?: number;
   onStart: (stage: number, mode: "challenge" | "review" | "free") => void;
 }
 
@@ -31,7 +33,7 @@ const questNames = [
 
 const encouragements = ["여기서 기다렸어요!", "한 문제면 더 단단해져요!", "같이 천천히 가요!", "오늘도 좋은 기업처럼 꾸준히!"];
 
-export function TodayQuestPath({ completed, total, done, userLevel, onStart }: TodayQuestPathProps) {
+export function TodayQuestPath({ completed, total, done, userLevel, totalCount = 0, onStart }: TodayQuestPathProps) {
   const safeTotal = Math.max(1, total);
   const solved = done ? safeTotal : Math.min(completed, safeTotal);
   const activeIndex = done ? safeTotal - 1 : Math.min(solved, safeTotal - 1);
@@ -94,25 +96,29 @@ export function TodayQuestPath({ completed, total, done, userLevel, onStart }: T
       <div className="bg-primary px-5 py-4 text-primary-foreground">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-xs font-extrabold opacity-90">오늘의 숲길 · {solved}/{safeTotal}</p>
-            <h2 id="quest-title" className="mt-1 text-[22px] font-extrabold leading-tight">좋은 기업과 오래 동행하기</h2>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="rounded-full bg-primary-foreground px-2 py-0.5 text-xs font-extrabold text-primary" data-testid="quest-level">Lv.{getLevelForCount(totalCount).level} {getLevelForCount(totalCount).name}</span>
+              <p className="text-xs font-extrabold opacity-90">오늘의 숲길 · {solved}/{safeTotal}</p>
+            </div>
+            <h2 id="quest-title" className="mt-1 text-xl font-extrabold leading-tight break-keep">좋은 기업과 오래 동행하기</h2>
           </div>
           <div className="shrink-0 rounded-xl bg-primary-foreground/15 px-3 py-2 text-center">
             <p className="text-[18px] font-extrabold tabular-nums leading-none">{progress}%</p>
-            <p className="mt-1 text-[10px] font-bold opacity-90">오늘 훈련</p>
+            <p className="mt-1 text-xs font-bold opacity-90">오늘 훈련</p>
           </div>
         </div>
+        {!done && (() => { const p = getProgressToNextLevel(totalCount); return p.next !== p.current ? <p className="mt-2 text-xs font-bold opacity-90">이 맵을 완주하면 다음 레벨까지 {Math.max(0, p.next - p.current - 1)}번 남아요</p> : null; })()}
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-primary-foreground/25">
           <div className="h-full rounded-full bg-primary-foreground transition-all duration-700" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
-      <div className="relative border-b border-border bg-accent/30 px-4 py-2">
-        <p className="text-center text-[11px] font-bold text-accent-foreground">길을 위아래로 밀어 탐험하고, 원하는 퀘스트를 눌러보세요</p>
-        <Button type="button" variant="ghost" size="icon" onClick={() => moveMap(-1)} className="absolute left-2 top-1/2 h-8 w-8 -translate-y-1/2" aria-label="위쪽 퀘스트 보기">
+      <div className="relative border-b border-border bg-accent/30 px-12 py-3">
+        <p className="text-center text-xs font-bold text-accent-foreground">길을 위아래로 밀어 탐험하고, 원하는 퀘스트를 눌러보세요</p>
+        <Button type="button" variant="ghost" size="icon" onClick={() => moveMap(-1)} className="absolute left-1 top-1/2 h-11 w-11 -translate-y-1/2" aria-label="위쪽 퀘스트 보기">
           <ChevronUp />
         </Button>
-        <Button type="button" variant="ghost" size="icon" onClick={() => moveMap(1)} className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2" aria-label="아래쪽 퀘스트 보기">
+        <Button type="button" variant="ghost" size="icon" onClick={() => moveMap(1)} className="absolute right-1 top-1/2 h-11 w-11 -translate-y-1/2" aria-label="아래쪽 퀘스트 보기">
           <ChevronDown />
         </Button>
       </div>
@@ -176,13 +182,13 @@ export function TodayQuestPath({ completed, total, done, userLevel, onStart }: T
 
                   <div className={`pointer-events-none absolute top-4 w-28 ${index % 2 === 0 ? "left-[calc(50%+46px)] text-left" : "right-[calc(50%+46px)] text-right"}`}>
                     <p className={`text-xs font-extrabold ${isLocked ? "text-muted-foreground" : "text-foreground"}`}>퀘스트 {index + 1}</p>
-                    <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{questNames[index] ?? "투자 원칙"}</p>
+                    <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{questNames[index] ?? "투자 원칙"}</p>
                   </div>
 
                   {isActive && (
                     <div className={`absolute top-[4.5rem] flex items-center ${index % 2 === 0 ? "right-0 flex-row" : "left-0 flex-row-reverse"}`} aria-hidden>
                       <Mascot level={userLevel} size="sm" className="animate-mascot-hop" />
-                      <span className="max-w-24 rounded-xl border border-border bg-card px-2 py-1 text-center text-[10px] font-bold leading-tight text-foreground shadow-card">
+                      <span className="max-w-24 rounded-xl border border-border bg-card px-2 py-1 text-center text-xs font-bold leading-tight text-foreground shadow-card">
                         {encouragements[index % encouragements.length]}
                       </span>
                     </div>
@@ -197,7 +203,7 @@ export function TodayQuestPath({ completed, total, done, userLevel, onStart }: T
               </button>
               <div className="pointer-events-none absolute left-[calc(50%+62px)] top-4 w-28 text-left">
                 <p className={`text-xs font-extrabold ${done ? "text-tone-caution-fg" : "text-muted-foreground"}`}>{done ? "보상 획득!" : "도토리 상자"}</p>
-                <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">모든 퀘스트를 마치면 열려요</p>
+                <p className="mt-0.5 text-xs leading-snug text-muted-foreground">모든 퀘스트를 마치면 열려요</p>
               </div>
             </div>
           </div>

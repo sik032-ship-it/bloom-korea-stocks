@@ -169,7 +169,7 @@ export default function ArchivePage() {
  <PpuriCard className="border-dashed bg-accent/20">
  <div className="flex items-center justify-between mb-2">
  <p className="text-xs text-muted-foreground"> 예시 · AAPL 애플</p>
- <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+ <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
  하락 대응
  </span>
  </div>
@@ -181,7 +181,7 @@ export default function ArchivePage() {
  <PpuriCard className="border-dashed bg-accent/20">
  <div className="flex items-center justify-between mb-2">
  <p className="text-xs text-muted-foreground"> 예시 · NVDA 엔비디아</p>
- <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+ <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
  FOMO 점검
  </span>
  </div>
@@ -190,7 +190,7 @@ export default function ArchivePage() {
  </p>
  </PpuriCard>
  </div>
- <p className="text-[11px] text-muted-foreground text-center mt-4">
+ <p className="text-xs text-muted-foreground text-center mt-4">
  정답은 없어요. <strong className="text-foreground">자기 생각을 솔직히 적는 것</strong>이 핵심입니다.
  </p>
  </div>

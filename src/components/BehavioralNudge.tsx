@@ -122,7 +122,7 @@ export function BehavioralNudge({ userId, holdings, triggerAfterLesson }: Behavi
  {/* Detected biases */}
  {analysis.biases.length > 0 && (
  <div className="space-y-2 mt-3">
- <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+ <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
  감지된 패턴
  </p>
  {analysis.biases.map((bias, i) => {
@@ -137,12 +137,12 @@ export function BehavioralNudge({ userId, holdings, triggerAfterLesson }: Behavi
  <div className="flex items-center gap-2">
  <CuteIcon emoji={label.emoji} size="sm" className="w-6 h-6 rounded-md bg-transparent" />
  <span className="text-xs font-bold">{label.name}</span>
- <span className={`ml-auto text-[10px] transition-transform ${isExpanded ? "rotate-90" : ""}`}>▶</span>
+ <span className={`ml-auto text-xs transition-transform ${isExpanded ? "rotate-90" : ""}`}>▶</span>
  </div>
  {isExpanded && (
  <div className="mt-2 space-y-1 animate-fade-in">
- <p className="text-[11px] opacity-80">{bias.evidence}</p>
- <p className="text-[11px] font-medium mt-1"> {bias.nudge}</p>
+ <p className="text-xs opacity-80">{bias.evidence}</p>
+ <p className="text-xs font-medium mt-1"> {bias.nudge}</p>
  </div>
  )}
  </button>
@@ -154,7 +154,7 @@ export function BehavioralNudge({ userId, holdings, triggerAfterLesson }: Behavi
  {/* Growth area */}
  {analysis.growth_area && (
  <div className="mt-3 pt-3 border-t border-border">
- <p className="text-[10px] text-muted-foreground mb-1"> 성장 포인트</p>
+ <p className="text-xs text-muted-foreground mb-1"> 성장 포인트</p>
  <p className="text-xs text-foreground">{analysis.growth_area}</p>
  </div>
  )}

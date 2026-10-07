@@ -1,3 +1,4 @@
+import { Flame } from "lucide-react";
 import { ReminderPrompt } from "@/components/ReminderPrompt";
 import { QuestGrowthCelebration } from "@/components/QuestGrowthCelebration";
 import { useEffect, useState } from "react";
@@ -208,7 +209,7 @@ export default function HomePage() {
 
   return (
     <Layout currentStreak={streak} longestStreak={profile?.longest_streak || 0}>
-      {devGrowthPreview && <QuestGrowthCelebration oldCount={4} newCount={5} onDone={() => navigate("/")} />}
+      {devGrowthPreview && <QuestGrowthCelebration oldCount={Math.max(0, (profile?.total_sentences || 1) - 1)} newCount={profile?.total_sentences || 1} onDone={() => navigate("/")} />}
       <ReminderPrompt />
       {showWelcome && (
         <WelcomeOverlay
@@ -278,11 +279,22 @@ export default function HomePage() {
 
         </section>
 
+        <div className="flex items-center gap-3 rounded-2xl border-2 border-dashed border-ppuri-amber/50 bg-tone-caution-bg px-4 py-3 -rotate-1 shadow-card" data-testid="streak-sticker">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-card shadow-card" aria-hidden><Flame className="h-7 w-7 fill-current text-tone-caution-fg" /></span>
+          <div className="min-w-0">
+            <p className="text-lg font-extrabold leading-tight text-tone-caution-fg">{streak}일 연속 출석</p>
+            <p className="text-xs font-bold text-tone-caution-fg/80 break-keep">
+              {todayDone ? `최장 ${profile?.longest_streak || 0}일 · 보호권 ${(profile as Profile & { streak_freezes?: number | null })?.streak_freezes ?? 0}개` : "오늘 퀘스트를 끝내야 연속 기록이 이어져요"}
+            </p>
+          </div>
+        </div>
+
         <TodayQuestPath
           completed={todayQuizAttempts}
           total={dailyQuizTotal}
           done={todayDone}
           userLevel={userLevel}
+          totalCount={profile?.total_sentences || 0}
           onStart={(stage, mode) => navigate(`/lesson?quest=${stage}&mode=${mode}`)}
         />
 
@@ -292,7 +304,7 @@ export default function HomePage() {
               <p className="text-xs text-muted-foreground">다음 퀘스트까지</p>
               <p className="mt-0.5 text-lg font-extrabold text-foreground tabular-nums">{timeUntilTomorrow}</p>
             </div>
-            <button onClick={() => navigate("/quiz-history")} className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-bold text-foreground press-effect">오늘의 기록</button>
+            <button onClick={() => navigate("/quiz-history")} className="min-h-11 rounded-xl border border-border bg-card px-3 py-2 text-xs font-bold text-foreground press-effect">오늘의 기록</button>
           </div>
         )}
 

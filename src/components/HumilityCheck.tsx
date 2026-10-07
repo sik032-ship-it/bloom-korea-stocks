@@ -62,7 +62,7 @@ export function HumilityCheckModal({ holdingId, ticker, companyName, onClose }: 
  <div className="bg-card rounded-t-2xl sm:rounded-2xl p-5 w-full max-w-md max-h-[90vh] overflow-y-auto animate-slide-up">
  <div className="flex items-start justify-between mb-3">
  <div>
- <p className="text-[10px] text-tone-wisdom-fg font-bold tracking-wider uppercase mb-1">겸손 체크 · 능력의 원</p>
+ <p className="text-xs text-tone-wisdom-fg font-bold tracking-wider uppercase mb-1">겸손 체크 · 능력의 원</p>
  <h2 className="text-title text-foreground">{ticker} · {companyName}</h2>
  </div>
  <button onClick={onClose} className="text-muted-foreground text-2xl leading-none px-2">×</button>
@@ -88,7 +88,7 @@ export function HumilityCheckModal({ holdingId, ticker, companyName, onClose }: 
  rows={2}
  className="w-full p-3 rounded-xl bg-input border border-border text-small focus:outline-none focus:ring-2 focus:ring-ring resize-none"
  />
- <p className="text-[11px] text-muted-foreground mt-1 tabular-nums">
+ <p className="text-xs text-muted-foreground mt-1 tabular-nums">
  {oneSentenceLen}자 {oneSentenceLen >= 15 ? "" : "(15자 이상 권장)"}
  </p>
  </div>

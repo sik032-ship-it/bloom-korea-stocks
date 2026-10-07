@@ -82,7 +82,7 @@ export const WelcomeOverlay = ({ displayName, onStart, onSkip }: WelcomeOverlayP
           첫 도토리 심기
         </span>
       </button>
-      <p className="text-[11px] text-muted-foreground mt-3">3분이면 충분해요</p>
+      <p className="text-xs text-muted-foreground mt-3">3분이면 충분해요</p>
     </div>
   );
 };

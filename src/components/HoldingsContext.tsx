@@ -79,9 +79,9 @@ export function HoldingsContext({ userId, holdings, currentHolding }: HoldingsCo
  <div className="mb-2">
  <div className="flex items-center gap-2 mb-1">
  <span className="text-xs font-bold text-primary">{currentInsight.ticker}</span>
- <span className="text-[10px] text-muted-foreground">{currentInsight.name}</span>
+ <span className="text-xs text-muted-foreground">{currentInsight.name}</span>
  </div>
- <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+ <div className="flex items-center gap-3 text-xs text-muted-foreground">
  <span> {currentInsight.sentenceCount}문장 작성</span>
  {currentInsight.daysSinceLastWrite !== null && (
  <span>
@@ -92,7 +92,7 @@ export function HoldingsContext({ userId, holdings, currentHolding }: HoldingsCo
  )}
  </div>
  {currentInsight.recentSentence && (
- <p className="text-[10px] text-foreground/60 mt-1 italic line-clamp-1">
+ <p className="text-xs text-foreground/60 mt-1 italic line-clamp-1">
  지난 기록: "{currentInsight.recentSentence.slice(0, 40)}..."
  </p>
  )}
@@ -104,12 +104,12 @@ export function HoldingsContext({ userId, holdings, currentHolding }: HoldingsCo
  <div className="flex items-start gap-2">
  <span className="text-sm"></span>
  <div>
- <p className="text-[11px] text-foreground font-medium">
+ <p className="text-xs text-foreground font-medium">
  {neglected[0].name}({neglected[0].ticker})에 대해 써본 적이 {
  neglected[0].sentenceCount === 0 ? "없어요" : `${neglected[0].daysSinceLastWrite}일째 없어요`
  }
  </p>
- <p className="text-[10px] text-muted-foreground mt-0.5">
+ <p className="text-xs text-muted-foreground mt-0.5">
  다양한 종목에 대해 생각해보면 편향을 줄일 수 있어요
  </p>
  </div>
@@ -125,7 +125,7 @@ export function HoldingsContext({ userId, holdings, currentHolding }: HoldingsCo
  return (
  <div
  key={i.ticker}
- className={`px-2 py-1 rounded-lg text-[10px] font-medium transition-all ${
+ className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${
  isCurrent
  ? "bg-primary text-primary-foreground ring-2 ring-primary/30"
  : isNeglected

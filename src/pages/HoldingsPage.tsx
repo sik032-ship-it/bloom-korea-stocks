@@ -140,14 +140,14 @@ export default function HoldingsPage() {
  <div className="mt-3 grid grid-cols-3 gap-1.5">
  <button
  onClick={() => setSimHolding(h)}
- className="flex flex-col items-center justify-center gap-0.5 h-14 rounded-md bg-primary/8 text-primary text-[11px] font-semibold hover:bg-primary/15 transition-all press-effect"
+ className="flex flex-col items-center justify-center gap-0.5 h-14 rounded-md bg-primary/8 text-primary text-xs font-semibold hover:bg-primary/15 transition-all press-effect"
  >
  <TrendingUp className="w-4 h-4" />
  <span>2040년 시점</span>
  </button>
  <button
  onClick={() => setPlanHolding(h)}
- className={`flex flex-col items-center justify-center gap-0.5 h-14 rounded-md text-[11px] font-semibold transition-all press-effect ${
+ className={`flex flex-col items-center justify-center gap-0.5 h-14 rounded-md text-xs font-semibold transition-all press-effect ${
  hasDropPlan(h.id)
  ? "bg-[#F59E0B]/15 text-[#D97706] hover:bg-[#F59E0B]/25"
  : "bg-muted text-muted-foreground hover:bg-accent"
@@ -158,7 +158,7 @@ export default function HoldingsPage() {
  </button>
  <button
  onClick={() => setHumilityHolding(h)}
- className={`flex flex-col items-center justify-center gap-0.5 h-14 rounded-md text-[11px] font-semibold transition-all press-effect ${
+ className={`flex flex-col items-center justify-center gap-0.5 h-14 rounded-md text-xs font-semibold transition-all press-effect ${
  getHumilityCheck(h.id)
  ? "bg-primary/10 text-primary hover:bg-primary/20"
  : "bg-muted text-muted-foreground hover:bg-accent"

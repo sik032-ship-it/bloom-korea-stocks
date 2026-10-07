@@ -267,14 +267,14 @@ function GrowthChart({ records }: { records: CrisisRecord[] }) {
  <Trophy size={12} className="text-primary" />
  </div>
  <p className="text-lg font-black text-foreground">{best}%</p>
- <p className="text-[10px] text-muted-foreground">최고 점수</p>
+ <p className="text-xs text-muted-foreground">최고 점수</p>
  </div>
  <div className="bg-card border border-border rounded-xl p-3 text-center">
  <div className="flex items-center justify-center gap-1 mb-1">
  <Zap size={12} className="text-primary" />
  </div>
  <p className="text-lg font-black text-foreground">{avg}%</p>
- <p className="text-[10px] text-muted-foreground">평균 점수</p>
+ <p className="text-xs text-muted-foreground">평균 점수</p>
  </div>
  <div className="bg-card border border-border rounded-xl p-3 text-center">
  <div className="flex items-center justify-center gap-1 mb-1">
@@ -283,7 +283,7 @@ function GrowthChart({ records }: { records: CrisisRecord[] }) {
  <p className={`text-lg font-black ${trend >= 0 ? "text-primary" : "text-destructive"}`}>
  {trend >= 0 ? "+" : ""}{trend}%
  </p>
- <p className="text-[10px] text-muted-foreground">성장 추세</p>
+ <p className="text-xs text-muted-foreground">성장 추세</p>
  </div>
  </div>
 
@@ -291,7 +291,7 @@ function GrowthChart({ records }: { records: CrisisRecord[] }) {
  <div className="flex items-center gap-2 mb-4">
  <TrendingUp size={14} className="text-primary" />
  <p className="text-xs font-semibold text-foreground">위기 대응 성장 그래프</p>
- <span className="text-[10px] text-muted-foreground ml-auto">{records.length}회 도전</span>
+ <span className="text-xs text-muted-foreground ml-auto">{records.length}회 도전</span>
  </div>
 
  <div className="flex items-end gap-1.5 h-32">
@@ -304,7 +304,7 @@ function GrowthChart({ records }: { records: CrisisRecord[] }) {
 
  return (
  <div key={record.id} className="flex-1 flex flex-col items-center gap-1">
- <span className="text-[9px] font-bold text-muted-foreground">
+ <span className="text-xs font-bold text-muted-foreground">
  {height > 0 ? `${record.score_percentage}` : ""}
  </span>
  <div className="w-full bg-muted rounded-t-md overflow-hidden" style={{ height: "100px" }}>
@@ -355,9 +355,9 @@ function SurvivalLevel({ avg, totalAttempts }: { avg: number; totalAttempts: num
  <CuteIcon emoji={level.icon} size="sm" />
  <div>
  <p className="text-xs font-bold text-foreground">{level.label}</p>
- <p className="text-[10px] text-muted-foreground">{level.next}</p>
+ <p className="text-xs text-muted-foreground">{level.next}</p>
  </div>
- <span className="text-[10px] text-muted-foreground ml-auto">{totalAttempts}회 생존</span>
+ <span className="text-xs text-muted-foreground ml-auto">{totalAttempts}회 생존</span>
  </div>
  {nextLevel && (
  <div className="flex items-center gap-2">
@@ -367,7 +367,7 @@ function SurvivalLevel({ avg, totalAttempts }: { avg: number; totalAttempts: num
  style={{ width: `${progress}%`, backgroundColor: level.color }}
  />
  </div>
- <span className="text-[9px] text-muted-foreground">→ {nextLevel.label}</span>
+ <span className="text-xs text-muted-foreground">→ {nextLevel.label}</span>
  </div>
  )}
  </div>
@@ -566,7 +566,7 @@ export default function CrisisModePage() {
  </div>
  <div className="flex-1 min-w-0">
  <p className="text-xs font-medium text-foreground truncate">{r.scenario_title}</p>
- <p className="text-[10px] text-muted-foreground">
+ <p className="text-xs text-muted-foreground">
  {new Date(r.completed_at).toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}
  </p>
  </div>
@@ -656,7 +656,7 @@ export default function CrisisModePage() {
  <p className="text-xs text-muted-foreground leading-relaxed">
  실제 폭락장이 오기 전에 <strong className="text-foreground">머리로 미리 연습</strong>하는 시뮬레이션이에요. 정답은 없어요. 어떤 선택을 하든 그 결과로 배우게 됩니다.
  </p>
- <p className="text-[11px] text-primary mt-2 font-medium">
+ <p className="text-xs text-primary mt-2 font-medium">
  ⏱ 약 2분 · 3가지 상황 선택지
  </p>
  </div>
@@ -682,7 +682,7 @@ export default function CrisisModePage() {
  <h3 className="text-body font-bold text-foreground">
  {generatingAI ? "시나리오 생성 중..." : " AI 맞춤 시나리오"}
  </h3>
- <p className="text-[11px] text-muted-foreground mt-0.5">
+ <p className="text-xs text-muted-foreground mt-0.5">
  {holdings.length > 0
  ? `${holdings.map(h => h.company_name_kr).slice(0, 3).join(", ")} 기반 위기 상황`
  : "보유 종목을 등록하면 맞춤 시나리오를 만들어요"
@@ -713,10 +713,10 @@ export default function CrisisModePage() {
  <div className="flex-1">
  <div className="flex items-center gap-2">
  <h3 className="text-body font-bold text-foreground">{s.title}</h3>
- <span className="text-[9px] bg-violet-500/10 text-violet-600 px-1.5 py-0.5 rounded-full font-medium">AI</span>
+ <span className="text-xs bg-violet-500/10 text-violet-600 px-1.5 py-0.5 rounded-full font-medium">AI</span>
  </div>
  {attempts > 0 && (
- <p className="text-[10px] text-muted-foreground">{attempts}회 도전</p>
+ <p className="text-xs text-muted-foreground">{attempts}회 도전</p>
  )}
  </div>
  </div>
@@ -750,7 +750,7 @@ export default function CrisisModePage() {
  <div className="flex-1">
  <h3 className="text-body font-bold text-foreground">{s.title}</h3>
  {attempts > 0 && (
- <p className="text-[10px] text-muted-foreground">{attempts}회 도전 · 최고 {bestScore}점</p>
+ <p className="text-xs text-muted-foreground">{attempts}회 도전 · 최고 {bestScore}점</p>
  )}
  </div>
  </div>

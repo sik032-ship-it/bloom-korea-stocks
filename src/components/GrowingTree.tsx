@@ -32,7 +32,7 @@ export default function GrowingTree({ sentences }: { sentences: number }) {
         <div className="h-full bg-primary rounded-full progress-shine transition-all duration-700" style={{ width: `${pct}%` }} />
       </div>
       <p className="text-small text-muted-foreground mt-2 text-center">
-        {stage.next ? <>문장 <b className="text-foreground">{left}개</b> 더 심으면 나무가 자라요</> : "울창한 숲을 이뤘어요. 오래 머무른 덕분이에요"}
+        {stage.next ? <>퀘스트 완주 <b className="text-foreground">{left}번</b> 더 하면 나무가 자라요</> : "울창한 숲을 이뤘어요. 오래 머무른 덕분이에요"}
       </p>
     </section>
   );
