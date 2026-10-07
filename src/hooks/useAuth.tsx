@@ -37,11 +37,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { display_name: displayName } },
+      options: { data: { display_name: displayName }, emailRedirectTo: window.location.origin },
     });
+    if (!error && data.user && (data.user.identities?.length ?? 0) === 0) {
+      // 이미 가입된 이메일: 서버는 성공처럼 응답하지만 메일을 보내지 않음
+      return { error: new Error("User already registered") };
+    }
     return { error: error as Error | null };
   };
 
