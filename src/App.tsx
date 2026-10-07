@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ConsentGate } from "@/components/ConsentGate";
 import React, { Suspense, lazy } from "react";
+import { Seo } from "@/components/Seo";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import mascotDefault from "@/assets/mascot-default.png";
 
