@@ -34,7 +34,7 @@ function normalized(text: string): string {
 
 function weeklyCategories(week: string): string[] {
   const weekIndex = Math.floor(new Date(week + "T00:00:00Z").getTime() / 86400000 / 7);
-  return [0, 1, 2].map((i) => ALL_CATEGORIES[(weekIndex * 3 + i) % ALL_CATEGORIES.length]);
+  return [0, 1, 2, 3, 4, 5, 6].map((i) => ALL_CATEGORIES[(weekIndex * 7 + i) % ALL_CATEGORIES.length]);
 }
 
 const Schema = z.object({
@@ -117,6 +117,10 @@ function mondayKST(): string {
   return now.toISOString().slice(0, 10);
 }
 
+const WEEKLY_TARGET = 7;
+const log = (level: "info" | "error", event: string, data: Record<string, unknown>) =>
+  (level === "error" ? console.error : console.log)(JSON.stringify({ tag: "weekly-questions", level, event, ...data }));
+
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
@@ -159,7 +163,7 @@ Deno.serve(async (req) => {
   }
 
   const { count } = await admin.from("weekly_questions").select("id", { count: "exact", head: true }).eq("week_start", week);
-  if ((count ?? 0) >= 3) return json({ ok: true, skipped: "already generated", week });
+  if ((count ?? 0) >= WEEKLY_TARGET) return json({ ok: true, skipped: "already generated", week });
 
   const { data: recent } = await admin.from("weekly_questions").select("statement").order("created_at", { ascending: false }).limit(40);
   const avoid = (recent ?? []).map((r) => `- ${r.statement}`).join("\n");
@@ -172,7 +176,7 @@ Deno.serve(async (req) => {
       prompt: `당신은 한국 초보 미국주식 투자자를 위한 행동투자 교육 앱 PPURI의 문제 출제자입니다.
 우리 철학: 좋은 기업(MSFT·GOOGL·AMZN·AAPL 같은 10년 뒤에도 쓸 제품을 파는 회사)을 너무 비싸게 사지 않고, 산 뒤 아무것도 하지 않는다. 복잡한 금융상품·유행 신기술 투기 금지. 현금흐름이 진실. 바닥 예측 금지. 시장 타이밍이 아니라 '어디에' 머무를지.
 ${TRAINING_PILLARS}
-이번 주 출제 주제는 아래 3개이며, 각 주제에서 2문제씩 총 6개 후보를 만드세요(검수 후 3개만 채택). 문제의 category 필드에 해당 주제를 그대로 적으세요.
+이번 주 출제 주제는 아래 7개이며, 각 주제에서 2문제씩 총 14개 후보를 만드세요(검수 후 7개만 채택, 하루 1문항씩 7일 분량). 문제의 category 필드에 해당 주제를 그대로 적으세요.
 ${focus.map((c, i) => `${i + 1}. ${c}`).join("\n")}
 처음 앱을 켠 사람이 "아하!" 하고 생각이 뒤집히는 OX 문제를 만드세요. 심화는 어려운 용어가 아니라 흔들리는 실제 상황에서 원칙을 적용하는 깊이입니다.
 - statement: 한 문장, 40자 내외, 흔한 오해를 담아 답이 X인 문제를 최소 2개
@@ -195,20 +199,25 @@ ${avoid || "(없음)"}`,
       .filter((x) => x.r?.pass && !recentKeys.has(normalized(x.q.statement)));
     const picked: typeof passed = [];
     for (const c of focus) { const hit = passed.find((x) => x.q.category === c && !picked.includes(x)); if (hit) picked.push(hit); }
-    for (const x of passed) { if (picked.length >= 3) break; if (!picked.includes(x)) picked.push(x); }
+    for (const x of passed) { if (picked.length >= WEEKLY_TARGET) break; if (!picked.includes(x)) picked.push(x); }
     const rejected = out.questions.length - passed.length;
-    const selected: { q: GeneratedQuestion; note: string }[] = picked.slice(0, 3).map(({ q, r }) => ({ q, note: `통과: ${r?.reason ?? "철학 검수 완료"}` }));
+    out.questions.forEach((q, i) => { const r = reviews.find((x) => x.index === i); if (!r?.pass) log("error", "review_rejected", { week, statement: q.statement, reason: r?.reason ?? "no review" }); });
+    const selected: { q: GeneratedQuestion; note: string }[] = picked.slice(0, WEEKLY_TARGET).map(({ q, r }) => ({ q, note: `통과: ${r?.reason ?? "철학 검수 완료"}` }));
     for (const category of focus) {
-      if (selected.length >= 3) break;
+      if (selected.length >= WEEKLY_TARGET) break;
       if (!selected.some(({ q }) => q.category === category)) selected.push({ q: SAFE_FALLBACKS[category as Category], note: "통과: 검증된 주제별 예비 문항" });
     }
+    const fallbacks = selected.filter((s) => s.note.includes("예비")).length;
+    if (fallbacks) log("error", "fallback_used", { week, fallbacks });
+    if (selected.length < WEEKLY_TARGET) log("error", "short_supply", { week, got: selected.length, target: WEEKLY_TARGET });
     const rows = selected.map(({ q, note }) => ({ ...q, week_start: week, review_note: note }));
     const { error } = await admin.from("weekly_questions").upsert(rows, { onConflict: "week_start,statement", ignoreDuplicates: true });
-    if (error) return json({ error: error.message }, 500);
+    if (error) { log("error", "insert_failed", { week, message: error.message }); return json({ error: error.message }, 500); }
+    log("info", "generated", { week, inserted: rows.length, rejected, fallbacks });
     return json({ ok: true, week, inserted: rows.length, rejected });
   } catch (e) {
     const status = (e as { statusCode?: number }).statusCode ?? 500;
-    console.error("[weekly-questions] AI failed", e);
+    log("error", "ai_failed", { week, status, message: e instanceof Error ? e.message : String(e) });
     return json({ error: e instanceof Error ? e.message : String(e) }, status);
   }
 });
