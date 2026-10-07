@@ -127,4 +127,16 @@ describe("퀴즈 UX 종합 점검", () => {
     }
     registerWeeklyQuestions([]);
   });
+
+  it("[퀘스트맵] 홈과 레슨이 주간 문항 포함 동일 세트를 계산한다(기기 캐시 없이도)", () => {
+    registerWeeklyQuestions([{ category: "cash_flow", statement: "주간 테스트 동등성 문항", answer: false, explanation: "주간 검수 문항 해설입니다.", insight: null }]);
+    vi.setSystemTime(new Date(2026, 9, 7, 13));
+    const recent = new Set<string>();
+    const lesson = getDailyQuizSet(3, 3, "완전 초보", "u-eq", recent).map(questionKey);
+    localStorage.clear();
+    const home = getDailyQuizSet(3, 3, "완전 초보", "u-eq", recent).map(questionKey);
+    expect(home).toEqual(lesson);
+    expect(lesson.some((k) => k.includes("주간 테스트 동등성"))).toBe(true);
+    registerWeeklyQuestions([]);
+  });
 });
