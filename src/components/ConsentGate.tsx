@@ -70,6 +70,13 @@ export function ConsentGate({ children }: { children: React.ReactNode }) {
     };
   }, [user]);
 
+  // 온보딩 완료 신호를 받으면 즉시 상태 해제 (안 그러면 홈 이동 직후 다시 /onboarding으로 튕김)
+  useEffect(() => {
+    const onDone = () => setNeedsOnboarding(false);
+    window.addEventListener("ppuri:onboarded", onDone);
+    return () => window.removeEventListener("ppuri:onboarded", onDone);
+  }, []);
+
   // consent 통과 후 onboarding 필요하면 자동 리다이렉트
   useEffect(() => {
     if (checking || needsConsent) return;

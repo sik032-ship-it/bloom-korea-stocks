@@ -297,7 +297,9 @@ export default function OnboardingPage() {
  },
  });
  try { localStorage.setItem("ppuri:ask-reminder", "1"); } catch { /* noop */ }
- navigate("/");
+ // 온보딩 완료를 ConsentGate에 알려 /onboarding으로 되돌리지 않게 한다
+ window.dispatchEvent(new Event("ppuri:onboarded"));
+ navigate("/", { replace: true });
 
  } catch (err: unknown) {
  const e = err as { code?: string; message?: string };
