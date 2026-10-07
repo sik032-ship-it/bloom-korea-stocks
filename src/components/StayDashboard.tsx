@@ -89,9 +89,9 @@ export function StayDashboard({ holdings }: Props) {
     >
       <div className="flex items-end justify-between mb-1">
         <h2 className="text-body font-extrabold text-foreground">머무름 대시보드</h2>
-        <span className="text-[10px] text-muted-foreground tracking-widest uppercase">Where, not When</span>
+        <span className="text-xs text-muted-foreground tracking-widest uppercase">Where, not When</span>
       </div>
-      <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+      <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
         매수일이 아니라 <strong className="text-foreground">얼마나 머물렀는지</strong>가 중요해요.
         시간은 좋은 기업의 편이에요.
       </p>
@@ -136,7 +136,7 @@ export function StayDashboard({ holdings }: Props) {
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{tier.label}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{tier.label}</p>
             </li>
           );
         })}
@@ -150,7 +150,7 @@ export function StayDashboard({ holdings }: Props) {
         </button>
       )}
 
-      <p className="text-[11px] text-center text-muted-foreground mt-4 italic leading-relaxed">
+      <p className="text-xs text-center text-muted-foreground mt-4 italic leading-relaxed">
         "우리의 이상적인 보유 기간은 <strong className="text-foreground">영원히</strong>다."
         <br />— 워런 버핏
       </p>
@@ -162,7 +162,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-tone-growth-bg border border-tone-growth-fg/15 p-2.5 text-center">
       <p className="text-small font-bold text-tone-growth-fg tabular-nums leading-tight">{value}</p>
-      <p className="text-[10px] text-muted-foreground mt-1">{label}</p>
+      <p className="text-xs text-muted-foreground mt-1">{label}</p>
     </div>
   );
 }

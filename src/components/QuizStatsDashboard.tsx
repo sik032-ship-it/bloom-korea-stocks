@@ -141,12 +141,12 @@ export function QuizStatsDashboard({ attempts }: { attempts: StatsAttempt[] }) {
             return (
               <div key={c} className="flex items-center gap-2.5">
                 <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${meta ? toneClasses[meta.tone].bg : "bg-muted"} ${meta ? toneClasses[meta.tone].fg : "text-muted-foreground"}`}>
-                  {meta ? <CategoryIcon category={c as QuizCategory} size={14} /> : <span className="text-[10px]">?</span>}
+                  {meta ? <CategoryIcon category={c as QuizCategory} size={14} /> : <span className="text-xs">?</span>}
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
                     <span className="text-xs font-bold text-foreground truncate">{meta?.name ?? c}</span>
-                    <span className="text-[11px] text-muted-foreground tabular-nums shrink-0 ml-2">{pct}%</span>
+                    <span className="text-xs text-muted-foreground tabular-nums shrink-0 ml-2">{pct}%</span>
                   </div>
                   <ProgressBar value={pct} size="sm" />
                 </div>

@@ -64,9 +64,9 @@ export function MentorCard({
         <MentorMonogram initials={m.initials} className="shrink-0 w-16 h-16 text-xl" />
         <div className="flex-1 min-w-0 pt-0.5">
           <p className="text-xs font-bold text-tone-growth-fg leading-none">{m.name}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">{m.title}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{m.title}</p>
           {commandment && (
-            <span className="inline-block mt-2 text-[10px] font-bold tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+            <span className="inline-block mt-2 text-xs font-bold tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-full">
               10계명 #{commandment} {commandmentLabel ? `· ${commandmentLabel}` : ""}
             </span>
           )}
@@ -80,7 +80,7 @@ export function MentorCard({
         <span className="text-tone-growth-fg/40 text-2xl leading-none align-bottom ml-1">”</span>
       </blockquote>
 
-      <p className="mt-2 text-[10px] text-muted-foreground">※ {m.name}의 공개 발언 요지를 쉽게 풀어쓴 표현이에요.</p>
+      <p className="mt-2 text-xs text-muted-foreground">※ {m.name}의 공개 발언 요지를 쉽게 풀어쓴 표현이에요.</p>
 
       {footnote && (
         <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{footnote}</p>

@@ -141,10 +141,10 @@ export function InvestmentTimeline({ userId, holdings }: InvestmentTimelineProps
  <span className={`text-xs font-bold ${gi === 0 ? "text-primary" : "text-foreground"}`}>
  {group.label}
  </span>
- <span className="text-[10px] text-muted-foreground">
+ <span className="text-xs text-muted-foreground">
  {group.totalForDay}문장
  </span>
- <span className={`text-[10px] text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`}>
+ <span className={`text-xs text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`}>
  ▶
  </span>
  </button>
@@ -159,12 +159,12 @@ export function InvestmentTimeline({ userId, holdings }: InvestmentTimelineProps
  >
  <div className="flex items-center gap-2 mb-1.5">
  {s.holding && (
- <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+ <span className="text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
  {s.holding.ticker}
  </span>
  )}
  <QuestionBadge type={s.question_type as QuestionType} />
- <span className="text-[10px] text-muted-foreground ml-auto">
+ <span className="text-xs text-muted-foreground ml-auto">
  {new Date(s.created_at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
  </span>
  </div>
@@ -185,13 +185,13 @@ export function InvestmentTimeline({ userId, holdings }: InvestmentTimelineProps
  {group.sentences.slice(0, 3).map(s => (
  <span
  key={s.id}
- className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
+ className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
  >
  {s.holding?.ticker || "종목"} · {s.answer_text.slice(0, 15)}...
  </span>
  ))}
  {group.sentences.length > 3 && (
- <span className="text-[10px] text-muted-foreground">+{group.sentences.length - 3}</span>
+ <span className="text-xs text-muted-foreground">+{group.sentences.length - 3}</span>
  )}
  </div>
  )}

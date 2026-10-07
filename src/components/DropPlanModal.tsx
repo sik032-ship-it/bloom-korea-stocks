@@ -152,7 +152,7 @@ export function DropPlanModal({ holdingId, ticker, companyName, onClose }: Props
  >
  내 계획 저장하기
  </button>
- <p className="text-[11px] text-muted-foreground text-center mt-2">
+ <p className="text-xs text-muted-foreground text-center mt-2">
  위기가 오면 PPURI가 이 계획을 다시 보여드릴게요
  </p>
  </div>
@@ -190,7 +190,7 @@ function PlanField({
  <button
  key={p}
  onClick={() => onChange(p)}
- className="text-[11px] px-2 py-1 rounded-full bg-muted text-muted-foreground hover:bg-accent transition-colors"
+ className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground hover:bg-accent transition-colors"
  >
  {p.length > 22 ? p.slice(0, 22) + "…" : p}
  </button>

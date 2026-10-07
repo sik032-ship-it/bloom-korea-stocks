@@ -239,13 +239,13 @@ export const FutureValueSimulator: React.FC<FutureValueSimulatorProps> = ({ tick
  style={{ height: `${h}%`, minHeight: "2px" }}
  />
  {showLabel && (
- <span className="text-[9px] text-muted-foreground mt-0.5">{d.year}y</span>
+ <span className="text-xs text-muted-foreground mt-0.5">{d.year}y</span>
  )}
  </div>
  );
  })}
  </div>
- <p className="text-[10px] text-muted-foreground text-center mt-1">
+ <p className="text-xs text-muted-foreground text-center mt-1">
  후반 5년이 전체 수익의 절반 이상을 만듭니다 — 이게 복리예요.
  </p>
  </div>
@@ -255,14 +255,14 @@ export const FutureValueSimulator: React.FC<FutureValueSimulatorProps> = ({ tick
  {final && (
  <div className="grid grid-cols-2 gap-2 mb-4">
  <div className="rounded-lg border-2 border-destructive/30 bg-destructive/5 p-3">
- <p className="text-[10px] text-destructive font-bold uppercase"> 단타·레버리지</p>
+ <p className="text-xs text-destructive font-bold uppercase"> 단타·레버리지</p>
  <p className="text-lg font-bold text-destructive mt-1 tabular-nums">{fmt(Math.max(final.shortTerm, 0))}</p>
- <p className="text-[10px] text-muted-foreground mt-1">평균 -7%/년 누적<br/>(수수료+오판+감마손실)</p>
+ <p className="text-xs text-muted-foreground mt-1">평균 -7%/년 누적<br/>(수수료+오판+감마손실)</p>
  </div>
  <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3">
- <p className="text-[10px] text-primary font-bold uppercase"> 장기 보유</p>
+ <p className="text-xs text-primary font-bold uppercase"> 장기 보유</p>
  <p className="text-lg font-bold text-primary mt-1 tabular-nums">{fmt(final.longTerm)}</p>
- <p className="text-[10px] text-muted-foreground mt-1">연 10% 복리<br/>(S&amp;P500 역사 평균)</p>
+ <p className="text-xs text-muted-foreground mt-1">연 10% 복리<br/>(S&amp;P500 역사 평균)</p>
  </div>
  <div className="col-span-2 text-center bg-foreground/5 rounded-md py-2">
  <p className="text-xs text-foreground">
@@ -283,7 +283,7 @@ export const FutureValueSimulator: React.FC<FutureValueSimulatorProps> = ({ tick
  <CuteIcon emoji={s.emoji} size="sm" />
  <div className="flex-1 min-w-0">
  <p className="text-small font-semibold text-foreground leading-tight">{s.title}</p>
- <p className="text-[10px] text-muted-foreground">{s.desc} · <span className="italic">{s.source}</span></p>
+ <p className="text-xs text-muted-foreground">{s.desc} · <span className="italic">{s.source}</span></p>
  </div>
  <p className="text-small font-bold text-destructive shrink-0">{s.value}</p>
  </div>
@@ -303,7 +303,7 @@ export const FutureValueSimulator: React.FC<FutureValueSimulatorProps> = ({ tick
  </p>
  <p className="text-xs text-foreground mt-2 italic">"{legendCase.lesson}"</p>
  {legendCase.source && (
- <p className="text-[10px] text-muted-foreground mt-1.5">출처: {legendCase.source}</p>
+ <p className="text-xs text-muted-foreground mt-1.5">출처: {legendCase.source}</p>
  )}
  </div>
 
@@ -328,7 +328,7 @@ export const FutureValueSimulator: React.FC<FutureValueSimulatorProps> = ({ tick
  </PpuriButton>
  </div>
 
- <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
+ <p className="text-xs text-muted-foreground text-center leading-relaxed">
  본 시뮬레이션은 과거 평균 수익률을 단순 적용한 교육용 참고치이며,
  미래 수익을 보장하거나 투자 자문을 제공하지 않습니다. 모든 투자 결정은 본인 책임입니다.
  </p>

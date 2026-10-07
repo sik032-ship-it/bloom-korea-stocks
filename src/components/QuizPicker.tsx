@@ -70,7 +70,7 @@ export function QuizPicker({ count, onStart, coach }: Props) {
               }`}
             >
               <p className={`text-small font-bold ${on ? "text-primary" : "text-foreground"}`}>{d.label}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{d.desc}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{d.desc}</p>
             </button>
           );
         })}
@@ -114,7 +114,7 @@ export function QuizPicker({ count, onStart, coach }: Props) {
                   </span>
                   <span className="min-w-0">
                     <span className="block text-small font-bold text-foreground truncate">{c.name}</span>
-                    <span className="block text-[11px] text-muted-foreground">{n}문제</span>
+                    <span className="block text-xs text-muted-foreground">{n}문제</span>
                   </span>
                 </button>
               );

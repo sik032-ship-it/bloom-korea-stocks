@@ -222,7 +222,7 @@ function FeedbackBanner({ correct, explanation, streakCount, insight, userAnswer
  </div>
  )}
 
- <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground break-keep" data-testid="quiz-disclaimer">※ {QUIZ_DISCLAIMER}</p>
+ <p className="mt-4 text-xs leading-relaxed text-muted-foreground break-keep" data-testid="quiz-disclaimer">※ {QUIZ_DISCLAIMER}</p>
 
  <button
  onClick={onContinue}
@@ -782,7 +782,7 @@ export default function DailyLessonPage() {
  <div className="px-4 max-w-lg mx-auto w-full">
  <div className="flex items-center justify-center gap-2 mt-1">
  <span
- className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+ className="text-xs font-bold px-2 py-0.5 rounded-full"
  style={{ backgroundColor: difficultyMeta.color + "20", color: difficultyMeta.color }}
  >
  {difficultyMeta.label}

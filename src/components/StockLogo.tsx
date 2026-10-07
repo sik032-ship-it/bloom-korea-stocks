@@ -4,7 +4,7 @@ import { useState } from "react";
 const logoUrl = (ticker: string) =>
   `https://financialmodelingprep.com/image-stock/${encodeURIComponent(ticker.replace(".", "-").toUpperCase())}.png`;
 
-const SIZES = { xs: "w-5 h-5 rounded-md text-[8px]", sm: "w-8 h-8 rounded-lg text-[10px]", md: "w-11 h-11 rounded-xl text-xs", lg: "w-14 h-14 rounded-2xl text-sm" };
+const SIZES = { xs: "w-5 h-5 rounded-md text-[8px]", sm: "w-8 h-8 rounded-lg text-xs", md: "w-11 h-11 rounded-xl text-xs", lg: "w-14 h-14 rounded-2xl text-sm" };
 
 export function StockLogo({ ticker, name, size = "md", className = "" }: { ticker: string; name?: string; size?: keyof typeof SIZES; className?: string }) {
   const [failed, setFailed] = useState(false);

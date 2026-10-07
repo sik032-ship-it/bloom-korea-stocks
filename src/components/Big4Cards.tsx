@@ -99,11 +99,11 @@ export function Big4Cards() {
       <div className="flex items-end justify-between mb-2 px-1">
         <div>
           <h2 className="text-small font-bold text-foreground">우리의 4그루 나무</h2>
-          <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
             10년 뒤에도 사람들이 쓸 회사. 우리는 이 4개에 머문다.
           </p>
         </div>
-        <span className="text-[10px] text-muted-foreground tracking-widest uppercase">tap</span>
+        <span className="text-xs text-muted-foreground tracking-widest uppercase">tap</span>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory">
         {BIG4.map((c, i) => (
@@ -114,7 +114,7 @@ export function Big4Cards() {
           >
             <StockLogo ticker={c.ticker} name={c.nameKr} size="md" className="mb-2" />
             <div className="text-small font-bold text-foreground mb-1">{c.nameKr}</div>
-            <p className="text-[11px] text-muted-foreground leading-snug line-clamp-3 mt-auto">
+            <p className="text-xs text-muted-foreground leading-snug line-clamp-3 mt-auto">
               {c.oneLiner}
             </p>
           </button>
@@ -134,7 +134,7 @@ export function Big4Cards() {
               <div className="flex items-center gap-3">
                 <StockLogo ticker={open.ticker} name={open.nameKr} size="lg" />
                 <div>
-                  <p className="text-[10px] font-bold text-muted-foreground tabular-nums tracking-wider">{open.ticker}</p>
+                  <p className="text-xs font-bold text-muted-foreground tabular-nums tracking-wider">{open.ticker}</p>
                   <h3 className="text-title font-bold text-foreground leading-tight">{open.nameKr}</h3>
                 </div>
               </div>
@@ -177,7 +177,7 @@ export function Big4Cards() {
             <div className="mt-5 rounded-xl bg-primary/5 border border-primary/20 p-3 flex gap-2.5">
               <Quote className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={2.5} />
               <div>
-                <p className="text-[10px] font-bold text-primary tracking-wider uppercase mb-1">오늘의 만트라</p>
+                <p className="text-xs font-bold text-primary tracking-wider uppercase mb-1">오늘의 만트라</p>
                 <p className="text-small font-bold text-foreground leading-snug">{open.mantra}</p>
               </div>
             </div>
@@ -193,7 +193,7 @@ function Section({ label, Icon, children }: { label: string; Icon: LucideIcon; c
     <div className="mb-4">
       <div className="flex items-center gap-1.5 mb-1.5">
         <Icon className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
-        <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
+        <p className="text-xs font-bold text-muted-foreground tracking-wider uppercase">
           {label}
         </p>
       </div>

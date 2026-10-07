@@ -201,15 +201,15 @@ export function ShareCard({
 
           <div className="relative z-10 flex flex-col items-center w-full">
             <div className="bg-white/15 rounded-full px-3 py-1 mb-2">
-              <span className="text-[10px] font-bold tracking-wider">🌰 PPURI</span>
+              <span className="text-xs font-bold tracking-wider">🌰 PPURI</span>
             </div>
-            <p className="text-[11px] text-white/60 mb-1">위기 시뮬레이션</p>
+            <p className="text-xs text-white/60 mb-1">위기 시뮬레이션</p>
             <p className="text-sm font-bold mb-4">{scenarioTitle}</p>
 
             <div className="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center mb-4 border-2 border-white/20">
               <div className="text-center">
                 <p className="text-4xl font-black">{scorePercent}</p>
-                <p className="text-[10px] text-white/60">점</p>
+                <p className="text-xs text-white/60">점</p>
               </div>
             </div>
 
@@ -219,22 +219,22 @@ export function ShareCard({
 
             <div className="flex items-center gap-1 mb-2">
               <span className="text-base">{survivalIcon}</span>
-              <span className="text-[11px] font-semibold text-white/80">{survivalLevel}</span>
+              <span className="text-xs font-semibold text-white/80">{survivalLevel}</span>
             </div>
 
             <div className="bg-white/10 rounded-xl px-4 py-2 flex gap-6 mt-2">
               <div className="text-center">
                 <p className="text-xs font-bold">{totalScore}/{maxScore}</p>
-                <p className="text-[9px] text-white/50">점수</p>
+                <p className="text-xs text-white/50">점수</p>
               </div>
               <div className="text-center">
                 <p className="text-xs font-bold">{attemptCount}회</p>
-                <p className="text-[9px] text-white/50">도전</p>
+                <p className="text-xs text-white/50">도전</p>
               </div>
             </div>
           </div>
 
-          <p className="absolute bottom-3 text-[9px] text-white/30">나도 도전하기 → ppuri.app</p>
+          <p className="absolute bottom-3 text-xs text-white/30">나도 도전하기 → ppuri.app</p>
         </div>
 
         {/* Action buttons */}

@@ -67,7 +67,7 @@ export function WeeklyCalendar({ userId }: WeeklyCalendarProps) {
     <div>
       <div className="flex justify-between mb-2 px-1">
         {DAY_LABELS.map((l) => (
-          <span key={l} className="text-[10px] text-muted-foreground font-medium w-8 text-center">
+          <span key={l} className="text-xs text-muted-foreground font-medium w-8 text-center">
             {l}
           </span>
         ))}
@@ -81,7 +81,7 @@ export function WeeklyCalendar({ userId }: WeeklyCalendarProps) {
               return (
                 <div
                   key={day}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-medium transition-all duration-200 hover:scale-110 cursor-default ${
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-all duration-200 hover:scale-110 cursor-default ${
                     isActive
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : isToday
@@ -98,10 +98,10 @@ export function WeeklyCalendar({ userId }: WeeklyCalendarProps) {
         ))}
       </div>
       <div className="flex items-center justify-end gap-1.5 mt-2">
-        <span className="text-[10px] text-muted-foreground">안 함</span>
+        <span className="text-xs text-muted-foreground">안 함</span>
         <div className="w-3 h-3 rounded bg-muted" />
         <div className="w-3 h-3 rounded bg-primary" />
-        <span className="text-[10px] text-muted-foreground">완료</span>
+        <span className="text-xs text-muted-foreground">완료</span>
       </div>
     </div>
   );

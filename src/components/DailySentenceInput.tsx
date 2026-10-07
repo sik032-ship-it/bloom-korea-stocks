@@ -334,7 +334,7 @@ export const DailySentenceInput = ({
  <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
  <span className="flex items-center gap-2">
  <span>
- 빠른 저장: <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]">{shortcutLabel}</kbd>
+ 빠른 저장: <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-xs">{shortcutLabel}</kbd>
  </span>
  <span className="flex items-center gap-1.5" aria-live="polite">
  {saveStatus === 'saving' && (

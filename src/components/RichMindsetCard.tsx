@@ -135,10 +135,10 @@ export function RichMindsetCard() {
         >
           <Quote className="w-4 h-4" strokeWidth={2} />
         </span>
-        <span className="text-[11px] font-bold tracking-wider uppercase text-muted-foreground">
+        <span className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
           오늘의 마인드셋
         </span>
-        <span className={`text-[11px] font-bold ${t.fg}`}>· {card.topicLabel}</span>
+        <span className={`text-xs font-bold ${t.fg}`}>· {card.topicLabel}</span>
       </div>
 
       <div className="flex items-start gap-3">
@@ -159,8 +159,8 @@ export function RichMindsetCard() {
               </div>
             )}
             <div className="text-center">
-              <p className="text-[11px] font-bold text-foreground leading-tight">{meta.name}</p>
-              <p className="text-[9px] text-muted-foreground leading-tight">{meta.title}</p>
+              <p className="text-xs font-bold text-foreground leading-tight">{meta.name}</p>
+              <p className="text-xs text-muted-foreground leading-tight">{meta.title}</p>
             </div>
           </div>
         )}

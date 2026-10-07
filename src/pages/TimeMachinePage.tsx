@@ -190,18 +190,18 @@ export default function TimeMachinePage() {
  <CuteIcon emoji={b.emoji} size="md" />
  <div>
  <p className="text-small font-bold text-foreground">{b.company}</p>
- <p className="text-[10px] text-muted-foreground">{b.ticker}</p>
+ <p className="text-xs text-muted-foreground">{b.ticker}</p>
  </div>
  </div>
  {owned && (
- <span className="text-[10px] bg-primary text-primary-foreground font-bold rounded-full px-2 py-0.5">
+ <span className="text-xs bg-primary text-primary-foreground font-bold rounded-full px-2 py-0.5">
  내 종목
  </span>
  )}
  </div>
 
  <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-3 mb-2">
- <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold">
+ <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">
  {period}년 후 오늘
  </p>
  <div className="flex items-baseline gap-2 mt-0.5">
@@ -212,7 +212,7 @@ export default function TimeMachinePage() {
  ×{r.multiplier.toFixed(1)}
  </span>
  </div>
- <div className="flex items-center justify-between mt-1.5 text-[11px]">
+ <div className="flex items-center justify-between mt-1.5 text-xs">
  <span className="text-muted-foreground">
  투자 원금 <b className="text-foreground">{fmtKRW(r.principal)}</b>
  </span>
@@ -222,8 +222,8 @@ export default function TimeMachinePage() {
  </div>
  </div>
 
- <p className="text-[11px] text-foreground italic">"{b.story}"</p>
- <p className="text-[10px] text-muted-foreground mt-1">
+ <p className="text-xs text-foreground italic">"{b.story}"</p>
+ <p className="text-xs text-muted-foreground mt-1">
  {period === 10 ? "2016.4" : "2006.4"} ${(period === 10 ? b.price10yAgo : b.price20yAgo).toFixed(2)} → 오늘 ${b.priceToday.toFixed(2)}
  {" · "}출처: {b.source}
  </p>
@@ -241,7 +241,7 @@ export default function TimeMachinePage() {
  </p>
  </div>
 
- <p className="text-[10px] text-muted-foreground text-center leading-relaxed px-2">
+ <p className="text-xs text-muted-foreground text-center leading-relaxed px-2">
  본 데이터는 분할조정 종가 기반 과거 사실이며, 미래 수익을 보장하지 않습니다.
  모든 투자 결정은 본인 책임입니다.
  </p>

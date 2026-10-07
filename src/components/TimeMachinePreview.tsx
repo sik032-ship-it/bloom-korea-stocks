@@ -48,7 +48,7 @@ export function TimeMachinePreview({ holdingsTickers = [] }: Props) {
           <p className="text-small font-bold text-foreground">오늘의 시간 머신</p>
         </div>
         {ownedHint && (
-          <span className="text-[10px] bg-primary/10 text-primary font-bold rounded-full px-2 py-0.5">
+          <span className="text-xs bg-primary/10 text-primary font-bold rounded-full px-2 py-0.5">
             내 종목
           </span>
         )}
@@ -66,7 +66,7 @@ export function TimeMachinePreview({ holdingsTickers = [] }: Props) {
             ×{(pick.priceToday / pick.price10yAgo).toFixed(1)}배
           </p>
         </div>
-        <p className="text-[11px] text-muted-foreground mt-1 italic">"{pick.story}"</p>
+        <p className="text-xs text-muted-foreground mt-1 italic">"{pick.story}"</p>
       </div>
 
       <p className="text-xs text-primary text-right mt-2 font-medium">
