@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { allQuestions, getDailyQuizSet, questionKey, type QuizQuestion } from "@/data/quizQuestions";
+import { allQuestions, getDailyQuizSet, questionKey, registerWeeklyQuestions, type QuizQuestion } from "@/data/quizQuestions";
 
 const TRACKS: Record<string, string[]> = {
   기업이해: ["big4_basics", "brand_moat", "us_market"],
@@ -109,5 +109,22 @@ describe("퀴즈 UX 종합 점검", () => {
     const hits = allQuestions.filter((q) => typo.test(`${body(q)} ${q.explanation} ${q.insight ?? ""}`)).map(body);
     console.log("[오탈자] 플래그:", hits);
     expect(hits).toEqual([]);
+  });
+
+  it("[주간] 주간 문항이 하루 1개씩 레벨 난이도로 섞이고 중복 없음", () => {
+    const cats = ["crisis", "psychology", "cash_flow", "humility", "brand_moat", "strategy"];
+    registerWeeklyQuestions(cats.map((c, i) => ({ category: c, statement: `주간 테스트 문항 ${i}: 좋은 기업은 흔들려도 오래 보유한다`, answer: true, explanation: "주간 검수 문항 해설입니다.", insight: null })));
+    for (const [name, lvl, exp] of profiles) {
+      localStorage.clear();
+      const days: QuizQuestion[][] = [];
+      for (let d = 0; d < 7; d++) { vi.setSystemTime(new Date(2026, 9, 5 + d, 12)); days.push(getDailyQuizSet(5, lvl, exp, "w-" + name)); }
+      const weeklyPerDay = days.map((s) => s.filter((q) => q.format === "ox" && q.statement.startsWith("주간 테스트")));
+      const diffs = weeklyPerDay.flat().map((q) => q.difficulty);
+      console.log(`[주간] ${name}: 일별 주간문항 수 ${weeklyPerDay.map((w) => w.length).join(",")} / 난이도 ${[...new Set(diffs)]}`);
+      weeklyPerDay.slice(0, 6).forEach((w) => expect(w.length).toBe(1));
+      const flat = days.flat().map(questionKey);
+      expect(new Set(flat).size).toBe(flat.length);
+    }
+    registerWeeklyQuestions([]);
   });
 });
