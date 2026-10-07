@@ -84,16 +84,25 @@ export function ConsentGate({ children }: { children: React.ReactNode }) {
     if (!user || !allAgreed || saving) return;
     setSaving(true);
     setError("");
-    const { error: upsertError } = await supabase.from("profiles").upsert(
-      {
-        id: user.id,
-        consented_at: new Date().toISOString(),
-        consent_terms_version: TERMS_VERSION,
-        consent_privacy_version: PRIVACY_VERSION,
-      },
-      { onConflict: "id" },
-    );
+    const consent = {
+      consented_at: new Date().toISOString(),
+      consent_terms_version: TERMS_VERSION,
+      consent_privacy_version: PRIVACY_VERSION,
+    };
+    const { data: updated, error: updateError } = await supabase
+      .from("profiles")
+      .update(consent)
+      .eq("id", user.id)
+      .select("id");
+    let upsertError = updateError;
+    if (!updateError && (!updated || updated.length === 0)) {
+      const { error: insertError } = await supabase
+        .from("profiles")
+        .insert({ id: user.id, ...consent });
+      upsertError = insertError;
+    }
     if (upsertError) {
+      console.error("consent save failed", upsertError.message);
       setError("동의 정보를 저장하지 못했어요. 다시 시도해주세요.");
       setSaving(false);
       return;
