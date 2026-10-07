@@ -378,13 +378,15 @@ export function getDailyQuizSet(
   const day = todayKey();
   const userTag = userId || "anon";
   // 0) 오늘 이미 확정된 세트가 있으면 그대로 (새로고침/재진입 시 동일 문항)
+  const difficulties = getDifficultyForLevel(userLevel, experience);
+  // 주간 AI 검수 문항은 사용자 현재 레벨의 대표 난이도로 편입 (OX 형식이라 모든 레벨에 적합)
+  const weekly = weeklyPool.map((q) => ({ ...q, difficulty: difficulties[0] }) as QuizQuestion);
   const cachedKeys = readDailySet(day, userTag, count);
   if (cachedKeys && cachedKeys.length === count) {
-    const byKey = new Map(allQuestions.map((q) => [questionKey(q), q]));
+    const byKey = new Map([...allQuestions, ...weekly].map((q) => [questionKey(q), q]));
     const cached = cachedKeys.map((k) => byKey.get(k)).filter(Boolean) as QuizQuestion[];
     if (cached.length === count) return cached;
   }
-  const difficulties = getDifficultyForLevel(userLevel, experience);
   const categories = getCategoryRotation(experience);
   const rand = seededRandom(dailySeed(userId));
   const recent = getRecentQuestionKeys();
@@ -392,6 +394,14 @@ export function getDailyQuizSet(
 
   const result: QuizQuestion[] = [];
   const chosenKeys = new Set<string>();
+
+  // 하루 1문항: 최근 14일 미출제 주간 문항이 있으면 오늘 세트에 자연스럽게 섞는다
+  const freshWeekly = weekly.filter((q) => !recent.has(questionKey(q)));
+  if (count >= 3 && freshWeekly.length > 0) {
+    const w = seededShuffle(freshWeekly, rand)[0];
+    result.push(w);
+    chosenKeys.add(questionKey(w));
+  }
 
   // 카테고리 순서도 하루마다 살짝 회전시켜 첫 문항이 고정되지 않게
   const rotated = seededShuffle(categories, seededRandom(dailySeed(userId) ^ 0x9e3779b9));
