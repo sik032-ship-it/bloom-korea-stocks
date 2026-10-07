@@ -35,6 +35,21 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
+function withSeo(
+  element: React.ReactNode,
+  title: string,
+  description: string,
+  path: string,
+  noindex = false,
+) {
+  return (
+    <>
+      <Seo title={title} description={description} path={path} noindex={noindex} />
+      {element}
+    </>
+  );
+}
+
 function LoadingFallback() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
