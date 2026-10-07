@@ -39,7 +39,7 @@ function withSeo(
   element: React.ReactNode,
   title: string,
   description: string,
-  path: string,
+  path?: string,
   noindex = false,
 ) {
   return (
