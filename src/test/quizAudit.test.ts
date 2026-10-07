@@ -118,7 +118,7 @@ describe("퀴즈 UX 종합 점검", () => {
       localStorage.clear();
       const days: QuizQuestion[][] = [];
       for (let d = 0; d < 7; d++) { vi.setSystemTime(new Date(2026, 9, 5 + d, 12)); days.push(getDailyQuizSet(5, lvl, exp, "w-" + name)); }
-      const weeklyPerDay = days.map((s) => s.filter((q) => q.statement?.startsWith?.("주간 테스트") ?? false));
+      const weeklyPerDay = days.map((s) => s.filter((q) => q.format === "ox" && q.statement.startsWith("주간 테스트")));
       const diffs = weeklyPerDay.flat().map((q) => q.difficulty);
       console.log(`[주간] ${name}: 일별 주간문항 수 ${weeklyPerDay.map((w) => w.length).join(",")} / 난이도 ${[...new Set(diffs)]}`);
       weeklyPerDay.slice(0, 6).forEach((w) => expect(w.length).toBe(1));
